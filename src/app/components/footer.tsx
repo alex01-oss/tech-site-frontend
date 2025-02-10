@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { FaFacebook, FaInstagram, FaLinkedin, FaYoutube, FaXTwitter } from 'react-icons/fa6'
+import Image from 'next/image'
 
 const Footer = () => {
     const [year, setYear] = useState(new Date().getFullYear())
@@ -18,7 +19,7 @@ const Footer = () => {
             <div className="mx-auto max-w-screen-xl text-center">
                 {/* logo */}
                 <a href="#" className="flex justify-center items-center text-2xl font-semibold text-white">
-                    <img className="h-20" src="/logo_white.svg" alt="logo" />
+                    <Image className="h-20" src="/logo_white.svg" alt="logo" />
                 </a>
 
                 {/* slogan */}
@@ -58,7 +59,7 @@ const Footer = () => {
                 {/* copyright */}
                 <span className="text-sm text-white/80 dark:text-white/70 sm:text-center">
                     <a href="https://pdt.tools/" className="hover:text-white dark:hover:text-white transition-colors duration-200">
-                        PJSC "POLTAVA DIAMOND TOOLS"
+                        PJSC &quot;POLTAVA DIAMOND TOOLS&quot;
                     </a>. © Copyright {year}.
                 </span>
             </div>

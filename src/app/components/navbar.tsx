@@ -1,5 +1,6 @@
 "use client"
 
+import Image from 'next/image';
 import React, { useState } from 'react'
 
 const Navbar = () => {
@@ -18,7 +19,7 @@ const Navbar = () => {
 
                     {/* logo */}
                     <a href="https://pdt.tools/" className="flex items-center space-x-3 rtl:space-x-reverse">
-                        <img className="h-12" src="/logo_white.svg" alt="logo" />
+                        <Image className="h-12" src="/logo_white.svg" alt="logo" />
                     </a>
 
                     {/* burger menu button */}
