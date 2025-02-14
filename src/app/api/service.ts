@@ -11,10 +11,14 @@ export const fetchMenuData = async () => {
   }
 };
 
-export const fetchProductsData = async (page: number = 1, query: string = "") => {
+export const fetchProductsData = async (
+  page: number = 1,
+  query: string = "",
+  searchType: string = "name"
+) => {
   try {
     const response = await fetch(
-      `http://127.0.0.1:8080/api/catalog?search=${query}&page=${page}`
+      `http://127.0.0.1:8080/api/catalog?search=${encodeURIComponent(query)}&search_type=${searchType}&page=${page}`
     );
     if (!response.ok) {
       throw new Error("Failed to fetch products data");

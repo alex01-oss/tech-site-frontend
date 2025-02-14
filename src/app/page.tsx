@@ -46,9 +46,16 @@ export default function Home() {
   const [currentPage, setCurrentPage] = useState(1);
   const [placeholder, setPlaceholder] = useState("Search...");
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchType, setSearchType] = useState<string>("");
 
-  const handleMenuClick = (newPlaceholder: string) => {
+  const handleMenuClick = (
+    newPlaceholder: string,
+    category: string,
+    newSearchType: string
+  ) => {
     setPlaceholder(newPlaceholder);
+    setSearchType(newSearchType);
+    setSearchQuery("");
   };
 
   const onPageChange = (page: number) => {
@@ -56,7 +63,7 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetchProductsData(currentPage, searchQuery)
+    fetchProductsData(currentPage, searchQuery, searchType)
       .then((data) => {
         setProducts(data);
       })
@@ -74,17 +81,31 @@ export default function Home() {
     .filter((column) => column.show)
     .sort((a, b) => a.order - b.order);
 
-  const handleSearch = (query: string) => {
+  const handleSearch = (
+    query: string,
+    category: string,
+    searchType: string
+  ) => {
     setSearchQuery(query);
     setCurrentPage(1);
+    setSearchType(searchType);
   };
 
   return (
     <Box className={styles.container}>
-      <Sidebar onMenuClick={handleMenuClick} />
+      <Sidebar
+        onMenuClick={(newPlaceholder, category, newSearchType) => {
+          handleMenuClick(newPlaceholder, category, newSearchType);
+        }}
+      />
       <Box className={styles.sidebarContainer}>
         <Box className={styles.header}>
-          <Search placeholder={placeholder} onSearch={handleSearch} />
+          <Search
+            placeholder={placeholder}
+            onSearch={handleSearch}
+            category={searchType}
+            searchType={searchType}
+          />
         </Box>
 
         <Box className={styles.content}>

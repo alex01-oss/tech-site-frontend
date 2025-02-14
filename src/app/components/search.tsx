@@ -4,13 +4,17 @@ import SearchIcon from "@mui/icons-material/Search";
 import styles from "../styles/search.module.css";
 
 interface SearchProps {
-  onSearch?: (query: string) => void;
+  onSearch?: (query: string, category: string, searchType: string) => void;
+  category: string;
+  searchType: string;
   placeholder?: string;
 }
 
 export default function SearchBar({
   onSearch = () => {},
   placeholder = "Search...",
+  category,
+  searchType,
 }: SearchProps) {
   const [searchItem, setSearchItem] = useState("");
   const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
@@ -23,7 +27,7 @@ export default function SearchBar({
 
     setTimer(
       setTimeout(() => {
-        onSearch(query);
+        onSearch(query, category, searchType);
       }, 500)
     );
   };

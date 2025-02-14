@@ -32,6 +32,7 @@ const MenuHeader = styled(ListItemButton)({
 
 interface MenuItem {
   text: string;
+  searchType: string;
 }
 
 interface MenuCategory {
@@ -40,11 +41,17 @@ interface MenuCategory {
 }
 
 interface MenuData {
-  searchTypes: Record<string, MenuCategory>;
+  searchTypes: {
+    [key: string]: MenuCategory;
+  };
 }
 
 interface SidebarProps {
-  onMenuClick: (newPlaceholder: string, category: string) => void;
+  onMenuClick: (
+    newPlaceholder: string,
+    category: string,
+    searchType: string
+  ) => void;
 }
 
 export default function Sidebar({ onMenuClick }: SidebarProps) {
@@ -61,7 +68,11 @@ export default function Sidebar({ onMenuClick }: SidebarProps) {
         const firstCategory = Object.keys(data.searchTypes)[0];
         const firstItem = data.searchTypes[firstCategory].items[0];
         setActiveItem({ category: firstCategory, index: 0 });
-        onMenuClick(`${firstItem.text}...`, firstCategory);
+        onMenuClick(
+          `${firstItem.text}...`,
+          firstCategory,
+          firstItem.searchType
+        );
       })
       .catch(console.error);
   }, []);
@@ -84,7 +95,7 @@ export default function Sidebar({ onMenuClick }: SidebarProps) {
                   <ListItemButton
                     onClick={() => {
                       setActiveItem({ category, index });
-                      onMenuClick(`${item.text}...`, category);
+                      onMenuClick(`${item.text}...`, category, item.searchType);
                     }}
                     className={`${styles.listItemButton} ${
                       activeItem?.category === category &&
