@@ -1,70 +1,98 @@
-"use client"
+"use client";
 
-import React, { useEffect, useState } from 'react'
-import { FaFacebook, FaInstagram, FaLinkedin, FaYoutube, FaXTwitter } from 'react-icons/fa6'
-import Image from 'next/image'
+import React, { useEffect, useState } from "react";
+import Image from "next/image";
+import { Box, Container, Typography, IconButton, Link } from "@mui/material";
+import { Facebook, Instagram, YouTube, LinkedIn, X } from "@mui/icons-material";
+import styles from "../styles/footer.module.css";
 
-const Footer = () => {
-    const [year, setYear] = useState(new Date().getFullYear())
+const socialLinks = [
+  {
+    icon: Facebook,
+    url: "https://www.facebook.com/superabrasives.tools",
+    hoverColor: "#4267B2",
+  },
+  {
+    icon: Instagram,
+    url: "https://www.instagram.com/pdtools/",
+    hoverColor: "#E1306C",
+  },
+  {
+    icon: YouTube,
+    url: "https://www.youtube.com/channel/UC3tUVI8r3Bfr8hb9-KzfCvw",
+    hoverColor: "#FF0000",
+  },
+  {
+    icon: LinkedIn,
+    url: "https://www.linkedin.com/company/pdtoolssuperabrasives",
+    hoverColor: "#0077B5",
+  },
+  { icon: X, url: "https://x.com/PDT73640376", hoverColor: "#657786" },
+];
 
-    useEffect(() => {
-        setYear(new Date().getFullYear())
-    }, [])
+export default function Footer() {
+  const [year, setYear] = useState(new Date().getFullYear());
 
-    return (
-        <footer
-            className="p-4 bg-[#ab2140] dark:bg-[#7a172d] md:p-8 lg:p-10"
-            style={{ backgroundImage: "url('/bg.png')", backgroundSize: "cover", backgroundPosition: "center" }}
-        >
-            <div className="mx-auto max-w-screen-xl text-center">
-                {/* logo */}
-                <a href="#" className="flex justify-center items-center text-2xl font-semibold text-white">
-                    <Image className="h-20" src="/logo_white.svg" alt="logo" />
-                </a>
+  useEffect(() => {
+    setYear(new Date().getFullYear());
+  }, []);
 
-                {/* slogan */}
-                <p className="my-6 text-white/80 dark:text-white/70">
-                    Traditions of Quality since 1966
-                </p>
+  return (
+    <Box className={styles.footer}>
+      <Container maxWidth="xl" sx={{ textAlign: "center" }}>
+        {/* Logo */}
+        <Link href="#" className={styles.logo}>
+          <Image
+            src="/logo_white.svg"
+            alt="logo"
+            width={340}
+            height={135}
+            style={{ height: "80px", width: "auto" }}
+          />
+        </Link>
 
-                {/* social networks */}
-                <ul className="flex flex-wrap justify-center items-center mb-6 text-white/90 dark:text-white/80">
-                    <li>
-                        <a href="https://facebook.com" target="_blank" className="transition-colors duration-200">
-                            <FaFacebook className="mx-3 w-8 h-8 hover:text-blue-400 dark:hover:text-blue-300" />
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://instagram.com" target="_blank" className="transition-colors duration-200">
-                            <FaInstagram className="mx-3 w-8 h-8 hover:text-pink-400 dark:hover:text-pink-300" />
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://youtube.com" target="_blank" className="transition-colors duration-200">
-                            <FaYoutube className="mx-3 w-8 h-8 hover:text-red-400 dark:hover:text-red-300" />
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://linkedin.com" target="_blank" className="transition-colors duration-200">
-                            <FaLinkedin className="mx-3 w-8 h-8 hover:text-blue-400 dark:hover:text-blue-300" />
-                        </a>
-                    </li>
-                    <li>
-                        <a href="https://x.com" target="_blank" className="transition-colors duration-200">
-                            <FaXTwitter className="mx-3 w-8 h-8 hover:text-gray-300 dark:hover:text-gray-400" />
-                        </a>
-                    </li>
-                </ul>
+        {/* Slogan */}
+        <Typography variant="body1" className={styles.slogan}>
+          Traditions of Quality since 1966
+        </Typography>
 
-                {/* copyright */}
-                <span className="text-sm text-white/80 dark:text-white/70 sm:text-center">
-                    <a href="https://pdt.tools/" className="hover:text-white dark:hover:text-white transition-colors duration-200">
-                        PJSC &quot;POLTAVA DIAMOND TOOLS&quot;
-                    </a>. © Copyright {year}.
-                </span>
-            </div>
-        </footer>
-    )
+        {/* Social Media Icons */}
+        <Box className={styles.socialIcons}>
+          {socialLinks.map((social, index) => {
+            const IconComponent = social.icon;
+            return (
+              <Link
+                key={index}
+                href={social.url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <IconButton
+                  className={styles.socialIcon}
+                  sx={{
+                    "&:hover": { color: social.hoverColor },
+                    color: "white",
+                  }}
+                >
+                  <IconComponent sx={{ fontSize: 32 }} />
+                </IconButton>
+              </Link>
+            );
+          })}
+        </Box>
+
+        {/* Copyright */}
+        <Typography variant="body2" className={styles.copyright}>
+          <Link
+            href="https://pdt.tools/"
+            underline="none"
+            className={styles.copyright}
+          >
+            PJSC &quot;POLTAVA DIAMOND TOOLS&quot;
+          </Link>
+          . © Copyright {year}.
+        </Typography>
+      </Container>
+    </Box>
+  );
 }
-
-export default Footer

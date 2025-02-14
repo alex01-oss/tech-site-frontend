@@ -1,0 +1,25 @@
+/* searchBar.module.css */
+
+.searchBarContainer {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 2px 8px;
+    margin: 8px;
+  }
+  
+  .searchIconButton {
+    padding: 0;
+  }
+  
+  .searchIcon {
+    font-size: 1.25rem;
+  }
+  
+  .searchInput {
+    margin-left: 8px;
+    flex: 1;
+    font-size: 0.875rem;
+  }
+  

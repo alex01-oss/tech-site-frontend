@@ -1,0 +1,21 @@
+/* sidebar.module.css */
+
+/* Сайдбар для десктопу */
+.MuiDrawer-root {
+  z-index: 1;
+}
+
+.listItemButtonActive {
+  background-color: #ff4081;
+}
+
+.listItemButtonHover:hover {
+  background-color: #ff4081;
+}
+
+/* Для мобільного вигляду */
+@media (max-width: 960px) {
+  .MuiDrawer-root {
+    z-index: 1200;
+  }
+}
