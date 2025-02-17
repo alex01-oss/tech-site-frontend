@@ -42,13 +42,7 @@ export default function Footer() {
       <Container maxWidth="xl" sx={{ textAlign: "center" }}>
         {/* Logo */}
         <Link href="#" className={styles.logo}>
-          <Image
-            src="/logo_white.svg"
-            alt="logo"
-            width={340}
-            height={135}
-            style={{ height: "80px", width: "auto" }}
-          />
+          <Image src="/logo_white.svg" alt="logo" width={200} height={80} />
         </Link>
 
         {/* Slogan */}

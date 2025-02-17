@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import Sidebar from "./components/sidebar";
 import Search from "./components/search";
 import { Pagination } from "./components/pagination";
@@ -15,9 +14,18 @@ import {
   Paper,
   Typography,
   Box,
+  AppBar,
+  Toolbar,
+  IconButton,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import styles from "./styles/page.module.css";
 import { fetchProductsData } from "./api/service";
+import Loading from "./loading";
+import CustomImage from "./components/image";
+import Image from "next/image";
+import { Divide as Hamburger } from "hamburger-react";
 
 interface Product {
   Name: string;
@@ -47,6 +55,11 @@ export default function Home() {
   const [placeholder, setPlaceholder] = useState("Search...");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchType, setSearchType] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+  const [isOpen, setOpen] = useState(false);
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const handleMenuClick = (
     newPlaceholder: string,
@@ -63,11 +76,14 @@ export default function Home() {
   };
 
   useEffect(() => {
+    setOpen(!isMobile);
+    setLoading(true);
     fetchProductsData(currentPage, searchQuery, searchType)
       .then((data) => {
         setProducts(data);
       })
-      .catch((error) => console.error("Error fetching products data: ", error));
+      .catch((error) => console.error("Error fetching products data: ", error))
+      .finally(() => setLoading(false));
   }, [currentPage, searchQuery]);
 
   const columnConfig: { field: keyof Product; show: true; order: number }[] = [
@@ -93,11 +109,36 @@ export default function Home() {
 
   return (
     <Box className={styles.container}>
-      <Sidebar
-        onMenuClick={(newPlaceholder, category, newSearchType) => {
-          handleMenuClick(newPlaceholder, category, newSearchType);
-        }}
-      />
+      <AppBar className={styles.navbar}>
+        <Toolbar className={styles.toolbar}>
+          {isMobile ? (
+            <Hamburger toggled={isOpen} toggle={setOpen} />
+          ) : (
+            <Box component="a" href="https://pdt.tools/">
+              <Image src="/logo_white.svg" alt="logo" width={125} height={50} />
+            </Box>
+          )}
+        </Toolbar>
+      </AppBar>
+
+      {isMobile && isOpen && (
+        <div
+          className={`${styles.overlay} ${isOpen ? styles.open : ""}`}
+          onClick={() => setOpen(false)}
+        />
+      )}
+
+      <div className={isOpen ? "overlay open" : "overlay"}></div>
+
+      <Box className={`${styles.sidebarSlide} ${isOpen ? styles.open : ""}`}>
+        <Sidebar
+          onMenuClick={(newPlaceholder, category, newSearchType) => {
+            handleMenuClick(newPlaceholder, category, newSearchType);
+            setOpen(false);
+          }}
+        />
+      </Box>
+
       <Box className={styles.sidebarContainer}>
         <Box className={styles.header}>
           <Search
@@ -109,9 +150,12 @@ export default function Home() {
         </Box>
 
         <Box className={styles.content}>
-          <TableContainer component={Paper}>
-            <Table>
-              <TableHead>
+          {loading ? (
+            <Loading />
+          ) : (
+            <TableContainer component={Paper}>
+              <Table>
+                {/* <TableHead>
                 <TableRow>
                   {sortedColumns.map((column, index) => (
                     <TableCell key={index} className={styles.tableHeadCell}>
@@ -121,35 +165,35 @@ export default function Home() {
                     </TableCell>
                   ))}
                 </TableRow>
-              </TableHead>
-              <TableBody>
-                {products.items.map((product, index) => (
-                  <TableRow key={index}>
-                    {sortedColumns.map((column, index) => (
-                      <TableCell key={index} className={styles.tableCell}>
-                        {column.field === "Images" ? (
-                          <Image
-                            src={
-                              product.Images
-                                ? product.Images.split(",")[0].trim()
-                                : "/placeholder.svg"
-                            }
-                            alt="product"
-                            width={50}
-                            height={50}
-                          />
-                        ) : (
-                          <Typography variant="body2" color="textSecondary">
-                            {product[column.field]}
-                          </Typography>
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+              </TableHead> */}
+                <TableBody>
+                  {products.items.map((product, index) => (
+                    <TableRow key={index}>
+                      {sortedColumns.map((column, index) => (
+                        <TableCell key={index} className={styles.tableCell}>
+                          {column.field === "Images" ? (
+                            <CustomImage
+                              src={
+                                product.Images &&
+                                product.Images.split(",")[0].trim()
+                              }
+                              alt="product"
+                              width={45}
+                              height={45}
+                            />
+                          ) : (
+                            <Typography variant="body2" color="textSecondary">
+                              {product[column.field]}
+                            </Typography>
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
         </Box>
 
         <Pagination

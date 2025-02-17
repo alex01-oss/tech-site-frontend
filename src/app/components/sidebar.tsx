@@ -7,21 +7,13 @@ import {
   ListItemIcon,
   ListItemText,
   ListItemButton,
+  Box,
+  Divider,
   styled,
 } from "@mui/material";
 import styles from "../styles/sidebar.module.css";
 import { fetchMenuData } from "../api/service";
-
-const StyledDrawer = styled(Drawer)({
-  width: 256,
-  flexShrink: 0,
-  "& .MuiDrawer-paper": {
-    width: 256,
-    backgroundColor: "#c3073f",
-    color: "white",
-    position: "relative",
-  },
-});
+import Image from "next/image";
 
 const MenuHeader = styled(ListItemButton)({
   "&.Mui-disabled": {
@@ -80,7 +72,11 @@ export default function Sidebar({ onMenuClick }: SidebarProps) {
   if (!menuData) return null;
 
   return (
-    <StyledDrawer variant="permanent" anchor="left" sx={{ zIndex: 0 }}>
+    <Drawer variant="permanent" anchor="left" className={styles.drawer}>
+      {/* <Box component="a" href="https://pdt.tools/" className={styles.logo}>
+        <Image src="/logo_white.svg" alt="logo" width={126} height={50} />
+      </Box> */}
+      <Divider className={styles.divider} />
       <List>
         {Object.entries(menuData.searchTypes).map(
           ([category, { title, items }]) => (
@@ -102,10 +98,10 @@ export default function Sidebar({ onMenuClick }: SidebarProps) {
                       activeItem?.index === index
                         ? styles.listItemButtonActive
                         : ""
-                    } ${styles.listItemButtonHover}`}
+                    }`}
                   >
                     <ListItemIcon className={styles.listItemIcon}>
-                      <LabelImportantIcon sx={{ color: "white" }} />
+                      <LabelImportantIcon className={styles.icon} />
                     </ListItemIcon>
                     <ListItemText primary={item.text} />
                   </ListItemButton>
@@ -115,6 +111,6 @@ export default function Sidebar({ onMenuClick }: SidebarProps) {
           )
         )}
       </List>
-    </StyledDrawer>
+    </Drawer>
   );
 }

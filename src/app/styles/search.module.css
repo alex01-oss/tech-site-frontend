@@ -3,7 +3,8 @@
 .searchBarContainer {
     display: flex;
     align-items: center;
-    border: 1px solid #ccc;
+    border: 1px solid #ddd;
+    background-color: #fff;
     border-radius: 4px;
     padding: 2px 8px;
     margin: 8px;

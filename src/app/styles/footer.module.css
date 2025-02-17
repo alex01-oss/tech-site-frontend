@@ -6,6 +6,7 @@
     background-image: url("/bg.png");
     background-size: cover;
     background-position: center;
+    z-index: 20000;
   }
   
   .logo {
