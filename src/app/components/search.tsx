@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { InputBase, IconButton } from "@mui/material";
+import { InputBase, IconButton, Box } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import styles from "../styles/search.module.css";
 
 interface SearchProps {
   onSearch?: (query: string, category: string, searchType: string) => void;
@@ -33,17 +32,34 @@ export default function SearchBar({
   };
 
   return (
-    <div className={styles.searchBarContainer}>
-      <IconButton className={styles.searchIconButton}>
-        <SearchIcon className={styles.searchIcon} />
+    <Box
+      sx={{
+        display: "flex",
+        alignItems: "center",
+        padding: "8px",
+        border: "1px solid #ccc",
+        borderRadius: "4px",
+        backgroundColor: "#fff",
+        boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
+      }}
+    >
+      <IconButton sx={{ padding: 0, color: "#6c757d" }}>
+        <SearchIcon sx={{ fontSize: 20 }} />
       </IconButton>
       <InputBase
         placeholder={placeholder}
         inputProps={{ "aria-label": "search" }}
         onChange={handleSearch}
-        className={styles.searchInput}
+        sx={{
+          marginLeft: 1,
+          width: "100%",
+          fontSize: "16px",
+          "& .MuiInputBase-input": {
+            padding: "0px",
+          },
+        }}
         value={searchItem}
       />
-    </div>
+    </Box>
   );
 }

@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Box, Container, Typography, IconButton, Link } from "@mui/material";
 import { Facebook, Instagram, YouTube, LinkedIn, X } from "@mui/icons-material";
-import styles from "../styles/footer.module.css";
 
 const socialLinks = [
   {
@@ -38,20 +37,29 @@ export default function Footer() {
   }, []);
 
   return (
-    <Box className={styles.footer}>
+    <Box
+      sx={{
+        borderTop: "1px solid #BDBDBD",
+        padding: "16px",
+        backgroundColor: "#F5F6FA",
+        // backgroundSize: "cover",
+        // backgroundPosition: "center",
+        zIndex: 20000,
+      }}
+    >
       <Container maxWidth="xl" sx={{ textAlign: "center" }}>
         {/* Logo */}
-        <Link href="#" className={styles.logo}>
-          <Image src="/logo_white.svg" alt="logo" width={200} height={80} />
+        <Link href="#" sx={{ display: "inline-block" }}>
+          <Image src="/logo_gray.svg" alt="logo" width={200} height={80} />
         </Link>
 
         {/* Slogan */}
-        <Typography variant="body1" className={styles.slogan}>
+        <Typography variant="body1" sx={{ color: "#47536B", fontWeight: 400 }}>
           Traditions of Quality since 1966
         </Typography>
 
         {/* Social Media Icons */}
-        <Box className={styles.socialIcons}>
+        <Box sx={{ margin: "4px" }}>
           {socialLinks.map((social, index) => {
             const IconComponent = social.icon;
             return (
@@ -60,12 +68,12 @@ export default function Footer() {
                 href={social.url}
                 target="_blank"
                 rel="noopener noreferrer"
+                sx={{ margin: "4px" }}
               >
                 <IconButton
-                  className={styles.socialIcon}
                   sx={{
                     "&:hover": { color: social.hoverColor },
-                    color: "white",
+                    color: "#47536B",
                   }}
                 >
                   <IconComponent sx={{ fontSize: 32 }} />
@@ -76,11 +84,14 @@ export default function Footer() {
         </Box>
 
         {/* Copyright */}
-        <Typography variant="body2" className={styles.copyright}>
+        <Typography
+          variant="body2"
+          sx={{ color: "#47536B", textDecoration: "none" }}
+        >
           <Link
             href="https://pdt.tools/"
             underline="none"
-            className={styles.copyright}
+            sx={{ color: "#47536B", ":hover": { color: "#8C2648" } }}
           >
             PJSC &quot;POLTAVA DIAMOND TOOLS&quot;
           </Link>

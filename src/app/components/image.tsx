@@ -1,7 +1,6 @@
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Box, Skeleton } from "@mui/material";
-import styles from "../styles/optimized-image.module.css";
 
 interface OptimizedImageProps {
   src: string;
@@ -46,13 +45,14 @@ export default function CustomImage({
 
   return (
     <Box
-      className={`${styles.imageContainer} ${className || ""}`}
       sx={{
         position: "relative",
         width,
         height,
         overflow: "hidden",
+        borderRadius: "50%",
       }}
+      className={className}
     >
       {isLoading && (
         <Skeleton
@@ -60,7 +60,6 @@ export default function CustomImage({
           width={width}
           height={height}
           animation="wave"
-          className={styles.skeleton}
         />
       )}
       {imageSrc && !error && (
@@ -73,7 +72,6 @@ export default function CustomImage({
           priority={priority}
           onLoadingComplete={() => setIsLoading(false)}
           onError={handleError}
-          className={styles.image}
           style={{
             objectFit,
             opacity: isLoading ? 0 : 1,

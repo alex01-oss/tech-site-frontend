@@ -1,31 +1,27 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Sidebar from "./components/sidebar";
-import Search from "./components/search";
-import { Pagination } from "./components/pagination";
 import {
+  Box,
+  Container,
+  createTheme,
+  ThemeProvider as MuiThemeProvider,
+  useMediaQuery,
+  Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
-  TableHead,
   TableRow,
-  Paper,
-  Typography,
-  Box,
-  AppBar,
-  Toolbar,
-  IconButton,
-  useTheme,
-  useMediaQuery,
 } from "@mui/material";
-import styles from "./styles/page.module.css";
 import { fetchProductsData } from "./api/service";
+import Sidebar from "./components/sidebar";
+import Search from "./components/search";
+import { Pagination } from "./components/pagination";
 import Loading from "./loading";
 import CustomImage from "./components/image";
-import Image from "next/image";
-import { Divide as Hamburger } from "hamburger-react";
+import { useThemeContext } from "./context/theme";
+import Navbar from "./components/navbar";
 
 interface Product {
   Name: string;
@@ -42,7 +38,7 @@ interface Products {
   items_per_page: number;
 }
 
-export default function Home() {
+function HomePage() {
   const [products, setProducts] = useState<Products>({
     items: [],
     total_items: 0,
@@ -51,14 +47,26 @@ export default function Home() {
     items_per_page: 6,
   });
 
+  const { mode } = useThemeContext();
+  const theme = createTheme({
+    palette: {
+      mode,
+      primary: {
+        main: "#616161",
+      },
+      background: {
+        default: "#f5f5f5",
+      },
+    },
+  });
+
   const [currentPage, setCurrentPage] = useState(1);
-  const [placeholder, setPlaceholder] = useState("Search...");
   const [searchQuery, setSearchQuery] = useState("");
   const [searchType, setSearchType] = useState<string>("");
+  const [placeholder, setPlaceholder] = useState("Search...");
   const [loading, setLoading] = useState(true);
   const [isOpen, setOpen] = useState(false);
 
-  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const handleMenuClick = (
@@ -71,20 +79,14 @@ export default function Home() {
     setSearchQuery("");
   };
 
-  const onPageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
   useEffect(() => {
     setOpen(!isMobile);
     setLoading(true);
     fetchProductsData(currentPage, searchQuery, searchType)
-      .then((data) => {
-        setProducts(data);
-      })
+      .then((data) => setProducts(data))
       .catch((error) => console.error("Error fetching products data: ", error))
       .finally(() => setLoading(false));
-  }, [currentPage, searchQuery]);
+  }, [currentPage, searchQuery, searchType, isMobile]);
 
   const columnConfig: { field: keyof Product; show: true; order: number }[] = [
     { field: "Images", show: true, order: 1 },
@@ -108,101 +110,116 @@ export default function Home() {
   };
 
   return (
-    <Box className={styles.container}>
-      <AppBar className={styles.navbar}>
-        <Toolbar className={styles.toolbar}>
-          {isMobile ? (
-            <Hamburger toggled={isOpen} toggle={setOpen} />
-          ) : (
-            <Box component="a" href="https://pdt.tools/">
-              <Image src="/logo_white.svg" alt="logo" width={125} height={50} />
+    <MuiThemeProvider theme={theme}>
+      <Box
+        sx={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: "60px",
+          zIndex: 1000,
+        }}
+      >
+        <Navbar isOpen={isOpen} setOpen={setOpen} />
+      </Box>
+
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          minHeight: "100vh",
+          pt: "60px",
+          bgcolor: "background.default",
+          color: "text.primary",
+        }}
+      >
+        <Box sx={{ display: "flex", flex: 1 }}>
+          <Box
+            sx={{
+              position: { xs: "fixed", md: "sticky" },
+              top: "60px",
+              left: 0,
+              height: "calc(100vh - 60px)",
+              transform: {
+                xs: isOpen ? "translateX(0)" : "translateX(-100%)",
+                md: "translateX(0)",
+              },
+              transition: "transform 0.3s ease-in-out",
+              zIndex: 999,
+            }}
+          >
+            <Sidebar
+              onMenuClick={(newPlaceholder, category, newSearchType) => {
+                handleMenuClick(newPlaceholder, category, newSearchType);
+                setOpen(false);
+              }}
+            />
+          </Box>
+
+          <Box
+            sx={{
+              flex: 1,
+              display: "flex",
+              flexDirection: "column",
+              ml: { xs: 0 },
+              minHeight: "calc(100vh - 60px)",
+              overflow: "auto",
+            }}
+          >
+            <Box sx={{ px: 3, pt: 3 }}>
+              <Search
+                placeholder={placeholder}
+                onSearch={handleSearch}
+                category={searchType}
+                searchType={searchType}
+              />
             </Box>
-          )}
-        </Toolbar>
-      </AppBar>
 
-      {isMobile && isOpen && (
-        <div
-          className={`${styles.overlay} ${isOpen ? styles.open : ""}`}
-          onClick={() => setOpen(false)}
-        />
-      )}
-
-      <div className={isOpen ? "overlay open" : "overlay"}></div>
-
-      <Box className={`${styles.sidebarSlide} ${isOpen ? styles.open : ""}`}>
-        <Sidebar
-          onMenuClick={(newPlaceholder, category, newSearchType) => {
-            handleMenuClick(newPlaceholder, category, newSearchType);
-            setOpen(false);
-          }}
-        />
-      </Box>
-
-      <Box className={styles.sidebarContainer}>
-        <Box className={styles.header}>
-          <Search
-            placeholder={placeholder}
-            onSearch={handleSearch}
-            category={searchType}
-            searchType={searchType}
-          />
-        </Box>
-
-        <Box className={styles.content}>
-          {loading ? (
-            <Loading />
-          ) : (
-            <TableContainer component={Paper}>
-              <Table>
-                {/* <TableHead>
-                <TableRow>
-                  {sortedColumns.map((column, index) => (
-                    <TableCell key={index} className={styles.tableHeadCell}>
-                      <Typography variant="subtitle1">
-                        {column.field}
-                      </Typography>
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead> */}
-                <TableBody>
-                  {products.items.map((product, index) => (
-                    <TableRow key={index}>
-                      {sortedColumns.map((column, index) => (
-                        <TableCell key={index} className={styles.tableCell}>
-                          {column.field === "Images" ? (
-                            <CustomImage
-                              src={
-                                product.Images &&
-                                product.Images.split(",")[0].trim()
-                              }
-                              alt="product"
-                              width={45}
-                              height={45}
-                            />
-                          ) : (
-                            <Typography variant="body2" color="textSecondary">
-                              {product[column.field]}
-                            </Typography>
-                          )}
-                        </TableCell>
+            <Container sx={{ flex: 1, px: 3, pt: 3 }}>
+              {loading ? (
+                <Loading />
+              ) : (
+                <TableContainer component={Paper}>
+                  <Table>
+                    <TableBody>
+                      {products.items.map((product, index) => (
+                        <TableRow key={index}>
+                          {columnConfig.map((column) => (
+                            <TableCell key={column.field}>
+                              {column.field === "Images" ? (
+                                <CustomImage
+                                  src={product.Images?.split(",")[0].trim()}
+                                  alt="product"
+                                  width={45}
+                                  height={45}
+                                />
+                              ) : (
+                                product[column.field]
+                              )}
+                            </TableCell>
+                          ))}
+                        </TableRow>
                       ))}
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-        </Box>
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              )}
+            </Container>
 
-        <Pagination
-          items={products.total_items}
-          currentPage={currentPage}
-          pageSize={products.items_per_page}
-          onPageChange={onPageChange}
-        />
+            <Box sx={{ display: "flex", justifyContent: "center" }}>
+              <Pagination
+                items={products.total_items}
+                currentPage={currentPage}
+                pageSize={products.items_per_page}
+                onPageChange={setCurrentPage}
+              />
+            </Box>
+          </Box>
+        </Box>
       </Box>
-    </Box>
+    </MuiThemeProvider>
   );
 }
+
+export default HomePage;

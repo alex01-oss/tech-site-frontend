@@ -7,20 +7,8 @@ import {
   ListItemIcon,
   ListItemText,
   ListItemButton,
-  Box,
-  Divider,
-  styled,
 } from "@mui/material";
-import styles from "../styles/sidebar.module.css";
 import { fetchMenuData } from "../api/service";
-import Image from "next/image";
-
-const MenuHeader = styled(ListItemButton)({
-  "&.Mui-disabled": {
-    color: "#ffcdd2 !important",
-    opacity: 1,
-  },
-});
 
 interface MenuItem {
   text: string;
@@ -72,20 +60,32 @@ export default function Sidebar({ onMenuClick }: SidebarProps) {
   if (!menuData) return null;
 
   return (
-    <Drawer variant="permanent" anchor="left" className={styles.drawer}>
-      {/* <Box component="a" href="https://pdt.tools/" className={styles.logo}>
-        <Image src="/logo_white.svg" alt="logo" width={126} height={50} />
-      </Box> */}
-      <Divider className={styles.divider} />
+    <Drawer
+      variant="permanent"
+      anchor="left"
+      sx={{
+        width: 256,
+        flexShrink: 0,
+        zIndex: 0,
+        "& .MuiDrawer-paper": {
+          width: 256,
+          backgroundColor: "#F5F6FA",
+          color: "#7B8496",
+          position: "relative",
+          height: "calc(100vh - 60px)",
+        },
+      }}
+    >
       <List>
         {Object.entries(menuData.searchTypes).map(
           ([category, { title, items }]) => (
             <React.Fragment key={category}>
               <ListItem disablePadding>
-                <MenuHeader disabled>
+                <ListItemButton disabled>
                   <ListItemText primary={title} />
-                </MenuHeader>
+                </ListItemButton>
               </ListItem>
+
               {items.map((item, index) => (
                 <ListItem key={index} disablePadding>
                   <ListItemButton
@@ -93,15 +93,23 @@ export default function Sidebar({ onMenuClick }: SidebarProps) {
                       setActiveItem({ category, index });
                       onMenuClick(`${item.text}...`, category, item.searchType);
                     }}
-                    className={`${styles.listItemButton} ${
-                      activeItem?.category === category &&
+                    sx={{
+                      color: "#515359",
+                      "&:hover": {
+                        backgroundColor: "#F1F2F7",
+                        color: "#515359",
+                      },
+                      ...(activeItem?.category === category &&
                       activeItem?.index === index
-                        ? styles.listItemButtonActive
-                        : ""
-                    }`}
+                        ? {
+                            backgroundColor: "#ECEFF4",
+                            color: "#0B0E14",
+                          }
+                        : {}),
+                    }}
                   >
-                    <ListItemIcon className={styles.listItemIcon}>
-                      <LabelImportantIcon className={styles.icon} />
+                    <ListItemIcon>
+                      <LabelImportantIcon />
                     </ListItemIcon>
                     <ListItemText primary={item.text} />
                   </ListItemButton>

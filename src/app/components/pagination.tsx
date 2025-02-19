@@ -4,7 +4,6 @@ import {
   useTheme,
   useMediaQuery,
 } from "@mui/material";
-import styles from "../styles/pagination.module.css";
 
 interface PaginationProps {
   items: number;
@@ -36,13 +35,23 @@ export const Pagination: React.FC<PaginationProps> = ({
       showLastButton={!isMobile}
       siblingCount={isMobile ? 0 : 1}
       boundaryCount={isMobile ? 1 : 2}
-      className={`${styles.paginationContainer} ${
-        isMobile ? styles.paginationMobile : ""
-      }`}
       sx={{
+        display: "flex",
+        justifyContent: "center",
+        margin: isMobile ? "20px 0" : "30px 0",
+        padding: "0 16px",
         "& .MuiPaginationItem-root": {
           color: "inherit",
         },
+        ...(isMobile && {
+          "& .MuiPaginationItem-root": {
+            minWidth: "32px",
+            height: "32px",
+            margin: "0 2px",
+            padding: 0,
+            fontSize: "14px",
+          },
+        }),
       }}
     />
   );

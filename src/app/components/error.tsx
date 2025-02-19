@@ -2,7 +2,6 @@
 
 import { Box, Typography, Button } from "@mui/material";
 import React from "react";
-import styles from "../styles/error.module.css";
 
 interface Props {
   children: React.ReactNode;
@@ -30,14 +29,27 @@ class ErrorBoundary extends React.Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <Box className={styles.container}>
-          <Typography variant="h4" className={styles.title}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100vh",
+            textAlign: "center",
+            padding: "20px",
+          }}
+        >
+          <Typography
+            variant="h4"
+            sx={{ marginBottom: "16px", color: "#950740" }}
+          >
             Something went wrong
           </Typography>
           <Button
             variant="contained"
             onClick={() => window.location.reload()}
-            className={styles.button}
+            sx={{ backgroundColor: "#950740" }}
           >
             Reload Page
           </Button>

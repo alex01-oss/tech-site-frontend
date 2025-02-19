@@ -3,6 +3,7 @@ import "./globals.css";
 import Footer from "./components/footer";
 import ErrorBoundary from "./components/error";
 import { Metadata } from "next";
+import { ThemeProvider } from "./context/theme";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -63,10 +64,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ErrorBoundary>
-          {children}
-          <Footer />
-        </ErrorBoundary>
+        <ThemeProvider>
+          <ErrorBoundary>
+            {children}
+            <Footer />
+          </ErrorBoundary>
+        </ThemeProvider>
       </body>
     </html>
   );
