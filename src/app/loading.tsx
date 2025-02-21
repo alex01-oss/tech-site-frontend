@@ -12,7 +12,7 @@ export default function Loading() {
         minHeight: "200px",
       }}
     >
-      <CircularProgress sx={{ color: "#950740" }} />
+      <CircularProgress sx={{ color: "primary.main" }} />
     </Box>
   );
 }

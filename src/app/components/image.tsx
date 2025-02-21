@@ -60,6 +60,7 @@ export default function CustomImage({
           width={width}
           height={height}
           animation="wave"
+          sx={{ bgcolor: "rgba(142, 32, 65, 0.1)" }}
         />
       )}
       {imageSrc && !error && (

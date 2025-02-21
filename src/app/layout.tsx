@@ -3,7 +3,8 @@ import "./globals.css";
 import Footer from "./components/footer";
 import ErrorBoundary from "./components/error";
 import { Metadata } from "next";
-import { ThemeProvider } from "./context/theme";
+import theme from "./themes/theme";
+import { ThemeProvider } from "@mui/material";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,6 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://yourdomain.com"),
   title: {
     default: "PDTools - Poltava Diamond Tools",
     template: "%s | PDT Tools",
@@ -64,7 +66,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider>
+        <ThemeProvider theme={theme}>
           <ErrorBoundary>
             {children}
             <Footer />

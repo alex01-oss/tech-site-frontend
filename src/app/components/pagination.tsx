@@ -29,7 +29,7 @@ export const Pagination: React.FC<PaginationProps> = ({
       count={pagesCount}
       page={currentPage}
       onChange={(_, page) => onPageChange(page)}
-      color="standard"
+      color="primary"
       size={isMobile ? "medium" : "large"}
       showFirstButton={!isMobile}
       showLastButton={!isMobile}

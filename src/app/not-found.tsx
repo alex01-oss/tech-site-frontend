@@ -11,12 +11,26 @@ export default function NotFound() {
         justifyContent: "center",
         height: "100vh",
         textAlign: "center",
+        bgcolor: "background.default",
       }}
     >
-      <Typography variant="h1" sx={{ fontSize: "4rem", fontWeight: "bold" }}>
+      <Typography
+        variant="h1"
+        sx={{
+          fontSize: "4rem",
+          fontWeight: "bold",
+          color: "primary.main",
+        }}
+      >
         404
       </Typography>
-      <Typography variant="body1" sx={{ fontSize: "1.5rem" }}>
+      <Typography
+        variant="body1"
+        sx={{
+          fontSize: "1.5rem",
+          color: "text.primary",
+        }}
+      >
         Page Not Found
       </Typography>
       <Link
@@ -24,7 +38,7 @@ export default function NotFound() {
         style={{
           marginTop: "1rem",
           fontSize: "1.2rem",
-          color: "#ff4081",
+          color: "#C74667",
           textDecoration: "underline",
         }}
       >

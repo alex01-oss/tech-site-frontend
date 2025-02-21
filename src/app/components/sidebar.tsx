@@ -67,11 +67,15 @@ export default function Sidebar({ onMenuClick }: SidebarProps) {
         width: 256,
         flexShrink: 0,
         zIndex: 0,
+        position: "sticky",
+        top: "60px",
+        height: "calc(100vh - 60px)",
         "& .MuiDrawer-paper": {
           width: 256,
-          backgroundColor: "#F5F6FA",
-          color: "#7B8496",
-          position: "relative",
+          backgroundColor: "#FFF",
+          color: "text.secondary",
+          position: "sticky",
+          top: "60px",
           height: "calc(100vh - 60px)",
         },
       }}
@@ -91,24 +95,26 @@ export default function Sidebar({ onMenuClick }: SidebarProps) {
                   <ListItemButton
                     onClick={() => {
                       setActiveItem({ category, index });
-                      onMenuClick(`${item.text}...`, category, item.searchType);
+                      onMenuClick(item.text, category, item.searchType);
                     }}
                     sx={{
-                      color: "#515359",
+                      color: "text.primary",
+                      borderRadius: "8px",
+                      margin: "6px 12px",
                       "&:hover": {
-                        backgroundColor: "#F1F2F7",
-                        color: "#515359",
+                        backgroundColor: "rgba(142, 32, 65, 0.1)",
+                        color: "primary.main",
                       },
                       ...(activeItem?.category === category &&
                       activeItem?.index === index
                         ? {
-                            backgroundColor: "#ECEFF4",
-                            color: "#0B0E14",
+                            backgroundColor: "rgba(142, 32, 65, 0.1)",
+                            color: "primary.main",
                           }
                         : {}),
                     }}
                   >
-                    <ListItemIcon>
+                    <ListItemIcon sx={{ color: "inherit" }}>
                       <LabelImportantIcon />
                     </ListItemIcon>
                     <ListItemText primary={item.text} />
