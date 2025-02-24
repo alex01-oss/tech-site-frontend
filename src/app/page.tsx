@@ -24,7 +24,7 @@ import CustomImage from "./components/image";
 import Navbar from "./components/navbar";
 
 interface Product {
-  Name: string;
+  Title: string;
   Price: number;
   Currency: string;
   Images: string;
@@ -79,7 +79,7 @@ function HomePage() {
 
   const columnConfig: { field: keyof Product; show: true; order: number }[] = [
     { field: "Images", show: true, order: 1 },
-    { field: "Name", show: true, order: 2 },
+    { field: "Title", show: true, order: 2 },
     { field: "Price", show: true, order: 3 },
     { field: "Currency", show: true, order: 4 },
   ];
