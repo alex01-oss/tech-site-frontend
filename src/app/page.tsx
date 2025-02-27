@@ -1,27 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import {
-  Box,
-  Container,
-  createTheme,
-  ThemeProvider as MuiThemeProvider,
-  useMediaQuery,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableRow,
-  useTheme,
-} from "@mui/material";
+import { useEffect, useState, useCallback } from "react";
+import { Box, useMediaQuery, useTheme } from "@mui/material";
 import { fetchProductsData } from "./api/service";
 import Sidebar from "./components/sidebar";
 import Search from "./components/search";
 import { Pagination } from "./components/pagination";
-import Loading from "./loading";
-import CustomImage from "./components/image";
 import Navbar from "./components/navbar";
+import Footer from "./components/footer";
+import FooterSkeleton from "./components/skeletons/FooterSkeleton";
+import ProductSkeleton from "./components/skeletons/TableSkeleton";
+import NavbarSkeleton from "./components/skeletons/NavbarSkeleton";
+import SidebarSkeleton from "./components/skeletons/SidebarSkeleton";
+import PaginationSkeleton from "./components/skeletons/PaginationSkeleton";
+import SearchSkeleton from "./components/skeletons/SearchSkeleton";
+import ProductTable from "./components/table";
 
 interface Product {
   Title: string;
@@ -55,48 +48,63 @@ function HomePage() {
   const [placeholder, setPlaceholder] = useState("Search...");
   const [loading, setLoading] = useState(true);
   const [isOpen, setOpen] = useState(false);
+  const [tileHeight, setTileHeight] = useState("50px");
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const handleMenuClick = (
-    newPlaceholder: string,
-    category: string,
-    newSearchType: string
-  ) => {
-    setPlaceholder(newPlaceholder);
-    setSearchType(newSearchType);
-    setSearchQuery("");
-  };
+  const fetchData = useCallback(async () => {
+    if (!searchQuery && !currentPage) return;
+
+    try {
+      const data = await fetchProductsData(
+        currentPage,
+        searchQuery,
+        searchType
+      );
+      setProducts(data);
+    } catch (error) {
+      console.error("Error fetching products data: ", error);
+    } finally {
+    }
+  }, [currentPage, searchQuery, searchType]);
+
+  const handleMenuClick = useCallback(
+    (newPlaceholder: string, category: string, newSearchType: string) => {
+      setPlaceholder(newPlaceholder);
+      setSearchType(newSearchType);
+      setSearchQuery("");
+    },
+    []
+  );
 
   useEffect(() => {
     setOpen(!isMobile);
-    setLoading(true);
-    fetchProductsData(currentPage, searchQuery, searchType)
-      .then((data) => setProducts(data))
-      .catch((error) => console.error("Error fetching products data: ", error))
-      .finally(() => setLoading(false));
-  }, [currentPage, searchQuery, searchType, isMobile]);
+  }, [isMobile]);
 
-  const columnConfig: { field: keyof Product; show: true; order: number }[] = [
-    { field: "Images", show: true, order: 1 },
-    { field: "Title", show: true, order: 2 },
-    { field: "Price", show: true, order: 3 },
-    { field: "Currency", show: true, order: 4 },
-  ];
+  useEffect(() => {
+    const initialLoad = async () => {
+      setLoading(true);
+      await fetchData();
+      setLoading(false);
+    };
 
-  const sortedColumns = columnConfig
-    .filter((column) => column.show)
-    .sort((a, b) => a.order - b.order);
+    initialLoad();
+  }, []);
 
-  const handleSearch = (
-    query: string,
-    category: string,
-    searchType: string
-  ) => {
-    setSearchQuery(query);
-    setCurrentPage(1);
-    setSearchType(searchType);
-  };
+  useEffect(() => {
+    if (!loading) {
+      fetchData();
+    }
+  }, [fetchData, loading]);
+
+  const handleSearch = useCallback(
+    (query: string, category: string, searchType: string) => {
+      setSearchQuery(query);
+      setCurrentPage(1);
+      setSearchType(searchType);
+    },
+    []
+  );
 
   return (
     <Box
@@ -109,6 +117,7 @@ function HomePage() {
         color: "text.primary",
       }}
     >
+      {/* NAVBAR */}
       <Box
         sx={{
           position: "fixed",
@@ -118,10 +127,31 @@ function HomePage() {
           zIndex: 1000,
         }}
       >
-        <Navbar isOpen={isOpen} setOpen={setOpen} />
+        {loading ? (
+          <NavbarSkeleton />
+        ) : (
+          <Navbar isOpen={isOpen} setOpen={setOpen} />
+        )}
       </Box>
 
+      {/* CONTENT */}
       <Box sx={{ display: "flex", flex: 1 }}>
+        {isOpen && isMobile && (
+          <Box
+            onClick={() => setOpen(false)}
+            sx={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              width: "100vw",
+              height: "100vh",
+              backgroundColor: "rgba(0, 0, 0, 0.3)",
+              zIndex: 998,
+              transition: "opacity 0.3s ease",
+            }}
+          />
+        )}
+
         <Box
           sx={{
             position: { xs: "fixed", md: "sticky" },
@@ -137,12 +167,17 @@ function HomePage() {
             zIndex: 999,
           }}
         >
-          <Sidebar
-            onMenuClick={(newPlaceholder, category, newSearchType) => {
-              handleMenuClick(newPlaceholder, category, newSearchType);
-              setOpen(false);
-            }}
-          />
+          {/* SIDEBAR */}
+          {loading ? (
+            <SidebarSkeleton />
+          ) : (
+            <Sidebar
+              onMenuClick={(newPlaceholder, category, newSearchType) => {
+                handleMenuClick(newPlaceholder, category, newSearchType);
+                setOpen(false);
+              }}
+            />
+          )}
         </Box>
 
         <Box
@@ -155,78 +190,47 @@ function HomePage() {
             overflow: "auto",
           }}
         >
+          {/* SEARCH */}
           <Box sx={{ px: 3, pt: 3 }}>
-            <Search
-              placeholder={placeholder}
-              onSearch={handleSearch}
-              category={searchType}
-              searchType={searchType}
-            />
+            {loading ? (
+              <SearchSkeleton />
+            ) : (
+              <Search
+                placeholder={placeholder}
+                onSearch={handleSearch}
+                category={searchType}
+                searchType={searchType}
+              />
+            )}
           </Box>
 
-          <Container sx={{ flex: 1, px: 3, pt: 3 }}>
+          {/* PRODUCTS TABLE */}
+          <Box sx={{ position: "relative" }}>
             {loading ? (
-              <Loading />
+              <ProductSkeleton />
             ) : (
-              <TableContainer
-                component={Paper}
-                sx={{
-                  overflowX: "auto",
-                  "& .MuiTable-root": {
-                    minWidth: {
-                      xs: "100%",
-                      sm: "650px",
-                    },
-                  },
-                  "& .MuiTableCell-root": {
-                    px: { xs: 1, sm: 2 },
-                    fontSize: { xs: "0.8rem", sm: "1rem" },
-                  },
-                }}
-              >
-                <Table>
-                  <TableBody>
-                    {products.items.map((product, index) => (
-                      <TableRow key={index}>
-                        {columnConfig.map((column) => (
-                          <TableCell
-                            key={column.field}
-                            sx={{
-                              ...(column.field === "Images" && {
-                                width: { xs: "60px", sm: "80px" },
-                              }),
-                            }}
-                          >
-                            {column.field === "Images" ? (
-                              <CustomImage
-                                src={product.Images?.split(",")[0].trim()}
-                                alt="product"
-                                width={45}
-                                height={45}
-                              />
-                            ) : (
-                              product[column.field]
-                            )}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+              <ProductTable products={products.items} tileHeight={tileHeight} />
             )}
-          </Container>
+          </Box>
 
+          {/* PAGINATION */}
           <Box sx={{ display: "flex", justifyContent: "center" }}>
-            <Pagination
-              items={products.total_items}
-              currentPage={currentPage}
-              pageSize={products.items_per_page}
-              onPageChange={setCurrentPage}
-            />
+            {loading ? (
+              <PaginationSkeleton />
+            ) : (
+              <Pagination
+                items={products.total_items}
+                currentPage={currentPage}
+                pageSize={products.items_per_page}
+                onPageChange={setCurrentPage}
+              />
+            )}
           </Box>
         </Box>
       </Box>
+
+      {/* FOOTER */}
+      <Box>{loading ? <FooterSkeleton /> : <Footer />}</Box>
     </Box>
   );
 }

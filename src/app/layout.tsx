@@ -3,8 +3,7 @@ import "./globals.css";
 import Footer from "./components/footer";
 import ErrorBoundary from "./components/error";
 import { Metadata } from "next";
-import theme from "./themes/theme";
-import { ThemeProvider } from "@mui/material";
+import ThemeProviderWrapper from "./context/context";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -66,12 +65,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider theme={theme}>
-          <ErrorBoundary>
-            {children}
-            <Footer />
-          </ErrorBoundary>
-        </ThemeProvider>
+        <ThemeProviderWrapper>
+          <ErrorBoundary>{children}</ErrorBoundary>
+        </ThemeProviderWrapper>
       </body>
     </html>
   );

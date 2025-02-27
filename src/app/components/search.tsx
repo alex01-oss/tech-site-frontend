@@ -31,26 +31,6 @@ export default function SearchBar({
     );
   };
 
-  // return (
-  //   <TextField
-  //     variant="outlined"
-  //     placeholder={placeholder}
-  //     onChange={handleSearch}
-  //     value={searchItem}
-  //     fullWidth
-  //     InputProps={{
-  //       startAdornment: (
-  //         <InputAdornment position="start">
-  //           <IconButton sx={{ color: "#6c757d" }}>
-  //             <SearchIcon />
-  //           </IconButton>
-  //         </InputAdornment>
-  //       ),
-  //     }}
-  //     sx={{ backgroundColor: "#FFF" }}
-  //   />
-  // );
-
   return (
     <TextField
       variant="outlined"
@@ -68,9 +48,12 @@ export default function SearchBar({
         ),
       }}
       sx={{
-        backgroundColor: "#FFF",
+        borderRadius: "8px",
+        boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
         "& .MuiOutlinedInput-root": {
+          borderRadius: "8px",
           "& fieldset": {
+            borderRadius: "8px",
             borderColor: "rgba(78, 12, 30, 0.2)",
           },
           "&:hover fieldset": {

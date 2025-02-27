@@ -28,34 +28,6 @@ class ErrorBoundary extends React.Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
-      // return (
-      //   <Box
-      //     sx={{
-      //       display: "flex",
-      //       flexDirection: "column",
-      //       alignItems: "center",
-      //       justifyContent: "center",
-      //       height: "100vh",
-      //       textAlign: "center",
-      //       padding: "20px",
-      //     }}
-      //   >
-      //     <Typography
-      //       variant="h4"
-      //       sx={{ marginBottom: "16px", color: "#950740" }}
-      //     >
-      //       Something went wrong
-      //     </Typography>
-      //     <Button
-      //       variant="contained"
-      //       onClick={() => window.location.reload()}
-      //       sx={{ backgroundColor: "#950740" }}
-      //     >
-      //       Reload Page
-      //     </Button>
-      //   </Box>
-      // );
-
       return (
         <Box
           sx={{

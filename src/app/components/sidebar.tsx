@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, memo } from "react";
 import LabelImportantIcon from "@mui/icons-material/LabelImportant";
 import {
   Drawer,
@@ -34,7 +34,7 @@ interface SidebarProps {
   ) => void;
 }
 
-export default function Sidebar({ onMenuClick }: SidebarProps) {
+const Sidebar = memo(({ onMenuClick }: SidebarProps) => {
   const [menuData, setMenuData] = useState<MenuData | null>(null);
   const [activeItem, setActiveItem] = useState<{
     category: string;
@@ -42,19 +42,39 @@ export default function Sidebar({ onMenuClick }: SidebarProps) {
   } | null>(null);
 
   useEffect(() => {
-    fetchMenuData()
-      .then((data) => {
-        setMenuData(data);
-        const firstCategory = Object.keys(data.searchTypes)[0];
-        const firstItem = data.searchTypes[firstCategory].items[0];
+    const cachedMenuData = sessionStorage.getItem("menuData");
+
+    if (cachedMenuData) {
+      const parsedData = JSON.parse(cachedMenuData);
+      setMenuData(parsedData);
+
+      if (!activeItem) {
+        const firstCategory = Object.keys(parsedData.searchTypes)[0];
+        const firstItem = parsedData.searchTypes[firstCategory].items[0];
         setActiveItem({ category: firstCategory, index: 0 });
         onMenuClick(
           `${firstItem.text}...`,
           firstCategory,
           firstItem.searchType
         );
-      })
-      .catch(console.error);
+      }
+    } else {
+      fetchMenuData()
+        .then((data) => {
+          setMenuData(data);
+          sessionStorage.setItem("menuData", JSON.stringify(data));
+
+          const firstCategory = Object.keys(data.searchTypes)[0];
+          const firstItem = data.searchTypes[firstCategory].items[0];
+          setActiveItem({ category: firstCategory, index: 0 });
+          onMenuClick(
+            `${firstItem.text}...`,
+            firstCategory,
+            firstItem.searchType
+          );
+        })
+        .catch(console.error);
+    }
   }, []);
 
   if (!menuData) return null;
@@ -71,8 +91,8 @@ export default function Sidebar({ onMenuClick }: SidebarProps) {
         top: "60px",
         height: "calc(100vh - 60px)",
         "& .MuiDrawer-paper": {
+          borderRight: "1px solid rgba(142, 32, 65, 0.1)",
           width: 256,
-          backgroundColor: "#FFF",
           color: "text.secondary",
           position: "sticky",
           top: "60px",
@@ -85,7 +105,7 @@ export default function Sidebar({ onMenuClick }: SidebarProps) {
           ([category, { title, items }]) => (
             <React.Fragment key={category}>
               <ListItem disablePadding>
-                <ListItemButton disabled>
+                <ListItemButton sx={{ cursor: "auto" }}>
                   <ListItemText primary={title} />
                 </ListItemButton>
               </ListItem>
@@ -127,4 +147,8 @@ export default function Sidebar({ onMenuClick }: SidebarProps) {
       </List>
     </Drawer>
   );
-}
+});
+
+Sidebar.displayName = "Sidebar";
+
+export default Sidebar;
