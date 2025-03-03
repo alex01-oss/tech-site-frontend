@@ -1,9 +1,10 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import Footer from "./components/footer";
 import ErrorBoundary from "./components/error";
 import { Metadata } from "next";
 import ThemeProviderWrapper from "./context/context";
+import { SnackbarProvider } from "notistack";
+import ClientProviders from "./components/clientsProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -65,9 +66,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProviderWrapper>
+        <ClientProviders>
           <ErrorBoundary>{children}</ErrorBoundary>
-        </ThemeProviderWrapper>
+        </ClientProviders>
       </body>
     </html>
   );

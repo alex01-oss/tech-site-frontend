@@ -8,7 +8,7 @@ import {
   ListItemText,
   ListItemButton,
 } from "@mui/material";
-import { fetchMenuData } from "../api/service";
+import { fetchData } from "../api/service";
 
 interface MenuItem {
   text: string;
@@ -59,7 +59,7 @@ const Sidebar = memo(({ onMenuClick }: SidebarProps) => {
         );
       }
     } else {
-      fetchMenuData()
+      fetchData("menu")
         .then((data) => {
           setMenuData(data);
           sessionStorage.setItem("menuData", JSON.stringify(data));

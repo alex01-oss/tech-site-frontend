@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { Box, useMediaQuery, useTheme } from "@mui/material";
-import { fetchProductsData } from "./api/service";
+import { fetchData } from "./api/service";
 import Sidebar from "./components/sidebar";
 import Search from "./components/search";
 import { Pagination } from "./components/pagination";
@@ -48,18 +48,18 @@ function HomePage() {
   const [placeholder, setPlaceholder] = useState("Search...");
   const [loading, setLoading] = useState(true);
   const [isOpen, setOpen] = useState(false);
-  const [tileHeight, setTileHeight] = useState("50px");
+  const [tileHeight] = useState("50px");
 
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const fetchData = useCallback(async () => {
+  const fetchProductsData = useCallback(async () => {
     if (!searchQuery && !currentPage) return;
 
     try {
-      const data = await fetchProductsData(
-        currentPage,
-        searchQuery,
-        searchType
+      const data = await fetchData(
+        `catalog?search=${encodeURIComponent(
+          searchQuery
+        )}&search_type=${searchType}&page=${currentPage}`
       );
       setProducts(data);
     } catch (error) {
@@ -78,13 +78,18 @@ function HomePage() {
   );
 
   useEffect(() => {
+    // setLoading(true);
+    fetchProductsData();
+  }, [fetchProductsData]);
+
+  useEffect(() => {
     setOpen(!isMobile);
   }, [isMobile]);
 
   useEffect(() => {
     const initialLoad = async () => {
       setLoading(true);
-      await fetchData();
+      await fetchProductsData();
       setLoading(false);
     };
 
@@ -93,9 +98,16 @@ function HomePage() {
 
   useEffect(() => {
     if (!loading) {
-      fetchData();
+      fetchProductsData();
     }
   }, [fetchData, loading]);
+
+  const [signed, setSigned] = useState(false);
+
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    setSigned(!!user);
+  }, []);
 
   const handleSearch = useCallback(
     (query: string, category: string, searchType: string) => {
@@ -130,7 +142,7 @@ function HomePage() {
         {loading ? (
           <NavbarSkeleton />
         ) : (
-          <Navbar isOpen={isOpen} setOpen={setOpen} />
+          <Navbar isOpen={isOpen} setOpen={setOpen} signed={signed} />
         )}
       </Box>
 
@@ -209,7 +221,11 @@ function HomePage() {
             {loading ? (
               <ProductSkeleton />
             ) : (
-              <ProductTable products={products.items} tileHeight={tileHeight} />
+              <ProductTable
+                products={products.items}
+                tileHeight={tileHeight}
+                signed={signed}
+              />
             )}
           </Box>
 

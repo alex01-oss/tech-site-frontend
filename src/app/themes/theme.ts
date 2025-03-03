@@ -31,8 +31,7 @@ export const getThemeOptions = (mode: PaletteMode): ThemeOptions => ({
         root: {
           borderRadius: "4px",
           textTransform: "none",
-          color: "#FFFFFF",
-          transition: "background-color 0.3s ease, transform 0.2s ease",
+          color: mode === 'light' ? "#000" : "#fff",
           "&:hover": {
             transform: "scale(1.05)",
           },
@@ -49,7 +48,6 @@ export const getThemeOptions = (mode: PaletteMode): ThemeOptions => ({
     MuiPaginationItem: {
       styleOverrides: {
         root: {
-          transition: "background-color 0.3s ease, transform 0.2s ease",
           "&.Mui-selected": {
             backgroundColor: mode === 'light' 
               ? "rgba(142, 32, 65, 0.1)" 
