@@ -15,8 +15,10 @@ import SidebarSkeleton from "./components/skeletons/SidebarSkeleton";
 import PaginationSkeleton from "./components/skeletons/PaginationSkeleton";
 import SearchSkeleton from "./components/skeletons/SearchSkeleton";
 import ProductTable from "./components/table";
+import { useStore } from "./store/useStore";
 
 interface Product {
+  Article: string;
   Title: string;
   Price: number;
   Currency: string;
@@ -37,20 +39,20 @@ function HomePage() {
     total_items: 0,
     total_pages: 0,
     current_page: 1,
-    items_per_page: 6,
+    items_per_page: 8,
   });
-
-  const theme = useTheme();
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchType, setSearchType] = useState<string>("");
   const [placeholder, setPlaceholder] = useState("Search...");
   const [loading, setLoading] = useState(true);
-  const [isOpen, setOpen] = useState(false);
-  const [tileHeight] = useState("50px");
+  const [tileHeight] = useState("69px");
 
+  const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+  const { isOpen, setOpen, checkAuth, signed, fetchCart } = useStore();
 
   const fetchProductsData = useCallback(async () => {
     if (!searchQuery && !currentPage) return;
@@ -69,7 +71,7 @@ function HomePage() {
   }, [currentPage, searchQuery, searchType]);
 
   const handleMenuClick = useCallback(
-    (newPlaceholder: string, category: string, newSearchType: string) => {
+    (newPlaceholder: string, _: string, newSearchType: string) => {
       setPlaceholder(newPlaceholder);
       setSearchType(newSearchType);
       setSearchQuery("");
@@ -77,10 +79,14 @@ function HomePage() {
     []
   );
 
-  useEffect(() => {
-    // setLoading(true);
-    fetchProductsData();
-  }, [fetchProductsData]);
+  const handleSearch = useCallback(
+    (query: string, _: string, searchType: string) => {
+      setSearchQuery(query);
+      setCurrentPage(1);
+      setSearchType(searchType);
+    },
+    []
+  );
 
   useEffect(() => {
     setOpen(!isMobile);
@@ -89,34 +95,22 @@ function HomePage() {
   useEffect(() => {
     const initialLoad = async () => {
       setLoading(true);
-      await fetchProductsData();
+      fetchProductsData();
       setLoading(false);
     };
 
     initialLoad();
+  }, [fetchProductsData]);
+
+  useEffect(() => {
+    checkAuth();
   }, []);
 
   useEffect(() => {
-    if (!loading) {
-      fetchProductsData();
+    if (signed) {
+      fetchCart();
     }
-  }, [fetchData, loading]);
-
-  const [signed, setSigned] = useState(false);
-
-  useEffect(() => {
-    const user = localStorage.getItem("user");
-    setSigned(!!user);
-  }, []);
-
-  const handleSearch = useCallback(
-    (query: string, category: string, searchType: string) => {
-      setSearchQuery(query);
-      setCurrentPage(1);
-      setSearchType(searchType);
-    },
-    []
-  );
+  }, [signed]);
 
   return (
     <Box
@@ -139,11 +133,7 @@ function HomePage() {
           zIndex: 1000,
         }}
       >
-        {loading ? (
-          <NavbarSkeleton />
-        ) : (
-          <Navbar isOpen={isOpen} setOpen={setOpen} signed={signed} />
-        )}
+        {loading ? <NavbarSkeleton /> : <Navbar />}
       </Box>
 
       {/* CONTENT */}
@@ -221,11 +211,7 @@ function HomePage() {
             {loading ? (
               <ProductSkeleton />
             ) : (
-              <ProductTable
-                products={products.items}
-                tileHeight={tileHeight}
-                signed={signed}
-              />
+              <ProductTable products={products.items} tileHeight={tileHeight} />
             )}
           </Box>
 

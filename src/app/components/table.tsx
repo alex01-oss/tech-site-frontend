@@ -1,4 +1,4 @@
-import React, { memo, useState } from "react";
+import React, { memo } from "react";
 import {
   Box,
   Container,
@@ -8,49 +8,51 @@ import {
   Typography,
 } from "@mui/material";
 import CustomImage from "./image";
-import useTileHeight from "../hooks/useTileHeight";
 import { ShoppingCart } from "@mui/icons-material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { useSnackbar } from "notistack";
-import { fetchData } from "../api/service";
+import { useStore } from "../store/useStore";
 
 interface Product {
+  Images: string;
   Article: string;
   Title: string;
   Price: number;
   Currency: string;
-  Images: string;
 }
 
 interface ProductTableProps {
   products: Product[];
   tileHeight: string;
-  signed: boolean;
 }
 
 const ProductTable: React.FC<ProductTableProps> = memo(
-  ({ products, signed }) => {
-    const tileHeight = useTileHeight();
-    const [cart, setCart] = useState<Product[]>([]);
+  ({ products, tileHeight }) => {
     const { enqueueSnackbar } = useSnackbar();
+    const { cart, addToCart, removeFromCart, signed } = useStore();
 
-    const addToCart = async (product: Product) => {
-      await fetchData("cart", "POST", {
-        article: product.Article,
-        title: product.Title,
-        price: product.Price,
-        currency: product.Currency,
-      });
+    const isInCart = (article: string) => {
+      return cart.some((item) => item.article === article);
+    };
 
-      setCart((prevCart) => {
-        const isInCart = prevCart.some((item) => item.Title === product.Title);
+    const handleToggleCart = (product: Product) => {
+      if (!signed) {
+        enqueueSnackbar("you must to authorize", {
+          variant: "error",
+        });
+        return;
+      }
 
-        if (isInCart) {
-          return prevCart.filter((item) => item.Title !== product.Title);
-        } else {
-          return [...prevCart, product];
-        }
-      });
+      isInCart(product.Article)
+        ? removeFromCart(product.Article)
+        : addToCart({
+            article: product.Article,
+            title: product.Title,
+            price: product.Price,
+            currency: product.Currency,
+            quantity: 1,
+            // images: product.Images,
+          });
     };
 
     return (
@@ -118,14 +120,11 @@ const ProductTable: React.FC<ProductTableProps> = memo(
 
                   {/* SHOPPING CART */}
                   <IconButton
-                    onClick={() => {
-                      signed
-                        ? addToCart(product)
-                        : enqueueSnackbar("you must to authorize", {
-                            variant: "error",
-                          });
+                    onClick={(e) => {
+                      e.stopPropagation(), handleToggleCart(product);
                     }}
                     sx={{
+                      cursor: "pointer",
                       ml: 2,
                       mr: 1,
                       "&:hover": {
@@ -133,7 +132,7 @@ const ProductTable: React.FC<ProductTableProps> = memo(
                       },
                     }}
                   >
-                    {cart.some((item) => item.Article === product.Article) ? (
+                    {isInCart(product.Article) ? (
                       <CheckCircleIcon sx={{ color: "success.main" }} />
                     ) : (
                       <ShoppingCart />

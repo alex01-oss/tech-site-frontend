@@ -17,17 +17,12 @@ import Brightness7Icon from "@mui/icons-material/Brightness7";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useThemeContext } from "../context/context";
 import AccountMenu from "./accountMenu";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSnackbar } from "notistack";
 import { useRouter } from "next/navigation";
+import { useStore } from "../store/useStore";
 
-interface NavbarProps {
-  isOpen: boolean;
-  setOpen: (isOpen: boolean) => void;
-  signed: boolean;
-}
-
-export default function Navbar({ isOpen, setOpen, signed }: NavbarProps) {
+export default function Navbar() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { mode, toggleColorMode } = useThemeContext();
@@ -35,25 +30,7 @@ export default function Navbar({ isOpen, setOpen, signed }: NavbarProps) {
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
 
-  const [user, setUser] = useState<{ name: string; avatar?: string } | null>(
-    null
-  );
-
-  useEffect(() => {
-    const user = localStorage.getItem("user");
-    if (user) {
-      setUser(JSON.parse(user));
-    } else {
-      const token = localStorage.getItem("accessToken");
-      const email = localStorage.getItem("userEmail");
-
-      if (token && email) {
-        const userData = { name: email, avatar: "" };
-        setUser(userData);
-        localStorage.setItem("user", JSON.stringify(userData));
-      }
-    }
-  }, []);
+  const { isOpen, setOpen, signed, user, logout } = useStore();
 
   const iconButtonStyles = {
     color: isDark ? "#FF6090" : "#8E2041",
@@ -65,12 +42,12 @@ export default function Navbar({ isOpen, setOpen, signed }: NavbarProps) {
   };
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
   const handleProfileClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
+
+  const handleClose = () => setAnchorEl(null);
 
   return (
     <AppBar
@@ -153,18 +130,12 @@ export default function Navbar({ isOpen, setOpen, signed }: NavbarProps) {
 
           {/* ACCOUNT */}
           <Tooltip title="Profile" sx={{ mx: 1 }} onClick={handleProfileClick}>
-            {user ? (
-              <Avatar>{user.name.charAt(0).toUpperCase()}</Avatar>
-            ) : (
-              <Avatar />
-            )}
+            <Avatar>
+              {signed && user ? user.name.charAt(0).toUpperCase() : ""}
+            </Avatar>
           </Tooltip>
 
-          <AccountMenu
-            anchorEl={anchorEl}
-            handleClose={handleClose}
-            setUser={setUser}
-          />
+          <AccountMenu anchorEl={anchorEl} handleClose={handleClose} />
         </Box>
       </Toolbar>
     </AppBar>

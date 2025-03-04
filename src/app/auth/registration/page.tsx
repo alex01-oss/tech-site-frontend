@@ -15,16 +15,14 @@ import Stack from "@mui/material/Stack";
 import Card from "@mui/material/Card";
 import Image from "next/image";
 import { useTheme } from "@mui/material/styles";
-import GoogleIcon, { FacebookIcon } from "../components/customIcon";
-import Navbar from "../components/navbar";
+import GoogleIcon, { FacebookIcon } from "../../components/customIcon";
 import { useState } from "react";
-import { fetchData } from "../api/service";
 import { useRouter } from "next/navigation";
+import { fetchData } from "@/app/api/service";
 
 export default function SignIn() {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
-  const [isOpen, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -33,22 +31,24 @@ export default function SignIn() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
-    setLoading(true);
     const formData = new FormData(event.currentTarget);
 
     const data = {
-      fullName: formData.get("fullName"),
+      username: formData.get("username"),
       email: formData.get("email"),
       password: formData.get("password"),
     };
 
     try {
-      await fetchData("register", "POST", data);
+      const response = await fetchData("register", "POST", data);
+      localStorage.setItem("accessToken", response.token);
+
+      const userData = { name: data.email };
+      localStorage.setItem("user", JSON.stringify(userData));
+
       router.push("/");
     } catch (error) {
       setError("Registration failed. Try again.");
-    } finally {
-      setLoading(true);
     }
   };
 
@@ -82,7 +82,7 @@ export default function SignIn() {
             textAlign="center"
             fontWeight={600}
           >
-            Registration
+            Sign up
           </Typography>
           <Box
             component="form"
@@ -98,7 +98,7 @@ export default function SignIn() {
                 label="Full name"
                 fullWidth
                 variant="outlined"
-                name="fullName"
+                name="username"
                 required
               />
             </FormControl>
@@ -129,19 +129,21 @@ export default function SignIn() {
               variant="contained"
               disabled={loading}
             >
-              {loading ? "Loading..." : "Sign in"}
+              {loading ? "Loading..." : "Sign up"}
             </Button>
+            {error && <Typography color="error">{error}</Typography>}
           </Box>
           <Divider>or</Divider>
           <Box display="flex" flexDirection="column" gap={2}>
             <Button fullWidth variant="outlined" startIcon={<GoogleIcon />}>
-              Sign in with Google
+              Sign up with Google
             </Button>
             <Button fullWidth variant="outlined" startIcon={<FacebookIcon />}>
-              Sign in with Facebook
+              Sign up with Facebook
             </Button>
             <Typography textAlign="center">
-              Don&apos;t have an account? <Link href={"/login"}>Sign up</Link>
+              Already have an account?{" "}
+              <Link onClick={() => router.push("/login")}>Sign in</Link>
             </Typography>
           </Box>
         </Card>

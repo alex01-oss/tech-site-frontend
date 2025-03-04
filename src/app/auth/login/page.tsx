@@ -15,15 +15,15 @@ import Stack from "@mui/material/Stack";
 import Card from "@mui/material/Card";
 import Image from "next/image";
 import { useTheme } from "@mui/material/styles";
-import GoogleIcon, { FacebookIcon } from "../components/customIcon";
+import GoogleIcon, { FacebookIcon } from "../../components/customIcon";
 import { useState } from "react";
-import { fetchData } from "../api/service";
 import { useRouter } from "next/navigation";
+import { fetchData } from "@/app/api/service";
 
 export default function SignIn() {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
-  const [loading, setLoading] = useState(false);
+  const [loading] = useState(false);
   const [error, setError] = useState("");
 
   const router = useRouter();
@@ -120,6 +120,7 @@ export default function SignIn() {
             >
               {loading ? "Loading..." : "Sign in"}
             </Button>
+            {error && <Typography color="error">{error}</Typography>}
           </Box>
           <Divider>or</Divider>
           <Box display="flex" flexDirection="column" gap={2}>
@@ -131,7 +132,7 @@ export default function SignIn() {
             </Button>
             <Typography textAlign="center">
               Don&apos;t have an account?{" "}
-              <Link href="/registration">Sign up</Link>
+              <Link onClick={() => router.push("/registration")}>Sign up</Link>
             </Typography>
           </Box>
         </Card>

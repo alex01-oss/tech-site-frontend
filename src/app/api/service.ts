@@ -19,14 +19,26 @@ export const fetchData = async (
     };
 
     const response = await fetch(`${apiUrl}/${endpoint}`, options);
+    
     if (!response.ok) {
+      const errorText = await response.text();
+      const error: any = new Error(`Failed to fetch ${endpoint}`);
+      error.status = response.status;
+      error.details = errorText;
+      
       if (response.status === 401) {
-        console.error("unauthorized: to access token")
+        console.error("Unauthorized: Access token invalid");
       }
-      throw new Error(`Failed to fetch ${endpoint}`);
+      
+      throw error;
     }
 
-    return await response.json();
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.includes("application/json")) {
+      return await response.json();
+    }
+    
+    return null;
   } catch (error) {
     console.error(`Error fetching ${endpoint}: `, error);
     throw error;

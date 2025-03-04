@@ -6,41 +6,35 @@ import Settings from "@mui/icons-material/Settings";
 import Logout from "@mui/icons-material/Logout";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useStore } from "../store/useStore";
+import { useSnackbar } from "notistack";
 
 interface AccountMenuProps {
   anchorEl: null | HTMLElement;
   handleClose: () => void;
-  setUser: React.Dispatch<
-    React.SetStateAction<{ name: string; avatar?: string } | null>
-  >;
 }
 
 export default function AccountMenu({
   anchorEl,
   handleClose,
-  setUser,
 }: AccountMenuProps) {
   const open = Boolean(anchorEl);
   const router = useRouter();
-  const [signed, setSigned] = useState(false);
+  const { enqueueSnackbar } = useSnackbar();
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("accessToken");
-    setSigned(false);
-    setUser(null);
-  };
+  const { user, logout, signed, checkAuth } = useStore();
 
   useEffect(() => {
-    const user = localStorage.getItem("user");
-    if (user) {
-      setUser(JSON.parse(user));
-      setSigned(true);
-    } else {
-      setSigned(false);
-    }
-  }, []);
+    checkAuth();
+  }, [checkAuth]);
+
+  const handleLogout = () => {
+    logout();
+    checkAuth();
+    handleClose();
+    enqueueSnackbar("you are logged out");
+  };
 
   return (
     <>
@@ -86,7 +80,7 @@ export default function AccountMenu({
             <AccountCircleIcon sx={{ mr: 1.5 }} /> Profile{" "}
           </MenuItem>
         ) : (
-          <MenuItem onClick={() => router.push("/login")}>
+          <MenuItem onClick={() => router.push("/auth/login")}>
             <AccountCircleIcon sx={{ mr: 1.5 }} /> Sign in
           </MenuItem>
         )}
