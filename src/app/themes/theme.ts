@@ -32,9 +32,6 @@ export const getThemeOptions = (mode: PaletteMode): ThemeOptions => ({
           borderRadius: "4px",
           textTransform: "none",
           color: mode === 'light' ? "#000" : "#fff",
-          "&:hover": {
-            transform: "scale(1.05)",
-          },
           "&:active": {
             transform: "scale(0.95)",
           },
@@ -43,6 +40,9 @@ export const getThemeOptions = (mode: PaletteMode): ThemeOptions => ({
             color: mode === 'light' ? "#B0B0B0" : "#7A7A7A"
           },
         },
+        contained: {
+          color: '#fff'
+        }
       },
     },
     MuiPaginationItem: {

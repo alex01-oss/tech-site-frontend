@@ -13,7 +13,6 @@ interface CartItem {
   price: number;
   currency: string;
   quantity: number;
-  // images: string;
 }
 
 interface StoreState {
@@ -32,10 +31,26 @@ interface StoreState {
   fetchCart: () => Promise<void>;
   addToCart: (product: CartItem) => Promise<void>;
   removeFromCart: (article: string) => Promise<void>;
-
   toggleProductSelection: (article: string) => void;
   refreshToken: () => Promise<void>;
 }
+
+const safeLocalStorage = {
+  getItem: (key: string, defaultValue: string = '[]') => {
+    if (typeof window === 'undefined') return defaultValue;
+    return localStorage.getItem(key) || defaultValue;
+  },
+  setItem: (key: string, value: string) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(key, value);
+    }
+  },
+  removeItem: (key: string) => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(key);
+    }
+  }
+};
 
 export const useStore = create<StoreState>((set, get) => ({
   user: null,
@@ -43,27 +58,30 @@ export const useStore = create<StoreState>((set, get) => ({
   signed: false,
   isOpen: false,
   cart: [],
-  selectedProducts: JSON.parse(localStorage.getItem("selectedProducts") || "[]"),
+  selectedProducts: JSON.parse(safeLocalStorage.getItem("selectedProducts")),
 
   checkAuth: () => {
-    const user = localStorage.getItem("user");
-    const token = localStorage.getItem("accessToken");
+    const user = safeLocalStorage.getItem("user", 'null');
+    const token = safeLocalStorage.getItem("accessToken", 'null');
+    
     set({ 
-      signed: !!user && !!token, 
-      user: user ? JSON.parse(user) : null,
-      token: token || null
+      signed: user !== 'null' && token !== 'null', 
+      user: user !== 'null' ? JSON.parse(user) : null,
+      token: token !== 'null' ? token : null
     });
   },
 
   login: (user, token) => {
-    localStorage.setItem("user", JSON.stringify(user));
-    localStorage.setItem("accessToken", token);
+    safeLocalStorage.setItem("user", JSON.stringify(user));
+    safeLocalStorage.setItem("accessToken", token);
+    
     set({ user, token, signed: true });
   },
 
   logout: () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("accessToken");
+    safeLocalStorage.removeItem("user");
+    safeLocalStorage.removeItem("accessToken");
+    
     set({ user: null, token: null, signed: false, cart: [] });
   },
 
@@ -75,33 +93,39 @@ export const useStore = create<StoreState>((set, get) => ({
       set({ cart: response.cart });
     } catch (error: any) {
       if (error.status === 401) {
-        await get().refreshToken();
-        await get().fetchCart();
+        try {
+          await get().refreshToken();
+          const response = await fetchData("cart", "GET");
+          set({ cart: response.cart });
+        } catch (refreshError) {
+          console.error("Failed to refresh token", refreshError);
+          get().logout();
+        }
       } else {
-        console.error("failed to fetch cart", error);
+        console.error("Failed to fetch cart", error);
       }
     }
   },
 
   refreshToken: async () => {
     try {
-      const refreshToken = localStorage.getItem("refreshToken");
+      const refreshToken = safeLocalStorage.getItem("refreshToken");
       
-      if (!refreshToken) {
+      if (!refreshToken || refreshToken === 'null') {
         get().logout();
         return;
       }
 
       const response = await fetchData("auth/refresh", "POST", { refreshToken });
-      
+
       if (response.accessToken) {
-        localStorage.setItem("accessToken", response.accessToken);
+        safeLocalStorage.setItem("accessToken", response.accessToken);
         set({ token: response.accessToken });
       } else {
         get().logout();
       }
     } catch (error) {
-      console.error("Token refresh failed", error);
+      console.error("Failed to refresh token", error);
       get().logout();
     }
   },
@@ -113,15 +137,15 @@ export const useStore = create<StoreState>((set, get) => ({
         title: product.title,
         price: product.price,
         currency: product.currency,
-        // images: product.images
       });
+      
       set((state) => ({ cart: [...state.cart, product] }));
     } catch (error: any) {
       if (error.status === 401) {
         await get().refreshToken();
         await get().addToCart(product);
       } else {
-        console.error("failed to add to cart", error);
+        console.error("Failed to add to cart", error);
       }
     }
   },
@@ -129,16 +153,16 @@ export const useStore = create<StoreState>((set, get) => ({
   removeFromCart: async (article) => {
     try {
       await fetchData("cart", "DELETE", { article });
+      
       set((state) => ({
         cart: state.cart.filter((item) => item.article !== article),
       }));
     } catch (error: any) {
       if (error.status === 401) {
         await get().refreshToken();
-        // Retry removing from cart
         await get().removeFromCart(article);
       } else {
-        console.error("failed to remove from cart", error);
+        console.error("Failed to remove from cart", error);
       }
     }
   },
@@ -149,7 +173,7 @@ export const useStore = create<StoreState>((set, get) => ({
         ? state.selectedProducts.filter((id) => id !== article)
         : [...state.selectedProducts, article];
 
-      localStorage.setItem("selectedProducts", JSON.stringify(newSelectedProducts));
+      safeLocalStorage.setItem("selectedProducts", JSON.stringify(newSelectedProducts));
 
       return { selectedProducts: newSelectedProducts };
     });

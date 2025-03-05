@@ -1,13 +1,18 @@
 const apiUrl =
   process.env.NEXT_PUBLIC_API_URL?.trim() || "http://127.0.0.1:8080/api";
 
+interface FetchError extends Error {
+  status?: number;
+  details?: string;
+}
+
 export const fetchData = async (
   endpoint: string,
   method: string = "GET",
-  body: object | null = null
+  body: object | null = null,
 ) => {
   try {
-    const token = localStorage.getItem("accessToken")
+    const token = localStorage.getItem("accessToken");
     
     const options: RequestInit = {
       method,
@@ -22,24 +27,24 @@ export const fetchData = async (
     
     if (!response.ok) {
       const errorText = await response.text();
-      const error: any = new Error(`Failed to fetch ${endpoint}`);
+      const error: FetchError = new Error(`Failed to fetch ${endpoint}`);
       error.status = response.status;
       error.details = errorText;
-      
-      if (response.status === 401) {
-        console.error("Unauthorized: Access token invalid");
-      }
       
       throw error;
     }
 
     const contentType = response.headers.get("content-type");
-    if (contentType && contentType.includes("application/json")) {
-      return await response.json();
+    return contentType?.includes("application/json") 
+      ? await response.json() 
+      : null;
+  } catch (error) {
+    const fetchError = error as FetchError;
+    
+    if (fetchError.status === 401) {
+      console.error("Unauthorized: Access token invalid");
     }
     
-    return null;
-  } catch (error) {
     console.error(`Error fetching ${endpoint}: `, error);
     throw error;
   }

@@ -80,7 +80,7 @@ export default function AccountMenu({
             <AccountCircleIcon sx={{ mr: 1.5 }} /> Profile{" "}
           </MenuItem>
         ) : (
-          <MenuItem onClick={() => router.push("/auth/login")}>
+          <MenuItem onClick={() => router.push("/login")}>
             <AccountCircleIcon sx={{ mr: 1.5 }} /> Sign in
           </MenuItem>
         )}

@@ -3,9 +3,7 @@
 import * as React from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
-import Checkbox from "@mui/material/Checkbox";
 import CssBaseline from "@mui/material/CssBaseline";
-import FormControlLabel from "@mui/material/FormControlLabel";
 import Divider from "@mui/material/Divider";
 import FormControl from "@mui/material/FormControl";
 import Link from "@mui/material/Link";
@@ -15,16 +13,19 @@ import Stack from "@mui/material/Stack";
 import Card from "@mui/material/Card";
 import Image from "next/image";
 import { useTheme } from "@mui/material/styles";
-import GoogleIcon, { FacebookIcon } from "../../components/customIcon";
+import GoogleIcon, { FacebookIcon } from "../components/customIcon";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { fetchData } from "@/app/api/service";
+import { IconButton, InputAdornment } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 export default function SignIn() {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const [loading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const router = useRouter();
 
@@ -93,7 +94,7 @@ export default function SignIn() {
           >
             <FormControl>
               <TextField
-                autoComplete="chrome-off"
+                type="email"
                 label="Email"
                 fullWidth
                 variant="outlined"
@@ -101,17 +102,32 @@ export default function SignIn() {
                 required
               />
             </FormControl>
-            <FormControl>
-              <TextField
-                autoComplete="chrome-off"
-                label="Password"
-                fullWidth
-                variant="outlined"
-                name="password"
-                required
-              />
-            </FormControl>
-            <FormControlLabel control={<Checkbox />} label="Remember me" />
+
+            <TextField
+              id="password"
+              name="password"
+              type={showPassword ? "text" : "password"}
+              label="Password"
+              fullWidth
+              variant="outlined"
+              required
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label={
+                        showPassword ? "Hide password" : "Show password"
+                      }
+                      onClick={() => setShowPassword(!showPassword)}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+
             <Button
               type="submit"
               fullWidth
@@ -120,6 +136,7 @@ export default function SignIn() {
             >
               {loading ? "Loading..." : "Sign in"}
             </Button>
+
             {error && <Typography color="error">{error}</Typography>}
           </Box>
           <Divider>or</Divider>

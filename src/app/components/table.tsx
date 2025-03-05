@@ -102,7 +102,7 @@ const ProductTable: React.FC<ProductTableProps> = memo(
                         fontWeight: "medium",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
+                        whiteSpace: "normal",
                         width: { xs: "60%", sm: "70%" },
                         mr: 1,
                       }}

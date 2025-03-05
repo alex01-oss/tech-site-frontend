@@ -15,16 +15,19 @@ import Stack from "@mui/material/Stack";
 import Card from "@mui/material/Card";
 import Image from "next/image";
 import { useTheme } from "@mui/material/styles";
-import GoogleIcon, { FacebookIcon } from "../../components/customIcon";
+import GoogleIcon, { FacebookIcon } from "../components/customIcon";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { fetchData } from "@/app/api/service";
+import { IconButton, InputAdornment } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
-export default function SignIn() {
+export default function SignUp() {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const router = useRouter();
 
@@ -94,7 +97,6 @@ export default function SignIn() {
           >
             <FormControl>
               <TextField
-                autoComplete="chrome-off"
                 label="Full name"
                 fullWidth
                 variant="outlined"
@@ -102,9 +104,10 @@ export default function SignIn() {
                 required
               />
             </FormControl>
+
             <FormControl>
               <TextField
-                autoComplete="chrome-off"
+                type="email"
                 label="Email"
                 fullWidth
                 variant="outlined"
@@ -112,17 +115,34 @@ export default function SignIn() {
                 required
               />
             </FormControl>
+
             <FormControl>
               <TextField
-                autoComplete="chrome-off"
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
                 label="Password"
                 fullWidth
                 variant="outlined"
-                name="password"
                 required
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label={
+                          showPassword ? "Hide password" : "Show password"
+                        }
+                        onClick={() => setShowPassword(!showPassword)}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
             </FormControl>
-            <FormControlLabel control={<Checkbox />} label="Remember me" />
+
             <Button
               type="submit"
               fullWidth

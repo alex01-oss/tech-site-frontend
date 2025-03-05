@@ -78,7 +78,8 @@ export default function Navbar() {
           ) : (
             <Box
               component="a"
-              href="https://pdt.tools/"
+              // href="https://pdt.tools/"
+              onClick={() => router.push("/")}
               sx={{
                 pr: 6,
                 width: 255,

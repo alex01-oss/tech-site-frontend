@@ -6,11 +6,7 @@ import { fetchData } from "./api/service";
 import Sidebar from "./components/sidebar";
 import Search from "./components/search";
 import { Pagination } from "./components/pagination";
-import Navbar from "./components/navbar";
-import Footer from "./components/footer";
-import FooterSkeleton from "./components/skeletons/FooterSkeleton";
 import ProductSkeleton from "./components/skeletons/TableSkeleton";
-import NavbarSkeleton from "./components/skeletons/NavbarSkeleton";
 import SidebarSkeleton from "./components/skeletons/SidebarSkeleton";
 import PaginationSkeleton from "./components/skeletons/PaginationSkeleton";
 import SearchSkeleton from "./components/skeletons/SearchSkeleton";
@@ -123,19 +119,6 @@ function HomePage() {
         color: "text.primary",
       }}
     >
-      {/* NAVBAR */}
-      <Box
-        sx={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 1000,
-        }}
-      >
-        {loading ? <NavbarSkeleton /> : <Navbar />}
-      </Box>
-
       {/* CONTENT */}
       <Box sx={{ display: "flex", flex: 1 }}>
         {isOpen && isMobile && (
@@ -230,9 +213,6 @@ function HomePage() {
           </Box>
         </Box>
       </Box>
-
-      {/* FOOTER */}
-      <Box>{loading ? <FooterSkeleton /> : <Footer />}</Box>
     </Box>
   );
 }
