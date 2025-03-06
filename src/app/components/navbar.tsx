@@ -9,6 +9,7 @@ import {
   IconButton,
   Tooltip,
   Avatar,
+  Badge,
 } from "@mui/material";
 import { Divide as Hamburger } from "hamburger-react";
 import Image from "next/image";
@@ -19,7 +20,8 @@ import { useThemeContext } from "../context/context";
 import AccountMenu from "./accountMenu";
 import { useState } from "react";
 import { useSnackbar } from "notistack";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useStore } from "../store/useStore";
 
 export default function Navbar() {
@@ -30,7 +32,16 @@ export default function Navbar() {
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
 
-  const { isOpen, setOpen, signed, user, logout } = useStore();
+  const { isOpen, setOpen, signed, user, cart } = useStore();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const handleClose = () => setAnchorEl(null);
+
+  const cartCount = cart.reduce(
+    (acc: any, item: { quantity: any }) => acc + item.quantity,
+    0
+  );
+  const pathname = usePathname();
+  const isRoute = pathname !== "/";
 
   const iconButtonStyles = {
     color: isDark ? "#FF6090" : "#8E2041",
@@ -41,13 +52,65 @@ export default function Navbar() {
     },
   };
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
   const handleProfileClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => setAnchorEl(null);
+  const renderLogoAndBackButton = () => (
+    <Box
+      component="a"
+      onClick={() => router.push("/")}
+      sx={{
+        pr: 6,
+        width: 255,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        position: "relative",
+      }}
+    >
+      <Image
+        src={isDark ? "/logo_red_light.svg" : "/logo_red.svg"}
+        alt="logo"
+        width={125}
+        height={50}
+      />
+      {isRoute && (
+        <IconButton
+          color="inherit"
+          onClick={() => router.push("/")}
+          sx={{
+            ...iconButtonStyles,
+            position: "absolute",
+            ml: 24,
+          }}
+        >
+          <ArrowBackIcon sx={{ color: isDark ? "#FF6090" : "#8E2041" }} />
+        </IconButton>
+      )}
+    </Box>
+  );
+
+  const renderMobileMenu = () => (
+    <Box sx={{ display: "flex", alignItems: "center" }}>
+      {isRoute ? (
+        <IconButton
+          color="inherit"
+          sx={{ ...iconButtonStyles }}
+          onClick={() => router.push("/")}
+        >
+          <ArrowBackIcon />
+        </IconButton>
+      ) : (
+        <Hamburger
+          toggled={isOpen}
+          toggle={() => setOpen(!isOpen)}
+          color={isDark ? "#FF6090" : "#8E2041"}
+          rounded
+        />
+      )}
+    </Box>
+  );
 
   return (
     <AppBar
@@ -67,39 +130,10 @@ export default function Navbar() {
         }}
       >
         {/* MENU */}
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-          {isMobile ? (
-            <Hamburger
-              toggled={isOpen}
-              toggle={() => setOpen(!isOpen)}
-              color={isDark ? "#FF6090" : "#8E2041"}
-              rounded
-            />
-          ) : (
-            <Box
-              component="a"
-              // href="https://pdt.tools/"
-              onClick={() => router.push("/")}
-              sx={{
-                pr: 6,
-                width: 255,
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Image
-                src={isDark ? "/logo_red_light.svg" : "/logo_red.svg"}
-                alt="logo"
-                width={125}
-                height={50}
-              />
-            </Box>
-          )}
-        </Box>
+        {isMobile ? renderMobileMenu() : renderLogoAndBackButton()}
 
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          {/* THEME */}
+          {/* THEME TOGGLE */}
           <Tooltip
             title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
           >
@@ -118,14 +152,16 @@ export default function Navbar() {
               onClick={() => {
                 signed
                   ? router.push("/cart")
-                  : enqueueSnackbar("you must to authorize", {
+                  : enqueueSnackbar("You must be authorized", {
                       variant: "error",
                     });
               }}
               color="inherit"
               sx={iconButtonStyles}
             >
-              <ShoppingCartIcon />
+              <Badge badgeContent={cartCount} color="secondary">
+                <ShoppingCartIcon />
+              </Badge>
             </IconButton>
           </Tooltip>
 

@@ -43,7 +43,6 @@ function HomePage() {
   const [searchType, setSearchType] = useState<string>("");
   const [placeholder, setPlaceholder] = useState("Search...");
   const [loading, setLoading] = useState(true);
-  const [tileHeight] = useState("69px");
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -194,7 +193,7 @@ function HomePage() {
             {loading ? (
               <ProductSkeleton />
             ) : (
-              <ProductTable products={products.items} tileHeight={tileHeight} />
+              <ProductTable products={products.items} />
             )}
           </Box>
 

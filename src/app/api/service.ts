@@ -27,9 +27,10 @@ export const fetchData = async (
     
     if (!response.ok) {
       const errorText = await response.text();
-      const error: FetchError = new Error(`Failed to fetch ${endpoint}`);
-      error.status = response.status;
-      error.details = errorText;
+      const error = Object.assign(new Error(`Failed to fetch ${endpoint}`), {
+        status: response.status,
+        details: errorText
+      }) as FetchError;
       
       throw error;
     }

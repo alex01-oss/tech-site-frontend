@@ -1,5 +1,7 @@
 import React, { useEffect, useState, memo } from "react";
 import LabelImportantIcon from "@mui/icons-material/LabelImportant";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
   Drawer,
   List,
@@ -7,23 +9,26 @@ import {
   ListItemIcon,
   ListItemText,
   ListItemButton,
+  Collapse,
 } from "@mui/material";
 import { fetchData } from "../api/service";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 
 interface MenuItem {
   text: string;
-  searchType: string;
+  searchType?: string;
+  type?: "button";
+  url?: string;
+  items?: MenuItem[];
 }
 
-interface MenuCategory {
+interface CategoryItems {
   title: string;
   items: MenuItem[];
 }
 
 interface MenuData {
-  searchTypes: {
-    [key: string]: MenuCategory;
-  };
+  [key: string]: CategoryItems;
 }
 
 interface SidebarProps {
@@ -36,10 +41,18 @@ interface SidebarProps {
 
 const Sidebar = memo(({ onMenuClick }: SidebarProps) => {
   const [menuData, setMenuData] = useState<MenuData | null>(null);
+
   const [activeItem, setActiveItem] = useState<{
     category: string;
-    index: number;
+    level1Index: number;
+    level2Index: number;
   } | null>(null);
+
+  const [openLevel1, setOpenLevel1] = useState<{ [key: string]: boolean }>({});
+
+  const [openLevel2, setOpenLevel2] = useState<{
+    [key: string]: { [key: number]: boolean };
+  }>({});
 
   useEffect(() => {
     const cachedMenuData = sessionStorage.getItem("menuData");
@@ -47,35 +60,48 @@ const Sidebar = memo(({ onMenuClick }: SidebarProps) => {
     if (cachedMenuData) {
       const parsedData = JSON.parse(cachedMenuData);
       setMenuData(parsedData);
-
-      if (!activeItem) {
-        const firstCategory = Object.keys(parsedData.searchTypes)[0];
-        const firstItem = parsedData.searchTypes[firstCategory].items[0];
-        setActiveItem({ category: firstCategory, index: 0 });
-        onMenuClick(
-          `${firstItem.text}...`,
-          firstCategory,
-          firstItem.searchType
-        );
-      }
     } else {
       fetchData("menu")
         .then((data) => {
           setMenuData(data);
           sessionStorage.setItem("menuData", JSON.stringify(data));
-
-          const firstCategory = Object.keys(data.searchTypes)[0];
-          const firstItem = data.searchTypes[firstCategory].items[0];
-          setActiveItem({ category: firstCategory, index: 0 });
-          onMenuClick(
-            `${firstItem.text}...`,
-            firstCategory,
-            firstItem.searchType
-          );
         })
         .catch(console.error);
     }
   }, []);
+
+  const toggleLevel1 = (category: string) => {
+    setOpenLevel1({ [category]: !openLevel1[category] });
+    setOpenLevel2({});
+  };
+
+  const toggleLevel2 = (category: string, index: number) => {
+    setOpenLevel2((prev) => {
+      const categoryState = prev[category] || {};
+      return {
+        ...prev,
+        [category]: {
+          ...categoryState,
+          [index]: !categoryState[index],
+        },
+      };
+    });
+  };
+
+  const handleMenuItemClick = (
+    category: string,
+    level1Index: number,
+    level2Index: number,
+    itemText: string,
+    searchType: string = ""
+  ) => {
+    setActiveItem({
+      category,
+      level1Index,
+      level2Index,
+    });
+    onMenuClick(itemText, category, searchType);
+  };
 
   if (!menuData) return null;
 
@@ -97,53 +123,119 @@ const Sidebar = memo(({ onMenuClick }: SidebarProps) => {
           position: "sticky",
           top: "60px",
           height: "calc(100vh - 60px)",
+          overflowY: "auto",
         },
       }}
     >
       <List>
-        {Object.entries(menuData.searchTypes).map(
-          ([category, { title, items }]) => (
-            <React.Fragment key={category}>
-              <ListItem disablePadding>
-                <ListItemButton sx={{ cursor: "auto" }}>
-                  <ListItemText primary={title} />
-                </ListItemButton>
-              </ListItem>
+        {Object.entries(menuData).map(([category, { title, items }]) => (
+          <React.Fragment key={category}>
+            {/* Заголовок категорії першого рівня */}
+            <ListItem disablePadding>
+              <ListItemButton
+                onClick={() => toggleLevel1(category)}
+                sx={{
+                  fontWeight: "bold",
+                }}
+              >
+                <ListItemIcon sx={{ minWidth: "30px" }}>
+                  {openLevel1[category] ? (
+                    <ExpandMoreIcon />
+                  ) : (
+                    <ChevronRightIcon />
+                  )}
+                </ListItemIcon>
+                <ListItemText primary={title} />
+              </ListItemButton>
+            </ListItem>
 
-              {items.map((item, index) => (
-                <ListItem key={index} disablePadding>
-                  <ListItemButton
-                    onClick={() => {
-                      setActiveItem({ category, index });
-                      onMenuClick(item.text, category, item.searchType);
-                    }}
-                    sx={{
-                      color: "text.primary",
-                      borderRadius: "8px",
-                      margin: "6px 12px",
-                      "&:hover": {
-                        backgroundColor: "rgba(142, 32, 65, 0.1)",
-                        color: "primary.main",
-                      },
-                      ...(activeItem?.category === category &&
-                      activeItem?.index === index
-                        ? {
-                            backgroundColor: "rgba(142, 32, 65, 0.1)",
-                            color: "primary.main",
-                          }
-                        : {}),
-                    }}
-                  >
-                    <ListItemIcon sx={{ color: "inherit" }}>
-                      <LabelImportantIcon />
-                    </ListItemIcon>
-                    <ListItemText primary={item.text} />
-                  </ListItemButton>
-                </ListItem>
-              ))}
-            </React.Fragment>
-          )
-        )}
+            {/* Пункти другого рівня */}
+            <Collapse in={openLevel1[category]} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                {items.map((level1Item, level1Index) => (
+                  <React.Fragment key={`${category}-${level1Index}`}>
+                    {/* Пункт другого рівня */}
+                    <ListItem disablePadding>
+                      <ListItemButton
+                        onClick={() => toggleLevel2(category, level1Index)}
+                        sx={{
+                          pl: 4,
+                          color: "text.primary",
+                        }}
+                      >
+                        <ListItemIcon sx={{ minWidth: "30px" }}>
+                          {openLevel2[category]?.[level1Index] ? (
+                            <ExpandMoreIcon />
+                          ) : (
+                            <ChevronRightIcon />
+                          )}
+                        </ListItemIcon>
+                        <ListItemText primary={level1Item.text} />
+                      </ListItemButton>
+                    </ListItem>
+
+                    {/* Пункти третього рівня */}
+                    {level1Item.items && level1Item.items.length > 0 && (
+                      <Collapse
+                        in={openLevel2[category]?.[level1Index]}
+                        timeout="auto"
+                        unmountOnExit
+                      >
+                        <List component="div" disablePadding>
+                          {level1Item.items.map((level2Item, level2Index) =>
+                            level2Item.type === "button" ? (
+                              // Якщо це кнопка (PDF) — рендеримо її окремо
+                              <ListItem
+                                key={`${category}-${level1Index}-${level2Index}`}
+                                disablePadding
+                              >
+                                <ListItemButton
+                                  component="a"
+                                  href={level2Item.url}
+                                  target="_blank"
+                                  sx={{ pl: 6 }}
+                                >
+                                  <ListItemIcon sx={{ minWidth: "30px" }}>
+                                    <PictureAsPdfIcon fontSize="small" />
+                                  </ListItemIcon>
+                                  <ListItemText primary={level2Item.text} />
+                                </ListItemButton>
+                              </ListItem>
+                            ) : (
+                              // Інакше — це пошук
+                              <ListItem
+                                key={`${category}-${level1Index}-${level2Index}`}
+                                disablePadding
+                              >
+                                <ListItemButton
+                                  onClick={() =>
+                                    handleMenuItemClick(
+                                      category,
+                                      level1Index,
+                                      level2Index,
+                                      level2Item.text,
+                                      level2Item.searchType
+                                    )
+                                  }
+                                  sx={{ pl: 6 }}
+                                >
+                                  <ListItemIcon sx={{ minWidth: "30px" }}>
+                                    <LabelImportantIcon fontSize="small" />
+                                  </ListItemIcon>
+                                  <ListItemText primary={level2Item.text} />
+                                </ListItemButton>
+                              </ListItem>
+                            )
+                          )}
+                        </List>
+                      </Collapse>
+                    )}
+                  </React.Fragment>
+                ))}
+              </List>
+            </Collapse>
+          </React.Fragment>
+        ))}
       </List>
     </Drawer>
   );
