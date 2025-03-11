@@ -12,39 +12,62 @@ import {
   Grid,
   Typography,
   Paper,
-  IconButton,
   Divider,
+  MobileStepper,
+  useTheme,
+  FormLabel,
+  FormControlLabel,
+  Radio,
+  RadioGroup,
 } from "@mui/material";
-import { Delete } from "@mui/icons-material";
 import { useStore } from "../store/useStore";
-import CustomImage from "../components/image";
-import StickyBox from "react-sticky-box";
+import ProductTable from "../components/table";
+import { KeyboardArrowLeft, KeyboardArrowRight } from "@mui/icons-material";
+import { useSnackbar } from "notistack";
+import * as Yup from "yup";
+import { Formik, Field, Form } from "formik";
 
 interface OrderFormData {
-  fullName: string;
+  name: string;
+  surname: string;
   phoneNumber: string;
   email: string;
   address: string;
-  city: string;
-  postalCode: string;
   deliveryMethod: string;
+  paymentMethod: string;
 }
+
+const OrderFormSchema = Yup.object().shape({
+  name: Yup.string().required("Name is required"),
+  surname: Yup.string().required("Surname is required"),
+  phoneNumber: Yup.string()
+    .matches(/^[+]?[0-9]{10,15}$/, "Invalid phone number")
+    .required("Phone is required"),
+  email: Yup.string().email("Invalid email").required("Email is required"),
+  address: Yup.string().required("Address is required"),
+  paymentMethod: Yup.string().required("Payment method is required"),
+  deliveryMethod: Yup.string().required("Delivery method is required"),
+});
 
 const OrderForm: React.FC = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [totalSum, setTotalSum] = useState(0);
   const [currency, setCurrency] = useState("USD");
+  const [activeStep, setActiveStep] = useState(1);
 
-  const { cart, fetchCart, removeFromCart } = useStore();
+  const { cart, fetchCart } = useStore();
   const [formData, setFormData] = useState<OrderFormData>({
-    fullName: "",
+    name: "",
+    surname: "",
     phoneNumber: "",
     email: "",
     address: "",
-    city: "",
-    postalCode: "",
     deliveryMethod: "standard",
+    paymentMethod: "",
   });
+
+  const theme = useTheme();
+  const { enqueueSnackbar } = useSnackbar();
 
   useEffect(() => {
     fetchCart();
@@ -59,170 +82,243 @@ const OrderForm: React.FC = () => {
     }
 
     cart.forEach((item) => {
-      total += item.price * item.quantity;
-      count += item.quantity;
+      total += item.price;
+      count += 1;
     });
 
     setTotalSum(total);
     setTotalItems(count);
   }, [cart]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
-  ) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name as string]: value }));
+  const handleNext = () => {
+    if (activeStep === 2) {
+      const isFormValid = Object.values(formData).every(
+        (value) => value !== ""
+      );
+      if (!isFormValid) {
+        enqueueSnackbar("Please fill in all the required fields", {
+          variant: "error",
+        });
+      } else {
+        setActiveStep((prev) => prev + 1);
+      }
+    } else {
+      setActiveStep((prev) => prev + 1);
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Order submitted:", formData);
+  const handleBack = () => {
+    setActiveStep((prev) => (prev -= 1));
   };
+
+  const steps = ["Products Table", "Customer Details", "Order Summary"];
 
   return (
     <Box
       sx={{
-        minHeight: "100vh",
+        minHeight: "calc(100vh - 60px)",
         mt: "60px",
         bgcolor: "background.default",
         padding: 2,
       }}
     >
-      <Grid container spacing={3}>
-        {/* Left Column - Cart and Order Form */}
-        <Grid item xs={12} md={8}>
-          {/* CART BLOCK */}
-          <Paper sx={{ p: 3, borderRadius: 2, mb: 3 }}>
-            <Typography variant="h5" sx={{ mb: 2 }}>
-              Shopping Cart
-            </Typography>
-            <Grid container spacing={2}>
-              {cart.map((item: any, index: number) => (
-                <Grid item xs={12} key={index}>
-                  <Paper
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      p: 2,
-                      minWidth: { xs: "40px", sm: "50px" },
-                      // mr: 2,
-                    }}
-                  >
-                    <Box sx={{ minWidth: { xs: "40px", sm: "50px" }, mr: 2 }}>
-                      <CustomImage
-                        src="/placeholder.svg"
-                        alt="product"
-                        width={50}
-                        height={50}
-                      />
-                    </Box>
-                    <Box sx={{ flexGrow: 1, ml: 2 }}>
-                      <Typography variant="body1" sx={{ whiteSpace: "normal" }}>
-                        {item.title}
-                      </Typography>
-                      <Typography variant="body2">
-                        {item.price} {item.currency}
-                      </Typography>
-                    </Box>
-                    <IconButton onClick={() => removeFromCart(item.article)}>
-                      <Delete />
-                    </IconButton>
-                  </Paper>
-                </Grid>
-              ))}
-            </Grid>
-          </Paper>
+      {/* STEPPER */}
+      <MobileStepper
+        variant="progress"
+        steps={4}
+        position="static"
+        activeStep={activeStep}
+        sx={{ maxWidth: 400, flexGrow: 1, margin: "auto", mb: 1 }}
+        nextButton={
+          <Button size="small" onClick={handleNext} disabled={activeStep === 3}>
+            Next
+            {theme.direction === "rtl" ? (
+              <KeyboardArrowLeft />
+            ) : (
+              <KeyboardArrowRight />
+            )}
+          </Button>
+        }
+        backButton={
+          <Button size="small" onClick={handleBack} disabled={activeStep === 1}>
+            {theme.direction === "rtl" ? (
+              <KeyboardArrowRight />
+            ) : (
+              <KeyboardArrowLeft />
+            )}
+            Back
+          </Button>
+        }
+      />
 
-          {/* ORDER FORM BLOCK */}
+      <Box sx={{ maxWidth: 800, mx: "auto" }}>
+        {/* CART BLOCK */}
+        {activeStep === 1 &&
+          (cart.length === 0 ? (
+            <Typography
+              variant="h6"
+              sx={{ textAlign: "center", color: "text.secondary" }}
+            >
+              Your cart is empty. Add some products to your cart.
+            </Typography>
+          ) : (
+            <ProductTable products={cart} isCartView />
+          ))}
+
+        {/* ORDER FORM BLOCK */}
+        {activeStep === 2 && (
           <Paper sx={{ p: 3, borderRadius: 2 }}>
             <Typography variant="h5" sx={{ mb: 2 }}>
               Placing an order
             </Typography>
-            <form onSubmit={handleSubmit}>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Name"
-                    variant="outlined"
-                    name="fullName"
-                    onChange={handleChange}
-                    required
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Surname"
-                    variant="outlined"
-                    name="surname"
-                    onChange={handleChange}
-                    required
-                  />
-                </Grid>
+            <Formik
+              initialValues={formData}
+              validationSchema={OrderFormSchema}
+              onSubmit={(values) => {
+                enqueueSnackbar("Form submitted successfully", {
+                  variant: "success",
+                });
+                console.log("Form submitted with values:", values);
+              }}
+            >
+              {({ values, handleChange, errors, touched }) => (
+                <Form>
+                  <Grid container spacing={2}>
+                    <Grid item xs={12} sm={6}>
+                      <Field
+                        as={TextField}
+                        fullWidth
+                        label="Name"
+                        variant="outlined"
+                        name="name"
+                        value={values.name}
+                        onChange={handleChange}
+                        error={touched.name && Boolean(errors.name)}
+                        helperText={touched.name && errors.name}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <Field
+                        as={TextField}
+                        fullWidth
+                        label="Surname"
+                        variant="outlined"
+                        name="surname"
+                        value={values.surname}
+                        onChange={handleChange}
+                        error={touched.surname && Boolean(errors.surname)}
+                        helperText={touched.surname && errors.surname}
+                      />
+                    </Grid>
 
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Phone number"
-                    variant="outlined"
-                    name="phoneNumber"
-                    value={formData.phoneNumber}
-                    onChange={handleChange}
-                    required
-                    inputProps={{
-                      pattern: "^[+]?[0-9]{10,15}$",
-                    }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Email"
-                    variant="outlined"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    type="email"
-                  />
-                </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <Field
+                        as={TextField}
+                        fullWidth
+                        label="Phone number"
+                        variant="outlined"
+                        name="phoneNumber"
+                        value={values.phoneNumber}
+                        onChange={handleChange}
+                        error={
+                          touched.phoneNumber && Boolean(errors.phoneNumber)
+                        }
+                        helperText={touched.phoneNumber && errors.phoneNumber}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <Field
+                        as={TextField}
+                        fullWidth
+                        label="Email"
+                        variant="outlined"
+                        name="email"
+                        value={values.email}
+                        onChange={handleChange}
+                        error={touched.email && Boolean(errors.email)}
+                        helperText={touched.email && errors.email}
+                      />
+                    </Grid>
 
-                <Grid item xs={12}>
-                  <TextField
-                    label="Address"
-                    variant="outlined"
-                    fullWidth
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                    required
-                  />
-                </Grid>
+                    <Grid item xs={12}>
+                      <Field
+                        as={TextField}
+                        label="Address"
+                        variant="outlined"
+                        fullWidth
+                        name="address"
+                        value={values.address}
+                        onChange={handleChange}
+                        error={touched.address && Boolean(errors.address)}
+                        helperText={touched.address && errors.address}
+                      />
+                    </Grid>
 
-                <Grid item xs={12}>
-                  <FormControl fullWidth required>
-                    <InputLabel>Delivery method</InputLabel>
-                    <Select
-                      label="Delivery method"
-                      name="deliveryMethod"
-                      value={formData.deliveryMethod}
-                      onChange={() => handleChange}
-                    >
-                      <MenuItem value="standard">Standard delivery</MenuItem>
-                      <MenuItem value="express">Express delivery</MenuItem>
-                      <MenuItem value="pickup">Self-delivery</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-              </Grid>
-            </form>
+                    <Grid item xs={12}>
+                      <FormControl fullWidth required>
+                        <InputLabel>Delivery method</InputLabel>
+                        <Select
+                          label="Delivery method"
+                          name="deliveryMethod"
+                          value={values.deliveryMethod}
+                          onChange={handleChange}
+                        >
+                          <MenuItem value="standard">
+                            Standard delivery
+                          </MenuItem>
+                          <MenuItem value="express">Express delivery</MenuItem>
+                          <MenuItem value="pickup">Self-delivery</MenuItem>
+                        </Select>
+                      </FormControl>
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <FormControl fullWidth required>
+                        <FormLabel>Payment</FormLabel>
+                        <RadioGroup
+                          name="paymentMethod"
+                          value={values.paymentMethod}
+                          onChange={handleChange}
+                        >
+                          <FormControlLabel
+                            value="cashOnDelivery"
+                            control={<Radio />}
+                            label="Payment upon receipt of goods"
+                          />
+                          <FormControlLabel
+                            value="payNow"
+                            control={<Radio />}
+                            label="Pay now"
+                          />
+                          <FormControlLabel
+                            value="installments"
+                            control={<Radio />}
+                            label="Credit and payment in installments"
+                          />
+                        </RadioGroup>
+                      </FormControl>
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        fullWidth
+                        type="submit"
+                      >
+                        Submit Order
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </Form>
+              )}
+            </Formik>
           </Paper>
-        </Grid>
+        )}
 
-        {/* Order Summary Sidebar */}
-        <Grid item xs={12} md={4}>
-          <StickyBox offsetTop={80} offsetBottom={20}>
+        {/* ORDER SUMMARY BLOCK */}
+        {activeStep === 3 && (
+          <Grid item xs={12} md={4}>
             <Paper sx={{ p: 3, borderRadius: 2 }}>
               <Typography variant="h6">Order Summary</Typography>
               <Divider sx={{ my: 2 }} />
@@ -259,9 +355,9 @@ const OrderForm: React.FC = () => {
                 Confirm Order
               </Button>
             </Paper>
-          </StickyBox>
-        </Grid>
-      </Grid>
+          </Grid>
+        )}
+      </Box>
     </Box>
   );
 };

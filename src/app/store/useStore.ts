@@ -12,19 +12,23 @@ interface CartItem {
   title: string;
   price: number;
   currency: string;
-  quantity: number;
+  images: string;
 }
 
 interface StoreState {
   user: User | null;
   token: string | null;
+  tokenExpiration: number | null;
   signed: boolean;
   isOpen: boolean;
   cart: CartItem[];
   selectedProducts: string[];
+  isInitialized: boolean;
+  isCartLoading: boolean;
   
-  checkAuth: () => void;
-  login: (user: User, token: string) => void;
+  initialize: () => Promise<void>;
+  checkAuth: () => Promise<boolean>;
+  login: (user: User, token: string, refreshToken: string) => void;
   logout: () => void;
   setOpen: (isOpen: boolean) => void;
   
@@ -32,7 +36,7 @@ interface StoreState {
   addToCart: (product: CartItem) => Promise<void>;
   removeFromCart: (article: string) => Promise<void>;
   toggleProductSelection: (article: string) => void;
-  refreshToken: () => Promise<void>;
+  refreshToken: () => Promise<boolean>;
 }
 
 const safeLocalStorage = {
@@ -52,98 +56,188 @@ const safeLocalStorage = {
   }
 };
 
+const safeJsonParse = (jsonString: string, fallback: any = []) => {
+  try {
+    return JSON.parse(jsonString);
+  } catch (e) {
+    console.error("Failed to parse JSON", e);
+    return fallback;
+  }
+};
+
 export const useStore = create<StoreState>((set, get) => ({
   user: null,
   token: null,
+  tokenExpiration: null,
   signed: false,
   isOpen: false,
   cart: [],
-  selectedProducts: JSON.parse(safeLocalStorage.getItem("selectedProducts")),
+  selectedProducts: safeJsonParse(safeLocalStorage.getItem("selectedProducts"), []),
+  isInitialized: false,
+  isCartLoading: false,
 
-  checkAuth: () => {
-    const user = safeLocalStorage.getItem("user", 'null');
-    const token = safeLocalStorage.getItem("accessToken", 'null');
+  initialize: async () => {
+    const isAuthenticated = await get().checkAuth();
     
-    set({ 
-      signed: user !== 'null' && token !== 'null', 
-      user: user !== 'null' ? JSON.parse(user) : null,
-      token: token !== 'null' ? token : null
-    });
+    if (isAuthenticated) {
+      await get().fetchCart();
+    }
+    
+    set({ isInitialized: true });
   },
 
-  login: (user, token) => {
+  checkAuth: async () => {
+    const userStr = safeLocalStorage.getItem("user", 'null');
+    const token = safeLocalStorage.getItem("accessToken", 'null');
+    const tokenExpiration = parseInt(safeLocalStorage.getItem("tokenExpiration", '0'));
+    
+    const user = userStr !== 'null' ? safeJsonParse(userStr, null) : null;
+    let isAuthenticated = user !== null && token !== 'null';
+    
+    if (isAuthenticated && tokenExpiration && tokenExpiration < Date.now()) {
+      isAuthenticated = await get().refreshToken();
+      if (!isAuthenticated) {
+        set({ 
+          signed: false, 
+          user: null,
+          token: null
+        });
+        return false;
+      }
+    }
+    
+    set({ 
+      signed: isAuthenticated, 
+      user,
+      token: isAuthenticated ? token : null,
+      tokenExpiration: isAuthenticated ? tokenExpiration : null
+    });
+    
+    return isAuthenticated;
+  },
+
+  login: (user, token, refreshToken) => {
+    const expirationTime = Date.now() + 3600 * 1000;
+    
     safeLocalStorage.setItem("user", JSON.stringify(user));
     safeLocalStorage.setItem("accessToken", token);
+    safeLocalStorage.setItem("refreshToken", refreshToken);
+    safeLocalStorage.setItem("tokenExpiration", expirationTime.toString());
     
-    set({ user, token, signed: true });
+    set({ 
+      user, 
+      token, 
+      signed: true,
+      tokenExpiration: expirationTime
+    });
+    
+    get().fetchCart();
   },
 
   logout: () => {
     safeLocalStorage.removeItem("user");
     safeLocalStorage.removeItem("accessToken");
+    safeLocalStorage.removeItem("refreshToken");
+    safeLocalStorage.removeItem("tokenExpiration");
     
-    set({ user: null, token: null, signed: false, cart: [] });
+    set({ 
+      user: null, 
+      token: null, 
+      tokenExpiration: null, 
+      signed: false, 
+      cart: [] 
+    });
   },
 
   setOpen: (isOpen) => set({ isOpen }),
 
   fetchCart: async () => {
+    if (!get().signed || get().isCartLoading) return;
+    
+    set({ isCartLoading: true });
+    
     try {
       const response = await fetchData("cart", "GET");
-      set({ cart: response.cart });
+      set({ cart: response.cart || [], isCartLoading: false });
     } catch (error: any) {
       if (error.status === 401) {
-        try {
-          await get().refreshToken();
-          const response = await fetchData("cart", "GET");
-          set({ cart: response.cart });
-        } catch (refreshError) {
-          console.error("Failed to refresh token", refreshError);
-          get().logout();
+        const refreshSuccessful = await get().refreshToken();
+        if (refreshSuccessful) {
+          try {
+            const response = await fetchData("cart", "GET");
+            set({ cart: response.cart || [], isCartLoading: false });
+          } catch (retryError) {
+            console.error("Failed to fetch cart after token refresh", retryError);
+            set({ isCartLoading: false });
+          }
+        } else {
+          set({ isCartLoading: false });
         }
       } else {
         console.error("Failed to fetch cart", error);
+        set({ isCartLoading: false });
       }
     }
   },
 
   refreshToken: async () => {
     try {
-      const refreshToken = safeLocalStorage.getItem("refreshToken");
+      const refreshToken = safeLocalStorage.getItem("refreshToken", 'null');
       
-      if (!refreshToken || refreshToken === 'null') {
+      if (refreshToken === 'null') {
         get().logout();
-        return;
+        return false;
       }
 
       const response = await fetchData("auth/refresh", "POST", { refreshToken });
 
-      if (response.accessToken) {
+      if (response && response.accessToken) {
         safeLocalStorage.setItem("accessToken", response.accessToken);
-        set({ token: response.accessToken });
+        
+        const expirationTime = Date.now() + 3600 * 1000;
+        safeLocalStorage.setItem("tokenExpiration", expirationTime.toString());
+        
+        set({ 
+          token: response.accessToken,
+          tokenExpiration: expirationTime
+        });
+        
+        return true;
       } else {
         get().logout();
+        return false;
       }
     } catch (error) {
       console.error("Failed to refresh token", error);
       get().logout();
+      return false;
     }
   },
 
   addToCart: async (product) => {
+    if (!get().signed) {
+      console.error("Cannot add to cart: User not authenticated");
+      return;
+    }
+    
     try {
       await fetchData("cart", "POST", {
         article: product.article,
         title: product.title,
         price: product.price,
         currency: product.currency,
+        images: product.images
       });
       
-      set((state) => ({ cart: [...state.cart, product] }));
+      set((state) => ({ 
+        cart: [...state.cart.filter(item => item.article !== product.article), product] 
+      }));
     } catch (error: any) {
       if (error.status === 401) {
-        await get().refreshToken();
-        await get().addToCart(product);
+        const refreshSuccessful = await get().refreshToken();
+        if (refreshSuccessful) {
+          await get().addToCart(product);
+        }
       } else {
         console.error("Failed to add to cart", error);
       }
@@ -151,6 +245,11 @@ export const useStore = create<StoreState>((set, get) => ({
   },
 
   removeFromCart: async (article) => {
+    if (!get().signed) {
+      console.error("Cannot remove from cart: User not authenticated");
+      return;
+    }
+    
     try {
       await fetchData("cart", "DELETE", { article });
       
@@ -159,8 +258,10 @@ export const useStore = create<StoreState>((set, get) => ({
       }));
     } catch (error: any) {
       if (error.status === 401) {
-        await get().refreshToken();
-        await get().removeFromCart(article);
+        const refreshSuccessful = await get().refreshToken();
+        if (refreshSuccessful) {
+          await get().removeFromCart(article);
+        }
       } else {
         console.error("Failed to remove from cart", error);
       }

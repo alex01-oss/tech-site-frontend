@@ -8,56 +8,57 @@ import {
   Typography,
 } from "@mui/material";
 import CustomImage from "./image";
-import { ShoppingCart } from "@mui/icons-material";
+import { Delete, ShoppingCart } from "@mui/icons-material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { useSnackbar } from "notistack";
 import { useStore } from "../store/useStore";
 
 interface Product {
-  Images: string;
-  Article: string;
-  Title: string;
-  Price: number;
-  Currency: string;
+  article: string;
+  title: string;
+  price: number;
+  currency: string;
+  images: string;
 }
 
 interface ProductTableProps {
   products: Product[];
+  isCartView?: boolean;
 }
 
-const ProductTable: React.FC<ProductTableProps> = memo(({ products }) => {
-  const { enqueueSnackbar } = useSnackbar();
-  const { cart, addToCart, removeFromCart, signed } = useStore();
+const ProductTable: React.FC<ProductTableProps> = memo(
+  ({ products, isCartView }) => {
+    const { enqueueSnackbar } = useSnackbar();
+    const { cart, addToCart, removeFromCart, signed } = useStore();
 
-  const isInCart = (article: string) => {
-    return cart.some((item) => item.article === article);
-  };
+    const isInCart = (article: string) => {
+      return cart.some((item) => item.article === article);
+    };
 
-  const handleToggleCart = (product: Product) => {
-    if (!signed) {
-      enqueueSnackbar("you must to authorize", {
-        variant: "error",
-      });
-      return;
-    }
-
-    isInCart(product.Article)
-      ? removeFromCart(product.Article)
-      : addToCart({
-          article: product.Article,
-          title: product.Title,
-          price: product.Price,
-          currency: product.Currency,
-          quantity: 1,
-          // images: product.Images,
+    const handleToggleCart = (product: Product) => {
+      if (!signed) {
+        enqueueSnackbar("you must to authorize", {
+          variant: "error",
         });
-  };
+        return;
+      }
 
-  return (
-    <Container sx={{ flex: 1, px: 3, pt: 3 }}>
+      isInCart(product.article)
+        ? removeFromCart(product.article)
+        : addToCart({
+            article: product.article,
+            title: product.title,
+            price: product.price,
+            currency: product.currency,
+            // Quantity: 1,
+            images: product.images,
+          });
+    };
+
+    return (
       <Grid container spacing={1.5}>
         {products.map((product, index) => (
-          <Grid item xs={12} key={`product-${index}-${product.Title}`}>
+          <Grid item xs={12} key={`product-${index}-${product.title}`}>
             <Paper
               elevation={1}
               sx={{
@@ -74,9 +75,9 @@ const ProductTable: React.FC<ProductTableProps> = memo(({ products }) => {
                 sx={{ display: "flex", width: "100%", alignItems: "center" }}
               >
                 {/* IMAGE */}
-                <Box sx={{ minWidth: { xs: "40px", sm: "50px" }, mr: 2 }}>
+                <Box sx={{ minWidth: { xs: "40px", sm: "50px" }, mx: 1 }}>
                   <CustomImage
-                    src={product.Images?.split(",")[0].trim()}
+                    src={product.images?.split(",")[0].trim()}
                     alt="product"
                     width={40}
                     height={40}
@@ -106,14 +107,14 @@ const ProductTable: React.FC<ProductTableProps> = memo(({ products }) => {
                       mr: 1,
                     }}
                   >
-                    {product.Title}
+                    {product.title}
                   </Typography>
 
                   <Typography
                     variant="body2"
                     sx={{ fontWeight: "medium", ml: "auto" }}
                   >
-                    {product.Price} {product.Currency}
+                    {product.price} {product.currency}
                   </Typography>
                 </Box>
 
@@ -131,7 +132,9 @@ const ProductTable: React.FC<ProductTableProps> = memo(({ products }) => {
                     },
                   }}
                 >
-                  {isInCart(product.Article) ? (
+                  {isCartView ? (
+                    <Delete color="error" />
+                  ) : isInCart(product.article) ? (
                     <CheckCircleIcon sx={{ color: "success.main" }} />
                   ) : (
                     <ShoppingCart />
@@ -142,9 +145,9 @@ const ProductTable: React.FC<ProductTableProps> = memo(({ products }) => {
           </Grid>
         ))}
       </Grid>
-    </Container>
-  );
-});
+    );
+  }
+);
 
 ProductTable.displayName = "ProductTable";
 

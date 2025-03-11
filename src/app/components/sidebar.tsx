@@ -1,5 +1,4 @@
 import React, { useEffect, useState, memo } from "react";
-import LabelImportantIcon from "@mui/icons-material/LabelImportant";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
@@ -13,6 +12,7 @@ import {
 } from "@mui/material";
 import { fetchData } from "../api/service";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
+import { Search } from "@mui/icons-material";
 
 interface MenuItem {
   text: string;
@@ -220,7 +220,7 @@ const Sidebar = memo(({ onMenuClick }: SidebarProps) => {
                                   sx={{ pl: 6 }}
                                 >
                                   <ListItemIcon sx={{ minWidth: "30px" }}>
-                                    <LabelImportantIcon fontSize="small" />
+                                    <Search fontSize="small" />
                                   </ListItemIcon>
                                   <ListItemText primary={level2Item.text} />
                                 </ListItemButton>

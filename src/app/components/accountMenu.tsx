@@ -23,7 +23,7 @@ export default function AccountMenu({
   const router = useRouter();
   const { enqueueSnackbar } = useSnackbar();
 
-  const { user, logout, signed, checkAuth } = useStore();
+  const { logout, signed, checkAuth } = useStore();
 
   useEffect(() => {
     checkAuth();
@@ -34,6 +34,7 @@ export default function AccountMenu({
     checkAuth();
     handleClose();
     enqueueSnackbar("you are logged out");
+    router.push("/");
   };
 
   return (

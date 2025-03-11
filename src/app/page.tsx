@@ -14,11 +14,11 @@ import ProductTable from "./components/table";
 import { useStore } from "./store/useStore";
 
 interface Product {
-  Article: string;
-  Title: string;
-  Price: number;
-  Currency: string;
-  Images: string;
+  article: string;
+  title: string;
+  price: number;
+  currency: string;
+  images: string;
 }
 
 interface Products {
@@ -175,7 +175,7 @@ function HomePage() {
           }}
         >
           {/* SEARCH */}
-          <Box sx={{ px: 3, pt: 3 }}>
+          <Box sx={{ p: 3 }}>
             {loading ? (
               <SearchSkeleton />
             ) : (
@@ -189,7 +189,7 @@ function HomePage() {
           </Box>
 
           {/* PRODUCTS TABLE */}
-          <Box sx={{ position: "relative" }}>
+          <Box sx={{ position: "relative", mx: 3 }}>
             {loading ? (
               <ProductSkeleton />
             ) : (

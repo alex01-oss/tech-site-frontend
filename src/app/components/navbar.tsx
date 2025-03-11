@@ -37,7 +37,8 @@ export default function Navbar() {
   const handleClose = () => setAnchorEl(null);
 
   const cartCount = cart.reduce(
-    (acc: any, item: { quantity: any }) => acc + item.quantity,
+    // (acc, item) => acc + item.quantity,
+    (acc) => acc + 1,
     0
   );
   const pathname = usePathname();
@@ -82,7 +83,7 @@ export default function Navbar() {
           sx={{
             ...iconButtonStyles,
             position: "absolute",
-            ml: 24,
+            ml: 32,
           }}
         >
           <ArrowBackIcon sx={{ color: isDark ? "#FF6090" : "#8E2041" }} />
