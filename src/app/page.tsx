@@ -12,6 +12,7 @@ import PaginationSkeleton from "./components/skeletons/PaginationSkeleton";
 import SearchSkeleton from "./components/skeletons/SearchSkeleton";
 import ProductTable from "./components/table";
 import { useStore } from "./store/useStore";
+import { enqueueSnackbar } from "notistack";
 
 interface Product {
   article: string;
@@ -90,7 +91,9 @@ function HomePage() {
   useEffect(() => {
     const initialLoad = async () => {
       setLoading(true);
-      fetchProductsData();
+      fetchProductsData().catch((e) => {
+        enqueueSnackbar("Error fetching products data", { variant: "error" });
+      });
       setLoading(false);
     };
 
@@ -98,13 +101,13 @@ function HomePage() {
   }, [fetchProductsData]);
 
   useEffect(() => {
-    checkAuth();
+    checkAuth().catch((e) => {
+      enqueueSnackbar("you are not logged in", { variant: "warning" });
+    });
   }, []);
 
   useEffect(() => {
-    if (signed) {
-      fetchCart();
-    }
+    if (signed) fetchCart();
   }, [signed]);
 
   return (

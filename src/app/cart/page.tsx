@@ -298,17 +298,6 @@ const OrderForm: React.FC = () => {
                         </RadioGroup>
                       </FormControl>
                     </Grid>
-
-                    <Grid item xs={12}>
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        fullWidth
-                        type="submit"
-                      >
-                        Submit Order
-                      </Button>
-                    </Grid>
                   </Grid>
                 </Form>
               )}

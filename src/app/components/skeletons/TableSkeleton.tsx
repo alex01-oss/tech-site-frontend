@@ -8,10 +8,10 @@ interface ProductSkeletonProps {
 
 const ProductSkeleton = ({
   count = 8,
-  tileHeight = "60px",
+  tileHeight = "68px",
 }: ProductSkeletonProps) => {
   return (
-    <Box sx={{ px: 3, pt: 3, flex: 1 }}>
+    <Box sx={{ flex: 1 }}>
       <Grid container spacing={1.5}>
         {Array(count)
           .fill(0)

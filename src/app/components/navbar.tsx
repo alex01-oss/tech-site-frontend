@@ -169,7 +169,9 @@ export default function Navbar() {
           {/* ACCOUNT */}
           <Tooltip title="Profile" sx={{ mx: 1 }} onClick={handleProfileClick}>
             <Avatar>
-              {signed && user ? user.name.charAt(0).toUpperCase() : ""}
+              {signed && user?.username
+                ? user.username.charAt(0).toUpperCase()
+                : ""}
             </Avatar>
           </Tooltip>
 

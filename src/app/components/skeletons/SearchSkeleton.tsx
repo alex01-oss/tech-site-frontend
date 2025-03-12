@@ -5,7 +5,6 @@ const SearchSkeleton = () => {
     <Box sx={{ width: "100%" }}>
       <Box
         sx={{
-          // background: "#fff",
           display: "flex",
           alignItems: "center",
           width: "100%",

@@ -1,7 +1,5 @@
 "use client";
 
-import React, { useState } from "react";
-import { useTheme } from "@mui/material/styles";
 import {
   Box,
   Button,
@@ -18,12 +16,15 @@ import {
 } from "@mui/material";
 import GoogleIcon, { FacebookIcon } from "../components/customIcon";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import FacebookLogin from "@greatsumini/react-facebook-login";
 import { Formik, Field, Form, ErrorMessage } from "formik";
-import { GoogleLogin } from "@react-oauth/google";
+import { useGoogleLogin } from "@react-oauth/google";
+import { useTheme } from "@mui/material/styles";
+import { useStore } from "../store/useStore";
 import { useRouter } from "next/navigation";
 import { fetchData } from "../api/service";
 import { useSnackbar } from "notistack";
-import Image from "next/image";
+import React, { useState } from "react";
 import * as Yup from "yup";
 
 const SignUpSchema = Yup.object().shape({
@@ -35,42 +36,127 @@ const SignUpSchema = Yup.object().shape({
 });
 
 export default function SignUp() {
-  const theme = useTheme();
-  const isDark = theme.palette.mode === "dark";
-  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { enqueueSnackbar } = useSnackbar();
+  const { login, fetchCart } = useStore();
   const router = useRouter();
+  const theme = useTheme();
 
-  const handleSubmit = async (values: {
+  const handleRegistration = async (userData: {
     username: string;
     email: string;
-    password: string;
+    password?: string;
   }) => {
     setLoading(true);
     try {
-      const response = await fetchData("register", "POST", values);
-      localStorage.setItem("accessToken", response.token);
+      const response = await fetchData("register", "POST", userData);
+      console.log(response);
+      await fetchCart();
 
-      const userData = { name: values.email };
-      localStorage.setItem("user", JSON.stringify(userData));
+      const user = {
+        email: userData.email,
+        username: userData.username,
+      };
 
+      login(user, response.token, response.refreshToken);
+
+      enqueueSnackbar("Registration successful", { variant: "success" });
       router.push("/");
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Registration error:", error);
+
+      if (error.status === 409) {
+        enqueueSnackbar("User already exists. Logging in...", {
+          variant: "warning",
+        });
+
+        try {
+          const response = await fetchData("login", "POST", {
+            email: userData.email,
+            password: userData.password,
+          });
+
+          const user = {
+            id: response.userId,
+            email: userData.email,
+            username: userData.username,
+          };
+
+          login(user, response.token, response.refreshToken);
+          await fetchCart();
+
+          enqueueSnackbar("Logged in successfully", { variant: "success" });
+          router.push("/");
+        } catch (loginError) {
+          enqueueSnackbar("User exists but login failed. Try manually.", {
+            variant: "error",
+          });
+        }
+      } else {
+        enqueueSnackbar(error.message || "An unexpected error occurred", {
+          variant: "error",
+        });
+      }
+    } finally {
       setLoading(false);
-      alert("Registration failed. Try again.");
     }
   };
 
-  const { enqueueSnackbar } = useSnackbar();
+  const fetchOAuthUserData = async (url: any, accessToken: any) => {
+    try {
+      const res = await fetch(url, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      const data = await res.json();
 
-  const handleLogin = (response: any) => {
-    if (response?.credential) {
-      console.log("Google Login successful: ", response.credential);
-      enqueueSnackbar("Google login successful", { variant: "success" });
-    } else {
-      enqueueSnackbar("Login failed", { variant: "error" });
+      if (!data.email || !data.name) throw new Error("Missing user info");
+
+      return { username: data.name, email: data.email };
+    } catch (error) {
+      console.error("OAuth error:", error);
+      return null;
     }
   };
+
+  const handleGoogleRegister = async (response: any) => {
+    if (!response.access_token)
+      return enqueueSnackbar("Google login failed", { variant: "error" });
+
+    const userData = await fetchOAuthUserData(
+      "https://www.googleapis.com/oauth2/v3/userinfo",
+      response.access_token
+    );
+
+    if (!userData)
+      return enqueueSnackbar("Failed to retrieve Google user data", {
+        variant: "error",
+      });
+
+    handleRegistration({ ...userData, password: "oauth-user" });
+  };
+
+  const handleFacebookRegister = async (response: any) => {
+    if (!response.accessToken)
+      return enqueueSnackbar("Facebook login failed", { variant: "error" });
+
+    const userData = await fetchOAuthUserData(
+      `https://graph.facebook.com/me?fields=name,email`,
+      response.accessToken
+    );
+
+    if (!userData)
+      return enqueueSnackbar("Failed to retrieve Facebook user data", {
+        variant: "error",
+      });
+
+    handleRegistration({ ...userData, password: "oauth-user" });
+  };
+
+  const googleLogin = useGoogleLogin({
+    onSuccess: handleGoogleRegister,
+    flow: "implicit",
+  });
 
   return (
     <>
@@ -90,12 +176,6 @@ export default function SignUp() {
             boxShadow: theme.shadows[3],
           }}
         >
-          <Image
-            src={isDark ? "/logo_red_light.svg" : "/logo_red.svg"}
-            alt="logo"
-            width={125}
-            height={50}
-          />
           <Typography
             component="h1"
             variant="h4"
@@ -111,7 +191,7 @@ export default function SignUp() {
               password: "",
             }}
             validationSchema={SignUpSchema}
-            onSubmit={handleSubmit}
+            onSubmit={handleRegistration}
           >
             {({ values, handleChange, handleBlur }) => (
               <Form>
@@ -187,27 +267,31 @@ export default function SignUp() {
                 </Button>
                 <Divider>or</Divider>
                 <Box display="flex" flexDirection="column" gap={2}>
-                  <GoogleLogin
-                    onSuccess={handleLogin}
-                    onError={() =>
-                      enqueueSnackbar("Login failed", { variant: "error" })
-                    }
-                  />
-
                   <Button
                     fullWidth
                     variant="outlined"
                     startIcon={<GoogleIcon />}
+                    onClick={() => googleLogin()}
                   >
                     Sign up with Google
                   </Button>
-                  <Button
-                    fullWidth
-                    variant="outlined"
-                    startIcon={<FacebookIcon />}
-                  >
-                    Sign up with Facebook
-                  </Button>
+
+                  <FacebookLogin
+                    appId="614205724757167"
+                    scope="public_profile,email"
+                    onSuccess={handleFacebookRegister}
+                    render={({ onClick }) => (
+                      <Button
+                        fullWidth
+                        variant="outlined"
+                        startIcon={<FacebookIcon />}
+                        onClick={onClick}
+                      >
+                        Sign up with Facebook
+                      </Button>
+                    )}
+                  />
+
                   <Typography textAlign="center">
                     Already have an account?{" "}
                     <Link onClick={() => router.push("/login")}>Sign in</Link>

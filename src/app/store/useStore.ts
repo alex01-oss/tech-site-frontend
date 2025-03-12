@@ -2,9 +2,8 @@ import { create } from "zustand";
 import { fetchData } from "../api/service";
 
 interface User {
-  id: number;
   email: string;
-  name: string;
+  username: string;
 }
 
 interface CartItem {
@@ -130,7 +129,8 @@ export const useStore = create<StoreState>((set, get) => ({
       signed: true,
       tokenExpiration: expirationTime
     });
-    
+
+    console.log("User logged in:", get());
     get().fetchCart();
   },
 
@@ -152,33 +152,39 @@ export const useStore = create<StoreState>((set, get) => ({
   setOpen: (isOpen) => set({ isOpen }),
 
   fetchCart: async () => {
-    if (!get().signed || get().isCartLoading) return;
-    
-    set({ isCartLoading: true });
-    
-    try {
-      const response = await fetchData("cart", "GET");
-      set({ cart: response.cart || [], isCartLoading: false });
-    } catch (error: any) {
-      if (error.status === 401) {
-        const refreshSuccessful = await get().refreshToken();
-        if (refreshSuccessful) {
-          try {
-            const response = await fetchData("cart", "GET");
-            set({ cart: response.cart || [], isCartLoading: false });
-          } catch (retryError) {
-            console.error("Failed to fetch cart after token refresh", retryError);
-            set({ isCartLoading: false });
-          }
-        } else {
-          set({ isCartLoading: false });
-        }
-      } else {
-        console.error("Failed to fetch cart", error);
-        set({ isCartLoading: false });
-      }
+    const { token, signed } = get();
+    if (!signed || !token) {
+        console.warn("Skipping cart fetch: User is not authenticated");
+        return;
     }
-  },
+
+    set({ isCartLoading: true });
+
+    try {
+        const response = await fetchData("cart", "GET");
+        set({ cart: response.cart || [], isCartLoading: false });
+    } catch (error: any) {
+        if (error.status === 401) {
+            const refreshSuccessful = await get().refreshToken();
+            if (refreshSuccessful) {
+                try {
+                    const response = await fetchData("cart", "GET");
+                    set({ cart: response.cart || [], isCartLoading: false });
+                } catch (retryError) {
+                    console.error("Failed to fetch cart after token refresh", retryError);
+                    set({ isCartLoading: false });
+                }
+            } else {
+                console.warn("User unauthorized, skipping cart update");
+                set({ isCartLoading: false, cart: [] });
+            }
+        } else {
+            console.error("Failed to fetch cart", error);
+            set({ isCartLoading: false });
+        }
+    }
+},
+
 
   refreshToken: async () => {
     try {
