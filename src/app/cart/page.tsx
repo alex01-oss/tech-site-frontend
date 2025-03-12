@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   TextField,
   Button,
@@ -68,6 +68,7 @@ const OrderForm: React.FC = () => {
 
   const theme = useTheme();
   const { enqueueSnackbar } = useSnackbar();
+  const formRef = useRef<any>(null);
 
   useEffect(() => {
     fetchCart();
@@ -91,16 +92,24 @@ const OrderForm: React.FC = () => {
   }, [cart]);
 
   const handleNext = () => {
-    if (activeStep === 2) {
-      const isFormValid = Object.values(formData).every(
-        (value) => value !== ""
-      );
-      if (!isFormValid) {
+    if (activeStep === 2 && formRef.current) {
+      const formikInstance = formRef.current;
+      const hasErrors = Object.keys(formikInstance.errors).length > 0;
+      const currentValues = formikInstance.values;
+      const allFilled = Object.values(currentValues).every((val) => val !== "");
+
+      if (!hasErrors && allFilled) {
+        setFormData(currentValues);
+        setActiveStep((prev) => prev + 1);
+      } else {
         enqueueSnackbar("Please fill in all the required fields", {
           variant: "error",
         });
-      } else {
-        setActiveStep((prev) => prev + 1);
+
+        Object.keys(formData).forEach((field) => {
+          formikInstance.setFieldTouched(field, true, false);
+        });
+        formikInstance.validateForm();
       }
     } else {
       setActiveStep((prev) => prev + 1);
@@ -108,10 +117,8 @@ const OrderForm: React.FC = () => {
   };
 
   const handleBack = () => {
-    setActiveStep((prev) => (prev -= 1));
+    setActiveStep((prev) => prev - 1);
   };
-
-  const steps = ["Products Table", "Customer Details", "Order Summary"];
 
   return (
     <Box
@@ -174,12 +181,8 @@ const OrderForm: React.FC = () => {
             <Formik
               initialValues={formData}
               validationSchema={OrderFormSchema}
-              onSubmit={(values) => {
-                enqueueSnackbar("Form submitted successfully", {
-                  variant: "success",
-                });
-                console.log("Form submitted with values:", values);
-              }}
+              innerRef={formRef}
+              onSubmit={() => {}}
             >
               {({ values, handleChange, errors, touched }) => (
                 <Form>

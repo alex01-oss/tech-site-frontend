@@ -27,6 +27,11 @@ import { useSnackbar } from "notistack";
 import React, { useState } from "react";
 import * as Yup from "yup";
 
+const providerConfig = {
+  google: "https://www.googleapis.com/oauth2/v3/userinfo",
+  facebook: "https://graph.facebook.com/me?fields=name,email",
+} as const;
+
 const SignUpSchema = Yup.object().shape({
   username: Yup.string().required("Full name is required"),
   email: Yup.string().email("Invalid email").required("Email is required"),
@@ -43,120 +48,79 @@ export default function SignUp() {
   const router = useRouter();
   const theme = useTheme();
 
-  const handleRegistration = async (userData: {
-    username: string;
-    email: string;
-    password?: string;
-  }) => {
+  const handleAuth = async (
+    endpoint: "register" | "login",
+    userData: { username: string; email: string; password?: string }
+  ) => {
     setLoading(true);
     try {
-      const response = await fetchData("register", "POST", userData);
-      console.log(response);
+      const response = await fetchData(endpoint, "POST", userData);
       await fetchCart();
-
-      const user = {
-        email: userData.email,
-        username: userData.username,
-      };
-
-      login(user, response.token, response.refreshToken);
-
-      enqueueSnackbar("Registration successful", { variant: "success" });
+      login(response.user, response.token, response.refreshToken);
+      enqueueSnackbar(
+        `${endpoint === "register" ? "Registration" : "Login"} successful`,
+        { variant: "success" }
+      );
       router.push("/");
     } catch (error: any) {
-      console.error("Registration error:", error);
-
-      if (error.status === 409) {
+      if (error.status === 409 && endpoint === "register") {
         enqueueSnackbar("User already exists. Logging in...", {
           variant: "warning",
         });
-
-        try {
-          const response = await fetchData("login", "POST", {
-            email: userData.email,
-            password: userData.password,
-          });
-
-          const user = {
-            id: response.userId,
-            email: userData.email,
-            username: userData.username,
-          };
-
-          login(user, response.token, response.refreshToken);
-          await fetchCart();
-
-          enqueueSnackbar("Logged in successfully", { variant: "success" });
-          router.push("/");
-        } catch (loginError) {
-          enqueueSnackbar("User exists but login failed. Try manually.", {
-            variant: "error",
-          });
-        }
-      } else {
-        enqueueSnackbar(error.message || "An unexpected error occurred", {
-          variant: "error",
+        return handleAuth("login", {
+          username: userData.username,
+          email: userData.email,
+          password: userData.password,
         });
       }
+      handleAuthError(error);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchOAuthUserData = async (url: any, accessToken: any) => {
+  const fetchOAuthUserData = async (
+    provider: "google" | "facebook",
+    accessToken: string
+  ) => {
     try {
-      const res = await fetch(url, {
+      const res = await fetch(providerConfig[provider], {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       const data = await res.json();
-
-      if (!data.email || !data.name) throw new Error("Missing user info");
-
-      return { username: data.name, email: data.email };
-    } catch (error) {
-      console.error("OAuth error:", error);
+      return data.email && data.name
+        ? { username: data.name, email: data.email }
+        : null;
+    } catch {
       return null;
     }
   };
 
-  const handleGoogleRegister = async (response: any) => {
-    if (!response.access_token)
-      return enqueueSnackbar("Google login failed", { variant: "error" });
+  const handleOAuthRegister = async (
+    provider: "google" | "facebook",
+    response: any
+  ) => {
+    const token = response.access_token || response.accessToken;
+    if (!token)
+      return enqueueSnackbar(`${provider} login failed`, { variant: "error" });
 
-    const userData = await fetchOAuthUserData(
-      "https://www.googleapis.com/oauth2/v3/userinfo",
-      response.access_token
-    );
-
+    const userData = await fetchOAuthUserData(provider, token);
     if (!userData)
-      return enqueueSnackbar("Failed to retrieve Google user data", {
+      return enqueueSnackbar(`Failed to retrieve ${provider} user data`, {
         variant: "error",
       });
 
-    handleRegistration({ ...userData, password: "oauth-user" });
-  };
-
-  const handleFacebookRegister = async (response: any) => {
-    if (!response.accessToken)
-      return enqueueSnackbar("Facebook login failed", { variant: "error" });
-
-    const userData = await fetchOAuthUserData(
-      `https://graph.facebook.com/me?fields=name,email`,
-      response.accessToken
-    );
-
-    if (!userData)
-      return enqueueSnackbar("Failed to retrieve Facebook user data", {
-        variant: "error",
-      });
-
-    handleRegistration({ ...userData, password: "oauth-user" });
+    handleAuth("register", { ...userData, password: "oauth-user" });
   };
 
   const googleLogin = useGoogleLogin({
-    onSuccess: handleGoogleRegister,
+    onSuccess: (res) => handleOAuthRegister("google", res),
     flow: "implicit",
   });
+
+  const handleAuthError = (error: any) => {
+    enqueueSnackbar(error.message || "Unexpected error", { variant: "error" });
+  };
 
   return (
     <>
@@ -168,7 +132,6 @@ export default function SignUp() {
             display: "flex",
             flexDirection: "column",
             alignSelf: "center",
-            width: "100%",
             maxWidth: 450,
             p: 4,
             gap: 2,
@@ -176,36 +139,26 @@ export default function SignUp() {
             boxShadow: theme.shadows[3],
           }}
         >
-          <Typography
-            component="h1"
-            variant="h4"
-            textAlign="center"
-            fontWeight={600}
-          >
+          <Typography variant="h4" textAlign="center" fontWeight={600}>
             Sign up
           </Typography>
           <Formik
-            initialValues={{
-              username: "",
-              email: "",
-              password: "",
-            }}
+            initialValues={{ username: "", email: "", password: "" }}
             validationSchema={SignUpSchema}
-            onSubmit={handleRegistration}
+            onSubmit={(values) => handleAuth("register", values)}
           >
             {({ values, handleChange, handleBlur }) => (
               <Form>
                 <FormControl fullWidth margin="normal">
                   <Field
                     as={TextField}
-                    label="Full name"
-                    variant="outlined"
+                    label="Username"
+                    type="text"
                     name="username"
                     value={values.username}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     required
-                    error={!!values.username && !values.username.trim()}
                     helperText={<ErrorMessage name="username" />}
                   />
                 </FormControl>
@@ -213,15 +166,13 @@ export default function SignUp() {
                 <FormControl fullWidth margin="normal">
                   <Field
                     as={TextField}
-                    type="email"
                     label="Email"
-                    variant="outlined"
+                    type="email"
                     name="email"
                     value={values.email}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     required
-                    error={!!values.email && !values.email.trim()}
                     helperText={<ErrorMessage name="email" />}
                   />
                 </FormControl>
@@ -229,25 +180,19 @@ export default function SignUp() {
                 <FormControl fullWidth margin="normal">
                   <Field
                     as={TextField}
-                    name="password"
-                    type={showPassword ? "text" : "password"}
                     label="Password"
-                    variant="outlined"
+                    type={showPassword ? "text" : "password"}
+                    name="password"
                     value={values.password}
                     onChange={handleChange}
                     onBlur={handleBlur}
                     required
-                    error={!!values.password && !values.password.trim()}
                     helperText={<ErrorMessage name="password" />}
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
                           <IconButton
-                            aria-label={
-                              showPassword ? "Hide password" : "Show password"
-                            }
                             onClick={() => setShowPassword(!showPassword)}
-                            edge="end"
                           >
                             {showPassword ? <VisibilityOff /> : <Visibility />}
                           </IconButton>
@@ -265,7 +210,9 @@ export default function SignUp() {
                 >
                   {loading ? "Loading..." : "Sign up"}
                 </Button>
+
                 <Divider>or</Divider>
+
                 <Box display="flex" flexDirection="column" gap={2}>
                   <Button
                     fullWidth
@@ -275,11 +222,10 @@ export default function SignUp() {
                   >
                     Sign up with Google
                   </Button>
-
                   <FacebookLogin
                     appId="614205724757167"
                     scope="public_profile,email"
-                    onSuccess={handleFacebookRegister}
+                    onSuccess={(res) => handleOAuthRegister("facebook", res)}
                     render={({ onClick }) => (
                       <Button
                         fullWidth
@@ -291,7 +237,6 @@ export default function SignUp() {
                       </Button>
                     )}
                   />
-
                   <Typography textAlign="center">
                     Already have an account?{" "}
                     <Link onClick={() => router.push("/login")}>Sign in</Link>

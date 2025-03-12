@@ -3,7 +3,7 @@ import { fetchData } from "../api/service";
 
 interface User {
   email: string;
-  username: string;
+  username?: string;
 }
 
 interface CartItem {

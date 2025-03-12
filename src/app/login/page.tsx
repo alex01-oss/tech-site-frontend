@@ -20,6 +20,7 @@ import FacebookLogin from "@greatsumini/react-facebook-login";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useTheme } from "@mui/material/styles";
 import { fetchData } from "@/app/api/service";
+import { useStore } from "../store/useStore";
 import { useRouter } from "next/navigation";
 import { useSnackbar } from "notistack";
 import { useState } from "react";
@@ -29,113 +30,117 @@ export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const { enqueueSnackbar } = useSnackbar();
-  const [error, setError] = useState("");
   const router = useRouter();
   const theme = useTheme();
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const handleOAuthLogin = async (provider: any, accessToken: any) => {
     setLoading(true);
-    setError("");
 
-    const formData = new FormData(event.currentTarget);
-    const data = {
-      email: formData.get("email"),
-      password: formData.get("password"),
-    };
-
-    try {
-      const response = await fetchData("login", "POST", data);
-      localStorage.setItem("accessToken", response.token);
-      localStorage.setItem("user", JSON.stringify({ name: data.email }));
-
-      enqueueSnackbar("Login successful!", { variant: "success" });
-      router.push("/");
-    } catch (error: any) {
-      console.error("Login error:", error);
-      if (error.response) {
-        const status = error.response.status;
-        const message = error.response.data?.message || "Login failed";
-
-        switch (status) {
-          case 400:
-            enqueueSnackbar("Invalid email or password", { variant: "error" });
-            break;
-          case 404:
-            enqueueSnackbar("User not found", { variant: "error" });
-            break;
-          case 500:
-            enqueueSnackbar("Server error. Try again later.", {
-              variant: "error",
-            });
-            break;
-          default:
-            enqueueSnackbar(message, { variant: "error" });
-        }
-      } else if (error.request) {
-        enqueueSnackbar("No response from server. Check your connection.", {
-          variant: "error",
-        });
-      } else {
-        enqueueSnackbar(error.message || "An unexpected error occurred", {
-          variant: "error",
-        });
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchOAuthUserData = async (
-    provider: "google" | "facebook",
-    accessToken: string
-  ) => {
-    const urls = {
-      google: "https://www.googleapis.com/oauth2/v3/userinfo",
-      facebook: `https://graph.facebook.com/me?fields=name,email&access_token=${accessToken}`,
-    };
-
-    try {
-      const res = await fetch(urls[provider], {
-        headers:
-          provider === "google"
-            ? { Authorization: `Bearer ${accessToken}` }
-            : undefined,
-      });
-
-      const data = await res.json();
-      if (!data.email || !data.name)
-        throw new Error("OAuth did not provide enough info");
-
-      return { username: data.name, email: data.email };
-    } catch (error) {
-      console.error(`${provider} login error:`, error);
-      throw new Error(`${provider} login failed`);
-    }
-  };
-
-  const handleOAuthLogin = async (
-    provider: "google" | "facebook",
-    accessToken: string
-  ) => {
-    setLoading(true);
     try {
       const userData = await fetchOAuthUserData(provider, accessToken);
+
       const response = await fetchData("login", "POST", {
         ...userData,
         password: "oauth-user",
       });
 
-      localStorage.setItem("accessToken", response.token);
-      localStorage.setItem("user", JSON.stringify({ name: userData.email }));
+      const { login } = useStore.getState();
+      login(
+        { username: userData.username, email: userData.email },
+        response.token,
+        response.refreshToken
+      );
 
       enqueueSnackbar("Login successful!", { variant: "success" });
       router.push("/");
     } catch (error: any) {
-      enqueueSnackbar(error.message, { variant: "error" });
+      console.error(`${provider} login error:`, error);
+      enqueueSnackbar(error.message || `${provider} login failed`, {
+        variant: "error",
+      });
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSubmit = async (event: any) => {
+    event.preventDefault();
+    setLoading(true);
+
+    const formData = new FormData(event.currentTarget);
+    const credentials = {
+      email: String(formData.get("email")),
+      username: formData.get("username"),
+      password: formData.get("password"),
+    };
+
+    try {
+      const response = await fetchData("login", "POST", credentials);
+
+      const { login } = useStore.getState();
+      login(
+        { email: credentials.email },
+        response.token,
+        response.refreshToken
+      );
+
+      enqueueSnackbar("Login successful!", { variant: "success" });
+      router.push("/");
+    } catch (error) {
+      console.error("Login error:", error);
+      handleAuthError(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchOAuthUserData = async (provider: any, accessToken: any) => {
+    const providerConfig = {
+      google: {
+        url: "https://www.googleapis.com/oauth2/v3/userinfo",
+        headers: { Authorization: `Bearer ${accessToken}` },
+      },
+      facebook: {
+        url: `https://graph.facebook.com/me?fields=name,email&access_token=${accessToken}`,
+        headers: {},
+      },
+    };
+
+    const providerKey = provider as "google" | "facebook";
+    const { url, headers } = providerConfig[providerKey];
+
+    try {
+      const res = await fetch(url, { headers });
+      const data = await res.json();
+
+      if (!data.email || !data.name) {
+        throw new Error(
+          `${provider} did not provide required user information`
+        );
+      }
+
+      return { username: data.name, email: data.email };
+    } catch (error) {
+      console.error(`${provider} data fetch error:`, error);
+      throw new Error(`Failed to get user data from ${provider}`);
+    }
+  };
+
+  const handleAuthError = (error: any) => {
+    const errorMessages = {
+      400: "Required fields are missing",
+      401: "Invalid email or password",
+      404: "User not found, please register",
+      500: "Server error. Please try again later",
+    };
+
+    const status = error.response?.status;
+    const message =
+      errorMessages[status as keyof typeof errorMessages] ||
+      error.message ||
+      "Unexpected error";
+
+    enqueueSnackbar(message, { variant: "error" });
   };
 
   const googleLogin = useGoogleLogin({
@@ -227,8 +232,6 @@ export default function SignIn() {
             >
               {loading ? "Loading..." : "Sign in"}
             </Button>
-
-            {error && <Typography color="error">{error}</Typography>}
           </Box>
 
           <Divider>or</Divider>
@@ -239,6 +242,7 @@ export default function SignIn() {
               variant="outlined"
               startIcon={<GoogleIcon />}
               onClick={() => googleLogin()}
+              disabled={loading}
             >
               Sign in with Google
             </Button>
@@ -253,6 +257,7 @@ export default function SignIn() {
                   variant="outlined"
                   startIcon={<FacebookIcon />}
                   onClick={onClick}
+                  disabled={loading}
                 >
                   Sign in with Facebook
                 </Button>

@@ -9,11 +9,11 @@ interface FetchError extends Error {
 export const fetchData = async (
   endpoint: string,
   method: string = "GET",
-  body: object | null = null,
+  body: object | null = null
 ) => {
   try {
     const token = localStorage.getItem("accessToken");
-    
+
     const options: RequestInit = {
       method,
       headers: {
@@ -24,28 +24,27 @@ export const fetchData = async (
     };
 
     const response = await fetch(`${apiUrl}/${endpoint}`, options);
-    
+
+    const contentType = response.headers.get("content-type");
+    const isJson = contentType?.includes("application/json");
+
+    const responseData = isJson ? await response.json() : null;
+
     if (!response.ok) {
-      const errorText = await response.text();
-      const error = Object.assign(new Error(`Failed to fetch ${endpoint}`), {
-        status: response.status,
-        details: errorText
-      }) as FetchError;
-      
+      const error: FetchError = new Error(responseData?.error || "Request failed");
+      error.status = response.status;
+      error.details = responseData;
       throw error;
     }
 
-    const contentType = response.headers.get("content-type");
-    return contentType?.includes("application/json") 
-      ? await response.json() 
-      : null;
+    return responseData;
   } catch (error) {
     const fetchError = error as FetchError;
-    
+
     if (fetchError.status === 401) {
       console.error("Unauthorized: Access token invalid");
     }
-    
+
     console.error(`Error fetching ${endpoint}: `, error);
     throw error;
   }
