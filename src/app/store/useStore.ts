@@ -6,11 +6,10 @@ interface User {
   username?: string;
 }
 
-interface CartItem {
-  article: string;
-  title: string;
-  price: number;
-  currency: string;
+interface CartWoodItem {
+  code: string;
+  shape: string;
+  dimensions: string;
   images: string;
 }
 
@@ -20,22 +19,24 @@ interface StoreState {
   tokenExpiration: number | null;
   signed: boolean;
   isOpen: boolean;
-  cart: CartItem[];
+  cart: CartWoodItem[]
   selectedProducts: string[];
   isInitialized: boolean;
   isCartLoading: boolean;
+  tokenRefreshTimer: NodeJS.Timeout | null;
   
   initialize: () => Promise<void>;
   checkAuth: () => Promise<boolean>;
   login: (user: User, token: string, refreshToken: string) => void;
   logout: () => void;
   setOpen: (isOpen: boolean) => void;
-  
   fetchCart: () => Promise<void>;
-  addToCart: (product: CartItem) => Promise<void>;
-  removeFromCart: (article: string) => Promise<void>;
-  toggleProductSelection: (article: string) => void;
+  addToCart: (product: CartWoodItem) => Promise<void>;
+  removeFromCart: (code: string) => Promise<void>;
+  toggleProductSelection: (code: string) => void;
   refreshToken: () => Promise<boolean>;
+  setupTokenRefresh: () => void;
+  clearTokenRefreshTimer: () => void;
 }
 
 const safeLocalStorage = {
@@ -74,15 +75,49 @@ export const useStore = create<StoreState>((set, get) => ({
   selectedProducts: safeJsonParse(safeLocalStorage.getItem("selectedProducts"), []),
   isInitialized: false,
   isCartLoading: false,
+  tokenRefreshTimer: null,
 
   initialize: async () => {
     const isAuthenticated = await get().checkAuth();
     
     if (isAuthenticated) {
+      get().setupTokenRefresh();
       await get().fetchCart();
     }
     
     set({ isInitialized: true });
+  },
+
+  setupTokenRefresh: () => {
+    get().clearTokenRefreshTimer();
+    
+    const tokenExpiration = get().tokenExpiration;
+    if (!tokenExpiration) return;
+    
+    const currentTime = Date.now();
+    const timeUntilExpiration = tokenExpiration - currentTime;
+    
+    // Оновлюємо токен за 5 хвилин до закінчення терміну дії
+    const refreshTime = Math.max(timeUntilExpiration - 5 * 60 * 1000, 0);
+    
+    if (refreshTime > 0) {
+      const timer = setTimeout(async () => {
+        const success = await get().refreshToken();
+        if (success) {
+          get().setupTokenRefresh();
+        }
+      }, refreshTime);
+      
+      set({ tokenRefreshTimer: timer as unknown as NodeJS.Timeout });
+    }
+  },
+  
+  clearTokenRefreshTimer: () => {
+    const { tokenRefreshTimer } = get();
+    if (tokenRefreshTimer) {
+      clearTimeout(tokenRefreshTimer);
+      set({ tokenRefreshTimer: null });
+    }
   },
 
   checkAuth: async () => {
@@ -93,15 +128,21 @@ export const useStore = create<StoreState>((set, get) => ({
     const user = userStr !== 'null' ? safeJsonParse(userStr, null) : null;
     let isAuthenticated = user !== null && token !== 'null';
     
-    if (isAuthenticated && tokenExpiration && tokenExpiration < Date.now()) {
-      isAuthenticated = await get().refreshToken();
-      if (!isAuthenticated) {
-        set({ 
-          signed: false, 
-          user: null,
-          token: null
-        });
-        return false;
+    // Перевіряємо, чи термін дії токена закінчується незабаром
+    if (isAuthenticated && tokenExpiration) {
+      const timeUntilExpiration = tokenExpiration - Date.now();
+      
+      // Якщо термін дії токена закінчився або закінчується незабаром (менше 5 хвилин)
+      if (timeUntilExpiration < 5 * 60 * 1000) {
+        isAuthenticated = await get().refreshToken();
+        if (!isAuthenticated) {
+          set({ 
+            signed: false, 
+            user: null,
+            token: null
+          });
+          return false;
+        }
       }
     }
     
@@ -130,11 +171,13 @@ export const useStore = create<StoreState>((set, get) => ({
       tokenExpiration: expirationTime
     });
 
-    console.log("User logged in:", get());
+    get().setupTokenRefresh();
     get().fetchCart();
   },
 
   logout: () => {
+    get().clearTokenRefreshTimer();
+    
     safeLocalStorage.removeItem("user");
     safeLocalStorage.removeItem("accessToken");
     safeLocalStorage.removeItem("refreshToken");
@@ -154,7 +197,6 @@ export const useStore = create<StoreState>((set, get) => ({
   fetchCart: async () => {
     const { token, signed } = get();
     if (!signed || !token) {
-        console.warn("Skipping cart fetch: User is not authenticated");
         return;
     }
 
@@ -175,7 +217,6 @@ export const useStore = create<StoreState>((set, get) => ({
                     set({ isCartLoading: false });
                 }
             } else {
-                console.warn("User unauthorized, skipping cart update");
                 set({ isCartLoading: false, cart: [] });
             }
         } else {
@@ -184,7 +225,6 @@ export const useStore = create<StoreState>((set, get) => ({
         }
     }
 },
-
 
   refreshToken: async () => {
     try {
@@ -199,7 +239,6 @@ export const useStore = create<StoreState>((set, get) => ({
 
       if (response && response.accessToken) {
         safeLocalStorage.setItem("accessToken", response.accessToken);
-        
         const expirationTime = Date.now() + 3600 * 1000;
         safeLocalStorage.setItem("tokenExpiration", expirationTime.toString());
         
@@ -228,19 +267,20 @@ export const useStore = create<StoreState>((set, get) => ({
     
     try {
       await fetchData("cart", "POST", {
-        article: product.article,
-        title: product.title,
-        price: product.price,
-        currency: product.currency,
+        code: product.code,
+        shape: product.shape,
+        dimensions: product.dimensions,
         images: product.images
       });
       
       set((state) => ({ 
-        cart: [...state.cart.filter(item => item.article !== product.article), product] 
+        cart: [...state.cart.filter(item => item.code !== product.code), product] 
       }));
+
     } catch (error: any) {
       if (error.status === 401) {
         const refreshSuccessful = await get().refreshToken();
+
         if (refreshSuccessful) {
           await get().addToCart(product);
         }
@@ -249,24 +289,24 @@ export const useStore = create<StoreState>((set, get) => ({
       }
     }
   },
-
-  removeFromCart: async (article) => {
+  
+  removeFromCart: async (code) => {
     if (!get().signed) {
-      console.error("Cannot remove from cart: User not authenticated");
       return;
     }
     
     try {
-      await fetchData("cart", "DELETE", { article });
-      
+      await fetchData("cart", "DELETE", { code });
+
       set((state) => ({
-        cart: state.cart.filter((item) => item.article !== article),
+        cart: state.cart.filter((item) => item.code !== code),
       }));
     } catch (error: any) {
       if (error.status === 401) {
         const refreshSuccessful = await get().refreshToken();
+
         if (refreshSuccessful) {
-          await get().removeFromCart(article);
+          await get().removeFromCart(code);
         }
       } else {
         console.error("Failed to remove from cart", error);
@@ -274,14 +314,12 @@ export const useStore = create<StoreState>((set, get) => ({
     }
   },
 
-  toggleProductSelection: (article) => {
+  toggleProductSelection: (code) => {
     set((state) => {
-      const newSelectedProducts = state.selectedProducts.includes(article)
-        ? state.selectedProducts.filter((id) => id !== article)
-        : [...state.selectedProducts, article];
-
+      const newSelectedProducts = state.selectedProducts.includes(code)
+        ? state.selectedProducts.filter((id) => id !== code)
+        : [...state.selectedProducts, code];
       safeLocalStorage.setItem("selectedProducts", JSON.stringify(newSelectedProducts));
-
       return { selectedProducts: newSelectedProducts };
     });
   },

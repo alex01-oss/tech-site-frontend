@@ -48,12 +48,12 @@ export default function SearchBar({
         ),
       }}
       sx={{
-        borderRadius: "8px",
+        borderRadius: "3px",
         boxShadow: "0px 4px 10px rgba(0,0,0,0.1)",
         "& .MuiOutlinedInput-root": {
-          borderRadius: "8px",
+          borderRadius: "3px",
           "& fieldset": {
-            borderRadius: "8px",
+            borderRadius: "3px",
             borderColor: "rgba(78, 12, 30, 0.2)",
           },
           "&:hover fieldset": {

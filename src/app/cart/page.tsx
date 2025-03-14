@@ -26,6 +26,7 @@ import { KeyboardArrowLeft, KeyboardArrowRight } from "@mui/icons-material";
 import { useSnackbar } from "notistack";
 import * as Yup from "yup";
 import { Formik, Field, Form } from "formik";
+import WoodTable from "../components/woodworkingTable";
 
 interface OrderFormData {
   name: string;
@@ -51,8 +52,8 @@ const OrderFormSchema = Yup.object().shape({
 
 const OrderForm: React.FC = () => {
   const [totalItems, setTotalItems] = useState(0);
-  const [totalSum, setTotalSum] = useState(0);
-  const [currency, setCurrency] = useState("USD");
+  // const [totalSum, setTotalSum] = useState(0);
+  // const [currency, setCurrency] = useState("USD");
   const [activeStep, setActiveStep] = useState(1);
 
   const { cart, fetchCart } = useStore();
@@ -75,19 +76,19 @@ const OrderForm: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    let total = 0;
+    // let total = 0;
     let count = 0;
 
-    if (cart.length > 0) {
-      setCurrency(cart[0].currency);
-    }
+    // if (cart.length > 0) {
+    //   setCurrency(cart[0].currency);
+    // }
 
     cart.forEach((item) => {
-      total += item.price;
+      // total += item.price;
       count += 1;
     });
 
-    setTotalSum(total);
+    // setTotalSum(total);
     setTotalItems(count);
   }, [cart]);
 
@@ -169,7 +170,8 @@ const OrderForm: React.FC = () => {
               Your cart is empty. Add some products to your cart.
             </Typography>
           ) : (
-            <ProductTable products={cart} isCartView />
+            // <ProductTable products={cart} isCartView />
+            <WoodTable products={cart} isCartView />
           ))}
 
         {/* ORDER FORM BLOCK */}
@@ -318,7 +320,7 @@ const OrderForm: React.FC = () => {
                 Total: {totalItems} {cart.length > 1 ? "items" : "item"}
               </Typography>
               <Typography variant="h6">
-                {totalSum} {currency}
+                {/* {totalSum} {currency} */}
               </Typography>
               <Typography
                 variant="body2"
@@ -327,7 +329,7 @@ const OrderForm: React.FC = () => {
                 Delivery cost according to carrier rates
               </Typography>
               <Typography variant="h6" sx={{ mt: 2 }}>
-                To Pay: {totalSum} {currency}
+                {/* To Pay: {totalSum} {currency} */}
               </Typography>
               <Typography variant="caption" sx={{ mt: 2, display: "block" }}>
                 By confirming the order, I accept the conditions:

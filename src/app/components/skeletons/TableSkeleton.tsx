@@ -8,7 +8,7 @@ interface ProductSkeletonProps {
 
 const ProductSkeleton = ({
   count = 8,
-  tileHeight = "68px",
+  tileHeight = "65px",
 }: ProductSkeletonProps) => {
   return (
     <Box sx={{ flex: 1 }}>

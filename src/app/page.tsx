@@ -10,15 +10,14 @@ import ProductSkeleton from "./components/skeletons/TableSkeleton";
 import SidebarSkeleton from "./components/skeletons/SidebarSkeleton";
 import PaginationSkeleton from "./components/skeletons/PaginationSkeleton";
 import SearchSkeleton from "./components/skeletons/SearchSkeleton";
-import ProductTable from "./components/table";
 import { useStore } from "./store/useStore";
 import { enqueueSnackbar } from "notistack";
+import WoodTable from "./components/woodworkingTable";
 
 interface Product {
-  article: string;
-  title: string;
-  price: number;
-  currency: string;
+  code: string;
+  shape: string;
+  dimensions: string;
   images: string;
 }
 
@@ -41,8 +40,8 @@ function HomePage() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchType, setSearchType] = useState<string>("");
-  const [placeholder, setPlaceholder] = useState("Search...");
+  const [searchType, setSearchType] = useState<string>("code");
+  const [placeholder, setPlaceholder] = useState("By code");
   const [loading, setLoading] = useState(true);
 
   const theme = useTheme();
@@ -55,7 +54,7 @@ function HomePage() {
 
     try {
       const data = await fetchData(
-        `catalog?search=${encodeURIComponent(
+        `woodworking?search=${encodeURIComponent(
           searchQuery
         )}&search_type=${searchType}&page=${currentPage}`
       );
@@ -196,7 +195,7 @@ function HomePage() {
             {loading ? (
               <ProductSkeleton />
             ) : (
-              <ProductTable products={products.items} />
+              <WoodTable products={products.items} />
             )}
           </Box>
 
