@@ -33,7 +33,7 @@ export default function AccountMenu({
     logout();
     checkAuth();
     handleClose();
-    enqueueSnackbar("you are logged out");
+    enqueueSnackbar("you are logged out", { variant: "info" });
     router.push("/");
   };
 

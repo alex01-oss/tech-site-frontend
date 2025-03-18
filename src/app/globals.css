@@ -1,12 +1,12 @@
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --app-background: #ffffff;
+  --app-foreground: #121212;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --app-background: #121212;
+    --app-foreground: #E4E5E7;
   }
 }
 
@@ -21,9 +21,14 @@
 body {
   margin: 0;
   padding: 0;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--app-foreground);
+  background: var(--app-background);
+  font-family: 'Montserrat', sans-serif;
+}
+
+.MuiPaper-root, .MuiCard-root, .MuiAppBar-root {
+  background-color: inherit;
+  color: inherit;
 }
 
 html {

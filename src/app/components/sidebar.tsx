@@ -119,7 +119,6 @@ const Sidebar = memo(({ onMenuClick }: SidebarProps) => {
         "& .MuiDrawer-paper": {
           borderRight: "1px solid rgba(142, 32, 65, 0.1)",
           width: 256,
-          color: "text.secondary",
           position: "sticky",
           top: "60px",
           height: "calc(100vh - 60px)",
@@ -132,29 +131,36 @@ const Sidebar = memo(({ onMenuClick }: SidebarProps) => {
           <React.Fragment key={category}>
             {/* Заголовок категорії першого рівня */}
             <ListItem disablePadding>
-              <ListItemButton
-                onClick={() => toggleLevel1(category)}
-                sx={{
-                  fontWeight: "bold",
-                }}
-              >
-                <ListItemIcon sx={{ minWidth: "30px" }}>
+              <ListItemButton onClick={() => toggleLevel1(category)}>
+                <ListItemIcon
+                  sx={{
+                    minWidth: "30px",
+                  }}
+                >
                   {openLevel1[category] ? (
                     <ExpandMoreIcon />
                   ) : (
                     <ChevronRightIcon />
                   )}
                 </ListItemIcon>
-                <ListItemText primary={title} />
+                <ListItemText
+                  primary={title}
+                  sx={{
+                    "& .MuiTypography-root": {
+                      fontWeight: "bold",
+                      color: "primary.main",
+                    },
+                  }}
+                />
               </ListItemButton>
             </ListItem>
 
-            {/* Пункти другого рівня */}
+            {/* 1 level */}
             <Collapse in={openLevel1[category]} timeout="auto" unmountOnExit>
               <List component="div" disablePadding>
                 {items.map((level1Item, level1Index) => (
                   <React.Fragment key={`${category}-${level1Index}`}>
-                    {/* Пункт другого рівня */}
+                    {/* 2 level */}
                     <ListItem disablePadding>
                       <ListItemButton
                         onClick={() => toggleLevel2(category, level1Index)}
@@ -163,7 +169,9 @@ const Sidebar = memo(({ onMenuClick }: SidebarProps) => {
                           color: "text.primary",
                         }}
                       >
-                        <ListItemIcon sx={{ minWidth: "30px" }}>
+                        <ListItemIcon
+                          sx={{ minWidth: "30px", color: "primary" }}
+                        >
                           {openLevel2[category]?.[level1Index] ? (
                             <ExpandMoreIcon />
                           ) : (
@@ -174,7 +182,7 @@ const Sidebar = memo(({ onMenuClick }: SidebarProps) => {
                       </ListItemButton>
                     </ListItem>
 
-                    {/* Пункти третього рівня */}
+                    {/* 3 level */}
                     {level1Item.items && level1Item.items.length > 0 && (
                       <Collapse
                         in={openLevel2[category]?.[level1Index]}
@@ -184,7 +192,7 @@ const Sidebar = memo(({ onMenuClick }: SidebarProps) => {
                         <List component="div" disablePadding>
                           {level1Item.items.map((level2Item, level2Index) =>
                             level2Item.type === "button" ? (
-                              // Якщо це кнопка (PDF) — рендеримо її окремо
+                              // PDF rendering
                               <ListItem
                                 key={`${category}-${level1Index}-${level2Index}`}
                                 disablePadding
@@ -202,7 +210,7 @@ const Sidebar = memo(({ onMenuClick }: SidebarProps) => {
                                 </ListItemButton>
                               </ListItem>
                             ) : (
-                              // Інакше — це пошук
+                              // search rendering
                               <ListItem
                                 key={`${category}-${level1Index}-${level2Index}`}
                                 disablePadding

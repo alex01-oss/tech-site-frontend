@@ -13,8 +13,6 @@ import {
 } from "@mui/material";
 import { Divide as Hamburger } from "hamburger-react";
 import Image from "next/image";
-import Brightness4Icon from "@mui/icons-material/Brightness4";
-import Brightness7Icon from "@mui/icons-material/Brightness7";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useThemeContext } from "../context/context";
 import AccountMenu from "./accountMenu";
@@ -23,6 +21,7 @@ import { useSnackbar } from "notistack";
 import { usePathname, useRouter } from "next/navigation";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useStore } from "../store/useStore";
+import { Brightness4, Brightness7 } from "@mui/icons-material";
 
 export default function Navbar() {
   const theme = useTheme();
@@ -44,15 +43,6 @@ export default function Navbar() {
   const pathname = usePathname();
   const isRoute = pathname !== "/";
 
-  const iconButtonStyles = {
-    color: isDark ? "#FF6090" : "#8E2041",
-    "&:hover": {
-      backgroundColor: isDark
-        ? "rgba(255, 96, 144, 0.1)"
-        : "rgba(142, 32, 65, 0.1)",
-    },
-  };
-
   const handleProfileClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -70,23 +60,17 @@ export default function Navbar() {
         position: "relative",
       }}
     >
-      <Image
-        src={isDark ? "/logo_red_light.svg" : "/logo_red.svg"}
-        alt="logo"
-        width={125}
-        height={50}
-      />
+      <Image src="/logo_white.svg" alt="logo" width={125} height={50} />
       {isRoute && (
         <IconButton
           color="inherit"
           onClick={() => router.push("/")}
           sx={{
-            ...iconButtonStyles,
             position: "absolute",
             ml: 32,
           }}
         >
-          <ArrowBackIcon sx={{ color: isDark ? "#FF6090" : "#8E2041" }} />
+          <ArrowBackIcon sx={{ color: "#E6E7E9" }} />
         </IconButton>
       )}
     </Box>
@@ -95,34 +79,17 @@ export default function Navbar() {
   const renderMobileMenu = () => (
     <Box sx={{ display: "flex", alignItems: "center" }}>
       {isRoute ? (
-        <IconButton
-          color="inherit"
-          sx={{ ...iconButtonStyles }}
-          onClick={() => router.push("/")}
-        >
+        <IconButton onClick={() => router.push("/")}>
           <ArrowBackIcon />
         </IconButton>
       ) : (
-        <Hamburger
-          toggled={isOpen}
-          toggle={() => setOpen(!isOpen)}
-          color={isDark ? "#FF6090" : "#8E2041"}
-          rounded
-        />
+        <Hamburger toggled={isOpen} toggle={() => setOpen(!isOpen)} rounded />
       )}
     </Box>
   );
 
   return (
-    <AppBar
-      sx={{
-        background: theme.palette.background.paper,
-        boxShadow: "none",
-        borderBottom: `1px solid ${
-          isDark ? "rgba(255, 96, 144, 0.2)" : "rgba(78, 12, 30, 0.2)"
-        }`,
-      }}
-    >
+    <AppBar>
       <Toolbar
         sx={{
           minHeight: 60,
@@ -130,24 +97,17 @@ export default function Navbar() {
           justifyContent: "space-between",
         }}
       >
-        {/* MENU */}
         {isMobile ? renderMobileMenu() : renderLogoAndBackButton()}
 
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          {/* THEME TOGGLE */}
           <Tooltip
             title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
           >
-            <IconButton
-              onClick={toggleColorMode}
-              color="inherit"
-              sx={iconButtonStyles}
-            >
-              {isDark ? <Brightness7Icon /> : <Brightness4Icon />}
+            <IconButton onClick={toggleColorMode} color="inherit">
+              {isDark ? <Brightness7 /> : <Brightness4 />}
             </IconButton>
           </Tooltip>
 
-          {/* SHOPPING CART */}
           <Tooltip title="Shopping Cart">
             <IconButton
               onClick={() => {
@@ -158,26 +118,15 @@ export default function Navbar() {
                     });
               }}
               color="inherit"
-              sx={iconButtonStyles}
             >
-              <Badge badgeContent={cartCount} color="secondary">
+              <Badge badgeContent={cartCount} color="primary">
                 <ShoppingCartIcon />
               </Badge>
             </IconButton>
           </Tooltip>
 
-          {/* ACCOUNT */}
           <Tooltip title="Profile" sx={{ mx: 1 }} onClick={handleProfileClick}>
-            <Avatar
-              sx={{
-                fontFamily: "sans-serif",
-                fontSize: "1rem",
-                fontWeight: "bold",
-                width: 40,
-                height: 40,
-                ml: 1,
-              }}
-            >
+            <Avatar sx={{ width: 40, height: 40, ml: 1 }}>
               {signed && user?.username
                 ? user.username
                     .split(" ")
