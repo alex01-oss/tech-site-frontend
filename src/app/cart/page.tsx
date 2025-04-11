@@ -21,7 +21,6 @@ import {
   RadioGroup,
 } from "@mui/material";
 import { useStore } from "../store/useStore";
-import ProductTable from "../components/table";
 import { KeyboardArrowLeft, KeyboardArrowRight } from "@mui/icons-material";
 import { useSnackbar } from "notistack";
 import * as Yup from "yup";

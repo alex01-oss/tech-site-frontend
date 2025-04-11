@@ -54,7 +54,7 @@ function HomePage() {
 
     try {
       const data = await fetchData(
-        `woodworking?search=${encodeURIComponent(
+        `catalog?search=${encodeURIComponent(
           searchQuery
         )}&search_type=${searchType}&page=${currentPage}`
       );

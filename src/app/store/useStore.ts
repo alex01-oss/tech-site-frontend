@@ -19,7 +19,7 @@ interface StoreState {
   tokenExpiration: number | null;
   signed: boolean;
   isOpen: boolean;
-  cart: CartWoodItem[];
+  cart: CartWoodItem[]
   selectedProducts: string[];
   isInitialized: boolean;
   isCartLoading: boolean;
@@ -31,16 +31,16 @@ interface StoreState {
   logout: () => void;
   setOpen: (isOpen: boolean) => void;
   fetchCart: () => Promise<void>;
-  addToCart: (product: CartWoodItem) => Promise<boolean>;
-  removeFromCart: (code: string) => Promise<boolean>;
+  addToCart: (product: CartWoodItem) => Promise<void>;
+  removeFromCart: (code: string) => Promise<void>;
   toggleProductSelection: (code: string) => void;
   refreshToken: () => Promise<boolean>;
-  clearTokenRefreshTimer: () => void;
   setupTokenRefresh: () => void;
+  clearTokenRefreshTimer: () => void;
 }
 
 const safeLocalStorage = {
-  getItem: (key: string, defaultValue: string = '') => {
+  getItem: (key: string, defaultValue: string = '[]') => {
     if (typeof window === 'undefined') return defaultValue;
     return localStorage.getItem(key) || defaultValue;
   },
@@ -56,9 +56,9 @@ const safeLocalStorage = {
   }
 };
 
-const safeJsonParse = <T>(jsonString: string, fallback: T): T => {
+const safeJsonParse = (jsonString: string, fallback: any = []) => {
   try {
-    return jsonString ? JSON.parse(jsonString) : fallback;
+    return JSON.parse(jsonString);
   } catch (e) {
     console.error("Failed to parse JSON", e);
     return fallback;
@@ -78,27 +78,14 @@ export const useStore = create<StoreState>((set, get) => ({
   tokenRefreshTimer: null,
 
   initialize: async () => {
-    try {
-      const isAuthenticated = await get().checkAuth();
-      
-      if (isAuthenticated) {
-        get().setupTokenRefresh();
-        await get().fetchCart();
-      }
-      
-      set({ isInitialized: true });
-    } catch (error) {
-      console.error("Initialization failed:", error);
-      set({ isInitialized: true });
+    const isAuthenticated = await get().checkAuth();
+    
+    if (isAuthenticated) {
+      get().setupTokenRefresh();
+      await get().fetchCart();
     }
-  },
-
-  clearTokenRefreshTimer: () => {
-    const { tokenRefreshTimer } = get();
-    if (tokenRefreshTimer) {
-      clearTimeout(tokenRefreshTimer);
-      set({ tokenRefreshTimer: null });
-    }
+    
+    set({ isInitialized: true });
   },
 
   setupTokenRefresh: () => {
@@ -110,6 +97,7 @@ export const useStore = create<StoreState>((set, get) => ({
     const currentTime = Date.now();
     const timeUntilExpiration = tokenExpiration - currentTime;
     
+    // Оновлюємо токен за 5 хвилин до закінчення терміну дії
     const refreshTime = Math.max(timeUntilExpiration - 5 * 60 * 1000, 0);
     
     if (refreshTime > 0) {
@@ -123,59 +111,68 @@ export const useStore = create<StoreState>((set, get) => ({
       set({ tokenRefreshTimer: timer as unknown as NodeJS.Timeout });
     }
   },
-
-  checkAuth: async () => {
-    try {
-      const userStr = safeLocalStorage.getItem("user");
-      const token = safeLocalStorage.getItem("accessToken");
-      const refreshToken = safeLocalStorage.getItem("refreshToken");
-      const tokenExpirationStr = safeLocalStorage.getItem("tokenExpiration");
-      
-      const user = safeJsonParse<User | null>(userStr, null);
-      const tokenExpiration = tokenExpirationStr ? parseInt(tokenExpirationStr) : 0;
-      
-      const hasCredentials = user && token && refreshToken;
-      if (!hasCredentials) {
-        set({ signed: false, user: null, token: null, tokenExpiration: null });
-        return false;
-      }
-      
-      const currentTime = Date.now();
-      if (tokenExpiration && tokenExpiration > currentTime + 60 * 1000) {
-        set({ signed: true, user, token, tokenExpiration });
-        return true;
-      }
-      
-      const refreshSuccess = await get().refreshToken();
-      return refreshSuccess;
-    } catch (error) {
-      console.error("Auth check failed:", error);
-      get().logout();
-      return false;
+  
+  clearTokenRefreshTimer: () => {
+    const { tokenRefreshTimer } = get();
+    if (tokenRefreshTimer) {
+      clearTimeout(tokenRefreshTimer);
+      set({ tokenRefreshTimer: null });
     }
   },
 
-  login: (user, token, refreshToken) => {
-    try {
-      const expirationTime = Date.now() + 3600 * 1000; // 1 година
+  checkAuth: async () => {
+    const userStr = safeLocalStorage.getItem("user", 'null');
+    const token = safeLocalStorage.getItem("accessToken", 'null');
+    const tokenExpiration = parseInt(safeLocalStorage.getItem("tokenExpiration", '0'));
+    
+    const user = userStr !== 'null' ? safeJsonParse(userStr, null) : null;
+    let isAuthenticated = user !== null && token !== 'null';
+    
+    // Перевіряємо, чи термін дії токена закінчується незабаром
+    if (isAuthenticated && tokenExpiration) {
+      const timeUntilExpiration = tokenExpiration - Date.now();
       
-      safeLocalStorage.setItem("user", JSON.stringify(user));
-      safeLocalStorage.setItem("accessToken", token);
-      safeLocalStorage.setItem("refreshToken", refreshToken);
-      safeLocalStorage.setItem("tokenExpiration", expirationTime.toString());
-      
-      set({ 
-        user, 
-        token, 
-        signed: true,
-        tokenExpiration: expirationTime
-      });
-
-      get().setupTokenRefresh();
-      get().fetchCart();
-    } catch (error) {
-      console.error("Login failed:", error);
+      // Якщо термін дії токена закінчився або закінчується незабаром (менше 5 хвилин)
+      if (timeUntilExpiration < 5 * 60 * 1000) {
+        isAuthenticated = await get().refreshToken();
+        if (!isAuthenticated) {
+          set({ 
+            signed: false, 
+            user: null,
+            token: null
+          });
+          return false;
+        }
+      }
     }
+    
+    set({ 
+      signed: isAuthenticated, 
+      user,
+      token: isAuthenticated ? token : null,
+      tokenExpiration: isAuthenticated ? tokenExpiration : null
+    });
+    
+    return isAuthenticated;
+  },
+
+  login: (user, token, refreshToken) => {
+    const expirationTime = Date.now() + 3600 * 1000;
+    
+    safeLocalStorage.setItem("user", JSON.stringify(user));
+    safeLocalStorage.setItem("accessToken", token);
+    safeLocalStorage.setItem("refreshToken", refreshToken);
+    safeLocalStorage.setItem("tokenExpiration", expirationTime.toString());
+    
+    set({ 
+      user, 
+      token, 
+      signed: true,
+      tokenExpiration: expirationTime
+    });
+
+    get().setupTokenRefresh();
+    get().fetchCart();
   },
 
   logout: () => {
@@ -200,33 +197,40 @@ export const useStore = create<StoreState>((set, get) => ({
   fetchCart: async () => {
     const { token, signed } = get();
     if (!signed || !token) {
-      return;
+        return;
     }
 
     set({ isCartLoading: true });
 
     try {
-      const response = await fetchData("cart", "GET");
-      set({ cart: response.cart || [], isCartLoading: false });
+        const response = await fetchData("cart", "GET");
+        set({ cart: response.cart || [], isCartLoading: false });
     } catch (error: any) {
-      set({ isCartLoading: false });
-      
-      if (error.status === 401) {
-        const refreshSuccessful = await get().refreshToken();
-        if (refreshSuccessful) {
-          await get().fetchCart();
+        if (error.status === 401) {
+            const refreshSuccessful = await get().refreshToken();
+            if (refreshSuccessful) {
+                try {
+                    const response = await fetchData("cart", "GET");
+                    set({ cart: response.cart || [], isCartLoading: false });
+                } catch (retryError) {
+                    console.error("Failed to fetch cart after token refresh", retryError);
+                    set({ isCartLoading: false });
+                }
+            } else {
+                set({ isCartLoading: false, cart: [] });
+            }
+        } else {
+            console.error("Failed to fetch cart", error);
+            set({ isCartLoading: false });
         }
-      } else {
-        console.error("Failed to fetch cart:", error.message || 'Unknown error');
-      }
     }
-  },
+},
 
   refreshToken: async () => {
     try {
-      const refreshToken = safeLocalStorage.getItem("refreshToken");
+      const refreshToken = safeLocalStorage.getItem("refreshToken", 'null');
       
-      if (!refreshToken) {
+      if (refreshToken === 'null') {
         get().logout();
         return false;
       }
@@ -234,15 +238,13 @@ export const useStore = create<StoreState>((set, get) => ({
       const response = await fetchData("auth/refresh", "POST", { refreshToken });
 
       if (response && response.accessToken) {
-        const expirationTime = Date.now() + 3600 * 1000;
-        
         safeLocalStorage.setItem("accessToken", response.accessToken);
+        const expirationTime = Date.now() + 3600 * 1000;
         safeLocalStorage.setItem("tokenExpiration", expirationTime.toString());
         
         set({ 
           token: response.accessToken,
-          tokenExpiration: expirationTime,
-          signed: true
+          tokenExpiration: expirationTime
         });
         
         return true;
@@ -250,8 +252,8 @@ export const useStore = create<StoreState>((set, get) => ({
         get().logout();
         return false;
       }
-    } catch (error: any) {
-      console.error("Token refresh failed:", error.message || 'Unknown error');
+    } catch (error) {
+      console.error("Failed to refresh token", error);
       get().logout();
       return false;
     }
@@ -260,7 +262,7 @@ export const useStore = create<StoreState>((set, get) => ({
   addToCart: async (product) => {
     if (!get().signed) {
       console.error("Cannot add to cart: User not authenticated");
-      return false;
+      return;
     }
     
     try {
@@ -274,29 +276,23 @@ export const useStore = create<StoreState>((set, get) => ({
       set((state) => ({ 
         cart: [...state.cart.filter(item => item.code !== product.code), product] 
       }));
-      
-      return true;
+
     } catch (error: any) {
       if (error.status === 401) {
         const refreshSuccessful = await get().refreshToken();
+
         if (refreshSuccessful) {
-          return await get().addToCart(product);
+          await get().addToCart(product);
         }
-      } else if (error.status === 404) {
-        console.error("Product not found or API endpoint missing");
-      } else if (error.status === 400) {
-        console.error("Invalid product data:", error.message);
       } else {
-        console.error("Failed to add to cart:", error.message || 'Unknown error');
+        console.error("Failed to add to cart", error);
       }
-      
-      return false;
     }
   },
   
   removeFromCart: async (code) => {
     if (!get().signed) {
-      return false;
+      return;
     }
     
     try {
@@ -305,25 +301,16 @@ export const useStore = create<StoreState>((set, get) => ({
       set((state) => ({
         cart: state.cart.filter((item) => item.code !== code),
       }));
-      
-      return true;
     } catch (error: any) {
       if (error.status === 401) {
         const refreshSuccessful = await get().refreshToken();
+
         if (refreshSuccessful) {
-          return await get().removeFromCart(code);
+          await get().removeFromCart(code);
         }
-      } else if (error.status === 404) {
-        console.error("Item not found in cart");
-        set((state) => ({
-          cart: state.cart.filter((item) => item.code !== code),
-        }));
-        return true;
       } else {
-        console.error("Failed to remove from cart:", error.message || 'Unknown error');
+        console.error("Failed to remove from cart", error);
       }
-      
-      return false;
     }
   },
 
@@ -332,7 +319,6 @@ export const useStore = create<StoreState>((set, get) => ({
       const newSelectedProducts = state.selectedProducts.includes(code)
         ? state.selectedProducts.filter((id) => id !== code)
         : [...state.selectedProducts, code];
-      
       safeLocalStorage.setItem("selectedProducts", JSON.stringify(newSelectedProducts));
       return { selectedProducts: newSelectedProducts };
     });
