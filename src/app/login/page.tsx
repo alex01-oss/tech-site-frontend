@@ -45,11 +45,7 @@ export default function SignIn() {
       });
 
       const { login } = useStore.getState();
-      login(
-        { username: userData.username, email: userData.email },
-        response.token,
-        response.refreshToken
-      );
+      login(userData.email, response.password);
 
       enqueueSnackbar("Login successful!", { variant: "success" });
       router.push("/");
@@ -70,20 +66,12 @@ export default function SignIn() {
     const formData = new FormData(event.currentTarget);
     const credentials = {
       email: String(formData.get("email")),
-      username: formData.get("username"),
-      password: formData.get("password"),
+      password: String(formData.get("password"))
     };
 
     try {
-      const response = await fetchData("login", "POST", credentials);
-
       const { login } = useStore.getState();
-      login(
-        { email: credentials.email },
-        response.token,
-        response.refreshToken
-      );
-
+      await login(credentials.email, credentials.password);
       enqueueSnackbar("Login successful!", { variant: "success" });
       router.push("/");
     } catch (error) {

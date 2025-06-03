@@ -1,7 +1,7 @@
-import React, { memo } from "react";
-import { Box, Grid, IconButton, Typography } from "@mui/material";
-import { CheckBox, Delete, ShoppingCart } from "@mui/icons-material";
+import { Delete, CheckBox, ShoppingCart } from "@mui/icons-material";
+import { Grid, Box, Typography, IconButton } from "@mui/material";
 import { useSnackbar } from "notistack";
+import { memo } from "react";
 import { useStore } from "../store/useStore";
 
 interface Product {
@@ -9,55 +9,53 @@ interface Product {
   shape: string;
   dimensions: string;
   images: string;
+  is_in_cart?: boolean;
 }
 
 interface ProductTableProps {
   products: Product[];
   isCartView?: boolean;
+  setProducts?: React.Dispatch<React.SetStateAction<Product[]>>;
 }
 
 const WoodTable: React.FC<ProductTableProps> = memo(
-  ({ products, isCartView }) => {
+  ({ products, isCartView = false, setProducts }) => {
     const { enqueueSnackbar } = useSnackbar();
-    const { cart, addToCart, removeFromCart, signed } = useStore();
-
-    const isInCart = (code: string) => {
-      return cart.some((item) => item.code === code);
-    };
+    const { signed, addToCart, removeFromCart } = useStore();
 
     const handleToggleCart = (product: Product) => {
       if (!signed) {
-        enqueueSnackbar("you must to authorize", {
-          variant: "error",
-        });
+        enqueueSnackbar("You must be logged in", { variant: "error" });
         return;
       }
 
-      if (isInCart(product.code)) {
+      if (product.is_in_cart) {
         removeFromCart(product.code);
         enqueueSnackbar("Removed from cart", { variant: "info" });
+
+        if (isCartView && setProducts) {
+          setProducts(products.filter(p => p.code !== product.code));
+        } else if (setProducts) {
+          setProducts(products.map(p =>
+            p.code === product.code ? { ...p, is_in_cart: false } : p
+          ));
+        }
       } else {
-        addToCart({
-          code: product.code,
-          shape: product.shape,
-          dimensions: product.dimensions,
-          images: product.images,
-        });
+        addToCart(product.code);
         enqueueSnackbar("Added to cart", { variant: "success" });
+
+        if (setProducts) {
+          setProducts(products.map(p =>
+            p.code === product.code ? { ...p, is_in_cart: true } : p
+          ));
+        }
       }
     };
 
     return (
       <Grid container spacing={2}>
         {products.map((product, index) => (
-          <Grid
-            item
-            xs={12}
-            sm={6}
-            md={4}
-            lg={3}
-            key={`product-${index}-${product.code}`}
-          >
+          <Grid item xs={12} sm={6} md={4} lg={3} key={`product-${index}`}>
             <Box
               sx={(theme) => ({
                 display: "flex",
@@ -80,6 +78,7 @@ const WoodTable: React.FC<ProductTableProps> = memo(
                 },
               })}
             >
+              {/* IMAGE */}
               <Box
                 sx={{
                   display: "flex",
@@ -110,6 +109,7 @@ const WoodTable: React.FC<ProductTableProps> = memo(
                 </Box>
               </Box>
 
+              {/* CONTENT */}
               <Box
                 sx={{
                   padding: 2,
@@ -128,6 +128,7 @@ const WoodTable: React.FC<ProductTableProps> = memo(
                   {product.dimensions}
                 </Typography>
 
+                {/* CART BUTTON */}
                 <Box sx={{ display: "flex", mt: "auto" }}>
                   <IconButton
                     onClick={(e) => {
@@ -137,14 +138,14 @@ const WoodTable: React.FC<ProductTableProps> = memo(
                     sx={(theme) => ({
                       bgcolor: isCartView
                         ? theme.palette.error.main
-                        : isInCart(product.code)
+                        : product.is_in_cart
                         ? theme.palette.success.main
                         : theme.palette.error.main,
                       color: theme.palette.common.white,
                       "&:hover": {
                         bgcolor: isCartView
                           ? theme.palette.error.dark
-                          : isInCart(product.code)
+                          : product.is_in_cart
                           ? theme.palette.success.dark
                           : theme.palette.error.dark,
                       },
@@ -154,7 +155,7 @@ const WoodTable: React.FC<ProductTableProps> = memo(
                   >
                     {isCartView ? (
                       <Delete />
-                    ) : isInCart(product.code) ? (
+                    ) : product.is_in_cart ? (
                       <CheckBox />
                     ) : (
                       <ShoppingCart />
@@ -171,5 +172,4 @@ const WoodTable: React.FC<ProductTableProps> = memo(
 );
 
 WoodTable.displayName = "WoodTable";
-
 export default WoodTable;

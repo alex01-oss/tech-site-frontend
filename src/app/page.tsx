@@ -11,7 +11,6 @@ import SidebarSkeleton from "./components/skeletons/SidebarSkeleton";
 import PaginationSkeleton from "./components/skeletons/PaginationSkeleton";
 import SearchSkeleton from "./components/skeletons/SearchSkeleton";
 import { useStore } from "./store/useStore";
-import { enqueueSnackbar } from "notistack";
 import WoodTable from "./components/woodworkingTable";
 
 interface Product {
@@ -19,122 +18,74 @@ interface Product {
   shape: string;
   dimensions: string;
   images: string;
-}
-
-interface Products {
-  items: Product[];
-  total_items: number;
-  total_pages: number;
-  current_page: number;
-  items_per_page: number;
+  is_in_cart?: boolean;
 }
 
 function HomePage() {
-  const [products, setProducts] = useState<Products>({
-    items: [],
+  const [products, setProducts] = useState<Product[]>([]);
+  const [pagination, setPagination] = useState({
     total_items: 0,
     total_pages: 0,
     current_page: 1,
     items_per_page: 8,
   });
 
-  const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchType, setSearchType] = useState<string>("code");
+  const [searchType, setSearchType] = useState("code");
   const [placeholder, setPlaceholder] = useState("By code");
   const [loading, setLoading] = useState(true);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
-  const { isOpen, setOpen, checkAuth, signed, fetchCart } = useStore();
+  const { isOpen, setOpen } = useStore();
 
   const fetchProductsData = useCallback(async () => {
-    if (!searchQuery && !currentPage) return;
-
     try {
+      setLoading(true);
       const data = await fetchData(
-        `catalog?search=${encodeURIComponent(
-          searchQuery
-        )}&search_type=${searchType}&page=${currentPage}`
+        `catalog?search=${encodeURIComponent(searchQuery)}&search_type=${searchType}&page=${pagination.current_page}`
       );
-      setProducts(data);
-    } catch (error) {
-      console.error("Error fetching products data: ", error);
+
+      setProducts(data.items);
+      setPagination((prev) => ({
+        ...prev,
+        total_items: data.total_items,
+        total_pages: data.total_pages,
+      }));
+    } catch (e) {
+      console.error("Error fetching catalog", e);
     } finally {
+      setLoading(false);
     }
-  }, [currentPage, searchQuery, searchType]);
+  }, [pagination.current_page, searchQuery, searchType]);
 
-  const handleMenuClick = useCallback(
-    (newPlaceholder: string, _: string, newSearchType: string) => {
-      setPlaceholder(newPlaceholder);
-      setSearchType(newSearchType);
-      setSearchQuery("");
-    },
-    []
-  );
-
-  const handleSearch = useCallback(
-    (query: string, _: string, searchType: string) => {
-      setSearchQuery(query);
-      setCurrentPage(1);
-      setSearchType(searchType);
-    },
-    []
-  );
+  useEffect(() => {
+    fetchProductsData();
+  }, [fetchProductsData]);
 
   useEffect(() => {
     setOpen(!isMobile);
   }, [isMobile]);
 
-  useEffect(() => {
-    const initialLoad = async () => {
-      setLoading(true);
-      fetchProductsData().catch((e) => {
-        enqueueSnackbar("Error fetching products data", { variant: "error" });
-      });
-      setLoading(false);
-    };
-
-    initialLoad();
-  }, [fetchProductsData]);
-
-  useEffect(() => {
-    checkAuth().catch((e) => {
-      enqueueSnackbar("you are not logged in", { variant: "warning" });
-    });
+  const handleSearch = useCallback((query: string, _: string, type: string) => {
+    setSearchQuery(query);
+    setPagination((prev) => ({ ...prev, current_page: 1 }));
+    setSearchType(type);
   }, []);
 
-  useEffect(() => {
-    if (signed) fetchCart();
-  }, [signed]);
+  const handleMenuClick = useCallback((newPlaceholder: string, _: string, type: string) => {
+    setPlaceholder(newPlaceholder);
+    setSearchType(type);
+    setSearchQuery("");
+  }, []);
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        minHeight: "100vh",
-        pt: "60px",
-        bgcolor: "background.default",
-        color: "text.primary",
-      }}
-    >
-      {/* CONTENT */}
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh", pt: "60px" }}>
       <Box sx={{ display: "flex", flex: 1 }}>
         {isOpen && isMobile && (
           <Box
             onClick={() => setOpen(false)}
-            sx={{
-              position: "fixed",
-              top: 0,
-              left: 0,
-              width: "100vw",
-              height: "100vh",
-              backgroundColor: "rgba(0, 0, 0, 0.3)",
-              zIndex: 998,
-              transition: "opacity 0.3s ease",
-            }}
+            sx={{ position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "rgba(0, 0, 0, 0.3)", zIndex: 998 }}
           />
         )}
 
@@ -142,41 +93,26 @@ function HomePage() {
           sx={{
             position: { xs: "fixed", md: "sticky" },
             top: "60px",
-            left: 0,
             height: "calc(100vh - 60px)",
             overflowY: "auto",
-            transform: {
-              xs: isOpen ? "translateX(0)" : "translateX(-100%)",
-              md: "translateX(0)",
-            },
-            transition: "transform 0.3s ease-in-out",
+            transform: { xs: isOpen ? "translateX(0)" : "translateX(-100%)", md: "translateX(0)" },
             zIndex: 999,
+            transition: "transform 0.3s ease-in-out",
           }}
         >
-          {/* SIDEBAR */}
           {loading ? (
             <SidebarSkeleton />
           ) : (
             <Sidebar
-              onMenuClick={(newPlaceholder, category, newSearchType) => {
-                handleMenuClick(newPlaceholder, category, newSearchType);
+              onMenuClick={(ph, cat, type) => {
+                handleMenuClick(ph, cat, type);
                 setOpen(false);
               }}
             />
           )}
         </Box>
 
-        <Box
-          sx={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            ml: { xs: 0 },
-            minHeight: "calc(100vh - 60px)",
-            overflow: "auto",
-          }}
-        >
-          {/* SEARCH */}
+        <Box sx={{ flex: 1, display: "flex", flexDirection: "column", ml: { xs: 0 } }}>
           <Box sx={{ p: 3 }}>
             {loading ? (
               <SearchSkeleton />
@@ -190,25 +126,19 @@ function HomePage() {
             )}
           </Box>
 
-          {/* PRODUCTS TABLE */}
           <Box sx={{ position: "relative", mx: 3 }}>
-            {loading ? (
-              <ProductSkeleton />
-            ) : (
-              <WoodTable products={products.items} />
-            )}
+            {loading ? <ProductSkeleton /> : <WoodTable products={products} setProducts={setProducts} />}
           </Box>
 
-          {/* PAGINATION */}
           <Box sx={{ display: "flex", justifyContent: "center" }}>
             {loading ? (
               <PaginationSkeleton />
             ) : (
               <Pagination
-                items={products.total_items}
-                currentPage={currentPage}
-                pageSize={products.items_per_page}
-                onPageChange={setCurrentPage}
+                items={pagination.total_items}
+                currentPage={pagination.current_page}
+                pageSize={pagination.items_per_page}
+                onPageChange={(page) => setPagination((prev) => ({ ...prev, current_page: page }))}
               />
             )}
           </Box>
@@ -218,4 +148,4 @@ function HomePage() {
   );
 }
 
-export default HomePage;
+export default HomePage

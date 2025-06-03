@@ -1,326 +1,169 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import { fetchData } from "../api/service";
 
 interface User {
+  id: number;
   email: string;
-  username?: string;
+  fullname: string;
+  role: string;
 }
 
-interface CartWoodItem {
+interface Product {
   code: string;
   shape: string;
   dimensions: string;
   images: string;
+  is_in_cart?: boolean;
+}
+
+interface CartItem {
+  product: Product;
+  quantity: number;
 }
 
 interface StoreState {
   user: User | null;
-  token: string | null;
-  tokenExpiration: number | null;
+  accessToken: string | null;
+  refreshToken: string | null;
   signed: boolean;
+
+  cart: CartItem[];
+
   isOpen: boolean;
-  cart: CartWoodItem[]
-  selectedProducts: string[];
-  isInitialized: boolean;
-  isCartLoading: boolean;
-  tokenRefreshTimer: NodeJS.Timeout | null;
-  
-  initialize: () => Promise<void>;
+  setOpen: (val: boolean) => void;
+
+  login: (email: string, password: string) => Promise<boolean>;
+  getUser: () => Promise<void>;
+  logout: () => Promise<void>;
+  refresh: () => Promise<boolean>;
   checkAuth: () => Promise<boolean>;
-  login: (user: User, token: string, refreshToken: string) => void;
-  logout: () => void;
-  setOpen: (isOpen: boolean) => void;
+
   fetchCart: () => Promise<void>;
-  addToCart: (product: CartWoodItem) => Promise<void>;
+  addToCart: (code: string) => Promise<void>;
   removeFromCart: (code: string) => Promise<void>;
-  toggleProductSelection: (code: string) => void;
-  refreshToken: () => Promise<boolean>;
-  setupTokenRefresh: () => void;
-  clearTokenRefreshTimer: () => void;
 }
 
-const safeLocalStorage = {
-  getItem: (key: string, defaultValue: string = '[]') => {
-    if (typeof window === 'undefined') return defaultValue;
-    return localStorage.getItem(key) || defaultValue;
-  },
-  setItem: (key: string, value: string) => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(key, value);
-    }
-  },
-  removeItem: (key: string) => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem(key);
-    }
-  }
-};
+export const useStore = create<StoreState>()(
+  persist(
+    (set, get) => ({
+      user: null,
+      accessToken: null,
+      refreshToken: null,
+      signed: false,
 
-const safeJsonParse = (jsonString: string, fallback: any = []) => {
-  try {
-    return JSON.parse(jsonString);
-  } catch (e) {
-    console.error("Failed to parse JSON", e);
-    return fallback;
-  }
-};
+      cart: [],
 
-export const useStore = create<StoreState>((set, get) => ({
-  user: null,
-  token: null,
-  tokenExpiration: null,
-  signed: false,
-  isOpen: false,
-  cart: [],
-  selectedProducts: safeJsonParse(safeLocalStorage.getItem("selectedProducts"), []),
-  isInitialized: false,
-  isCartLoading: false,
-  tokenRefreshTimer: null,
+      isOpen: false,
+      setOpen: (val) => set({ isOpen: val }),
 
-  initialize: async () => {
-    const isAuthenticated = await get().checkAuth();
-    
-    if (isAuthenticated) {
-      get().setupTokenRefresh();
-      await get().fetchCart();
-    }
-    
-    set({ isInitialized: true });
-  },
+      login: async (email, password) => {
+        try {
+          const res = await fetchData("login", "POST", { email, password });
 
-  setupTokenRefresh: () => {
-    get().clearTokenRefreshTimer();
-    
-    const tokenExpiration = get().tokenExpiration;
-    if (!tokenExpiration) return;
-    
-    const currentTime = Date.now();
-    const timeUntilExpiration = tokenExpiration - currentTime;
-    
-    // Оновлюємо токен за 5 хвилин до закінчення терміну дії
-    const refreshTime = Math.max(timeUntilExpiration - 5 * 60 * 1000, 0);
-    
-    if (refreshTime > 0) {
-      const timer = setTimeout(async () => {
-        const success = await get().refreshToken();
-        if (success) {
-          get().setupTokenRefresh();
-        }
-      }, refreshTime);
-      
-      set({ tokenRefreshTimer: timer as unknown as NodeJS.Timeout });
-    }
-  },
-  
-  clearTokenRefreshTimer: () => {
-    const { tokenRefreshTimer } = get();
-    if (tokenRefreshTimer) {
-      clearTimeout(tokenRefreshTimer);
-      set({ tokenRefreshTimer: null });
-    }
-  },
-
-  checkAuth: async () => {
-    const userStr = safeLocalStorage.getItem("user", 'null');
-    const token = safeLocalStorage.getItem("accessToken", 'null');
-    const tokenExpiration = parseInt(safeLocalStorage.getItem("tokenExpiration", '0'));
-    
-    const user = userStr !== 'null' ? safeJsonParse(userStr, null) : null;
-    let isAuthenticated = user !== null && token !== 'null';
-    
-    // Перевіряємо, чи термін дії токена закінчується незабаром
-    if (isAuthenticated && tokenExpiration) {
-      const timeUntilExpiration = tokenExpiration - Date.now();
-      
-      // Якщо термін дії токена закінчився або закінчується незабаром (менше 5 хвилин)
-      if (timeUntilExpiration < 5 * 60 * 1000) {
-        isAuthenticated = await get().refreshToken();
-        if (!isAuthenticated) {
-          set({ 
-            signed: false, 
-            user: null,
-            token: null
+          set({
+            accessToken: res.accessToken,
+            refreshToken: res.refreshToken,
+            signed: true,
           });
+
+          await get().getUser();
+          return true;
+        } catch (e) {
+          console.error("Login failed", e);
           return false;
         }
-      }
-    }
-    
-    set({ 
-      signed: isAuthenticated, 
-      user,
-      token: isAuthenticated ? token : null,
-      tokenExpiration: isAuthenticated ? tokenExpiration : null
-    });
-    
-    return isAuthenticated;
-  },
+      },
 
-  login: (user, token, refreshToken) => {
-    const expirationTime = Date.now() + 3600 * 1000;
-    
-    safeLocalStorage.setItem("user", JSON.stringify(user));
-    safeLocalStorage.setItem("accessToken", token);
-    safeLocalStorage.setItem("refreshToken", refreshToken);
-    safeLocalStorage.setItem("tokenExpiration", expirationTime.toString());
-    
-    set({ 
-      user, 
-      token, 
-      signed: true,
-      tokenExpiration: expirationTime
-    });
+      getUser: async () => {
+        try {
+          const res = await fetchData("user", "GET");
+          set({ user: res.user });
+        } catch (e) {
+          console.error("Get user failed", e);
+          await get().logout();
+        }
+      },
 
-    get().setupTokenRefresh();
-    get().fetchCart();
-  },
+      logout: async () => {
+        try {
+          const token = get().refreshToken;
+          if (token) {
+            await fetchData("logout", "POST", { refreshToken: token });
+          }
+        } catch (e) {
+          console.warn("Logout fallback triggered");
+        } finally {
+          set({
+            user: null,
+            accessToken: null,
+            refreshToken: null,
+            signed: false,
+            cart: [],
+          });
+        }
+      },
 
-  logout: () => {
-    get().clearTokenRefreshTimer();
-    
-    safeLocalStorage.removeItem("user");
-    safeLocalStorage.removeItem("accessToken");
-    safeLocalStorage.removeItem("refreshToken");
-    safeLocalStorage.removeItem("tokenExpiration");
-    
-    set({ 
-      user: null, 
-      token: null, 
-      tokenExpiration: null, 
-      signed: false, 
-      cart: [] 
-    });
-  },
+      refresh: async () => {
+        try {
+          const token = get().refreshToken;
+          const res = await fetchData("refresh", "POST", { refreshToken: token });
 
-  setOpen: (isOpen) => set({ isOpen }),
+          set({
+            accessToken: res.accessToken,
+            refreshToken: res.refreshToken,
+            signed: true,
+          });
 
-  fetchCart: async () => {
-    const { token, signed } = get();
-    if (!signed || !token) {
-        return;
-    }
+          return true;
+        } catch (e) {
+          console.error("Refresh failed", e);
+          await get().logout();
+          return false;
+        }
+      },
 
-    set({ isCartLoading: true });
+      checkAuth: async () => {
+        const { accessToken, user } = get();
+        const valid = Boolean(accessToken && user);
+        set({ signed: valid });
+        return valid;
+      },
 
-    try {
-        const response = await fetchData("cart", "GET");
-        set({ cart: response.cart || [], isCartLoading: false });
-    } catch (error: any) {
-        if (error.status === 401) {
-            const refreshSuccessful = await get().refreshToken();
-            if (refreshSuccessful) {
-                try {
-                    const response = await fetchData("cart", "GET");
-                    set({ cart: response.cart || [], isCartLoading: false });
-                } catch (retryError) {
-                    console.error("Failed to fetch cart after token refresh", retryError);
-                    set({ isCartLoading: false });
-                }
-            } else {
-                set({ isCartLoading: false, cart: [] });
+      fetchCart: async () => {
+        try {
+          const res = await fetchData("cart", "GET");
+          set({ cart: res.cart });
+        } catch (e) {
+          console.error("Fetching cart failed", e);
+          const refreshed = await get().refresh();
+          if (refreshed) {
+            try {
+              const res = await fetchData("cart", "GET");
+              set({ cart: res.cart });
+            } catch (err) {
+              console.error("Retry fetchCart failed", err);
             }
-        } else {
-            console.error("Failed to fetch cart", error);
-            set({ isCartLoading: false });
+          }
         }
-    }
-},
+      },
 
-  refreshToken: async () => {
-    try {
-      const refreshToken = safeLocalStorage.getItem("refreshToken", 'null');
-      
-      if (refreshToken === 'null') {
-        get().logout();
-        return false;
-      }
-
-      const response = await fetchData("auth/refresh", "POST", { refreshToken });
-
-      if (response && response.accessToken) {
-        safeLocalStorage.setItem("accessToken", response.accessToken);
-        const expirationTime = Date.now() + 3600 * 1000;
-        safeLocalStorage.setItem("tokenExpiration", expirationTime.toString());
-        
-        set({ 
-          token: response.accessToken,
-          tokenExpiration: expirationTime
-        });
-        
-        return true;
-      } else {
-        get().logout();
-        return false;
-      }
-    } catch (error) {
-      console.error("Failed to refresh token", error);
-      get().logout();
-      return false;
-    }
-  },
-
-  addToCart: async (product) => {
-    if (!get().signed) {
-      console.error("Cannot add to cart: User not authenticated");
-      return;
-    }
-    
-    try {
-      await fetchData("cart", "POST", {
-        code: product.code,
-        shape: product.shape,
-        dimensions: product.dimensions,
-        images: product.images
-      });
-      
-      set((state) => ({ 
-        cart: [...state.cart.filter(item => item.code !== product.code), product] 
-      }));
-
-    } catch (error: any) {
-      if (error.status === 401) {
-        const refreshSuccessful = await get().refreshToken();
-
-        if (refreshSuccessful) {
-          await get().addToCart(product);
+      addToCart: async (code) => {
+        try {
+          await fetchData("cart", "POST", { code });
+        } catch (e) {
+          console.error("Add to cart failed", e);
         }
-      } else {
-        console.error("Failed to add to cart", error);
-      }
-    }
-  },
-  
-  removeFromCart: async (code) => {
-    if (!get().signed) {
-      return;
-    }
-    
-    try {
-      await fetchData("cart", "DELETE", { code });
+      },
 
-      set((state) => ({
-        cart: state.cart.filter((item) => item.code !== code),
-      }));
-    } catch (error: any) {
-      if (error.status === 401) {
-        const refreshSuccessful = await get().refreshToken();
-
-        if (refreshSuccessful) {
-          await get().removeFromCart(code);
+      removeFromCart: async (code) => {
+        try {
+          await fetchData("cart", "DELETE", { code });
+        } catch (e) {
+          console.error("Remove from cart failed", e);
         }
-      } else {
-        console.error("Failed to remove from cart", error);
-      }
-    }
-  },
-
-  toggleProductSelection: (code) => {
-    set((state) => {
-      const newSelectedProducts = state.selectedProducts.includes(code)
-        ? state.selectedProducts.filter((id) => id !== code)
-        : [...state.selectedProducts, code];
-      safeLocalStorage.setItem("selectedProducts", JSON.stringify(newSelectedProducts));
-      return { selectedProducts: newSelectedProducts };
-    });
-  },
-}));
+      },
+    }),
+    { name: "main-store" }
+  )
+);

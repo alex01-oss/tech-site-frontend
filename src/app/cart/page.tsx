@@ -37,6 +37,16 @@ interface OrderFormData {
   paymentMethod: string;
 }
 
+interface CartProduct {
+  code: string;
+  shape: string;
+  dimensions: string;
+  images: string;
+  name_bond?: string;
+  grid_size?: string;
+  quantity?: number;
+}
+
 const OrderFormSchema = Yup.object().shape({
   name: Yup.string().required("Name is required"),
   surname: Yup.string().required("Surname is required"),
@@ -170,7 +180,7 @@ const OrderForm: React.FC = () => {
             </Typography>
           ) : (
             // <ProductTable products={cart} isCartView />
-            <WoodTable products={cart} isCartView />
+            <WoodTable products={cart.map(item => item.product)} isCartView />
           ))}
 
         {/* ORDER FORM BLOCK */}

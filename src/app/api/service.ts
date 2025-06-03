@@ -1,10 +1,11 @@
-const apiUrl =
-  process.env.NEXT_PUBLIC_API_URL?.trim() || "http://127.0.0.1:8080/api";
+import { useStore } from "../store/useStore"; // або інший шлях
 
 interface FetchError extends Error {
   status?: number;
   details?: string;
 }
+
+const apiUrl = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://127.0.0.1:8080/api";
 
 export const fetchData = async (
   endpoint: string,
@@ -12,22 +13,21 @@ export const fetchData = async (
   body: object | null = null
 ) => {
   try {
-    const token = localStorage.getItem("accessToken");
+    const { accessToken } = useStore.getState();
 
     const options: RequestInit = {
       method,
       headers: {
         "Content-Type": "application/json",
-        ...(token && { Authorization: `Bearer ${token}` }),
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       },
-      ...(body && { body: JSON.stringify(body) }),
+      ...(body ? { body: JSON.stringify(body) } : {}),
     };
 
     const response = await fetch(`${apiUrl}/${endpoint}`, options);
 
     const contentType = response.headers.get("content-type");
     const isJson = contentType?.includes("application/json");
-
     const responseData = isJson ? await response.json() : null;
 
     if (!response.ok) {
@@ -40,12 +40,7 @@ export const fetchData = async (
     return responseData;
   } catch (error) {
     const fetchError = error as FetchError;
-
-    if (fetchError.status === 401) {
-      console.error("Unauthorized: Access token invalid");
-    }
-
-    console.error(`Error fetching ${endpoint}: `, error);
-    throw error;
+    console.error(`Fetch failed: ${endpoint}`, fetchError);
+    throw fetchError;
   }
 };
