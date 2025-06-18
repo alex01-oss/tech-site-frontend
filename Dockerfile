@@ -1,25 +1,21 @@
-# syntax=docker/dockerfile:1
-
-FROM node:18-alpine as base
+FROM node:24-alpine AS base
 
 RUN apk add --no-cache g++ make py3-pip libc6-compat
-
 WORKDIR /app
-
 COPY package*.json ./
-
 RUN npm install
 
 EXPOSE 3000
 
-FROM base as builder
-
+FROM base AS builder
 COPY . .
+
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
 RUN npm run build
 
-FROM base as production
-
+FROM base AS production
 ENV NODE_ENV=production
 
 RUN npm ci
@@ -35,12 +31,9 @@ COPY --from=builder /app/public /app/public
 
 CMD ["npm", "start"]
 
-FROM base as dev
-
+FROM base AS dev
 ENV NODE_ENV=development
-
 RUN npm install
-
 COPY . .
 
 CMD ["npm", "run", "dev"]

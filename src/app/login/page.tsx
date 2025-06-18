@@ -3,28 +3,27 @@
 import {
   Box,
   Button,
+  Card,
   CssBaseline,
   Divider,
   FormControl,
-  Link,
-  TextField,
-  Typography,
-  Stack,
-  Card,
   IconButton,
   InputAdornment,
+  Link,
+  Stack,
+  TextField,
+  Typography,
 } from "@mui/material";
-import GoogleIcon, { FacebookIcon } from "../components/customIcon";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import {Visibility, VisibilityOff} from "@mui/icons-material";
 import FacebookLogin from "@greatsumini/react-facebook-login";
-import { useGoogleLogin } from "@react-oauth/google";
-import { useTheme } from "@mui/material/styles";
-import { fetchData } from "@/app/api/service";
-import { useStore } from "../store/useStore";
-import { useRouter } from "next/navigation";
-import { useSnackbar } from "notistack";
-import { useState } from "react";
+import {useGoogleLogin} from "@react-oauth/google";
+import {useTheme} from "@mui/material/styles";
+import {useRouter} from "next/navigation";
+import {useSnackbar} from "notistack";
 import * as React from "react";
+import {useState} from "react";
+import {useAuthStore} from "@/features/auth/store";
+import GoogleIcon, {FacebookIcon} from "@/components/common/customIcon";
 
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
@@ -32,6 +31,7 @@ export default function SignIn() {
   const { enqueueSnackbar } = useSnackbar();
   const router = useRouter();
   const theme = useTheme();
+  const { login } = useAuthStore();
 
   const handleOAuthLogin = async (provider: any, accessToken: any) => {
     setLoading(true);
@@ -39,16 +39,16 @@ export default function SignIn() {
     try {
       const userData = await fetchOAuthUserData(provider, accessToken);
 
-      const response = await fetchData("login", "POST", {
-        ...userData,
-        password: "oauth-user",
-      });
+      if (userData instanceof Error) return userData;
 
-      const { login } = useStore.getState();
-      login(userData.email, response.password);
+      const success = await login(userData.email, "oauth-user");
 
-      enqueueSnackbar("Login successful!", { variant: "success" });
-      router.push("/");
+      if (success) {
+        enqueueSnackbar("Login successful!", { variant: "success" });
+        router.push("/");
+      } else {
+        return new Error("OAuth login failed");
+      }
     } catch (error: any) {
       console.error(`${provider} login error:`, error);
       enqueueSnackbar(error.message || `${provider} login failed`, {
@@ -66,14 +66,17 @@ export default function SignIn() {
     const formData = new FormData(event.currentTarget);
     const credentials = {
       email: String(formData.get("email")),
-      password: String(formData.get("password"))
+      password: String(formData.get("password")),
     };
 
     try {
-      const { login } = useStore.getState();
-      await login(credentials.email, credentials.password);
-      enqueueSnackbar("Login successful!", { variant: "success" });
-      router.push("/");
+      const success = await login(credentials.email, credentials.password);
+      if (success) {
+        enqueueSnackbar("Login successful!", { variant: "success" });
+        router.push("/");
+      } else {
+        return new Error("Invalid credentials");
+      }
     } catch (error) {
       console.error("Login error:", error);
       handleAuthError(error);
@@ -102,9 +105,7 @@ export default function SignIn() {
       const data = await res.json();
 
       if (!data.email || !data.name) {
-        throw new Error(
-          `${provider} did not provide required user information`
-        );
+        return new Error(`${provider} did not provide required user information`);
       }
 
       return { username: data.name, email: data.email };
@@ -124,16 +125,16 @@ export default function SignIn() {
 
     const status = error.response?.status;
     const message =
-      errorMessages[status as keyof typeof errorMessages] ||
-      error.message ||
-      "Unexpected error";
+        errorMessages[status as keyof typeof errorMessages] ||
+        error.message ||
+        "Unexpected error";
 
     enqueueSnackbar(message, { variant: "error" });
   };
 
   const googleLogin = useGoogleLogin({
     onSuccess: (tokenResponse) =>
-      handleOAuthLogin("google", tokenResponse.access_token),
+        handleOAuthLogin("google", tokenResponse.access_token),
     flow: "implicit",
   });
 
@@ -142,123 +143,123 @@ export default function SignIn() {
       enqueueSnackbar("Facebook login failed", { variant: "error" });
       return;
     }
-    handleOAuthLogin("facebook", facebookData.accessToken);
+    void handleOAuthLogin("facebook", facebookData.accessToken);
   };
 
   return (
-    <>
-      <CssBaseline />
-      <Stack height="100vh" p={2} justifyContent="center">
-        <Card
-          variant="outlined"
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            alignSelf: "center",
-            width: "100%",
-            maxWidth: 450,
-            p: 4,
-            gap: 2,
-            m: "auto",
-            boxShadow: theme.shadows[3],
-          }}
-        >
-          <Typography
-            component="h1"
-            variant="h4"
-            textAlign="center"
-            fontWeight={600}
-          >
-            Sign in
-          </Typography>
-
-          <Box
-            component="form"
-            onSubmit={handleSubmit}
-            display="flex"
-            flexDirection="column"
-            gap={2}
-          >
-            <FormControl>
-              <TextField
-                type="email"
-                label="Email"
-                fullWidth
-                variant="outlined"
-                name="email"
-                required
-              />
-            </FormControl>
-
-            <TextField
-              id="password"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              label="Password"
-              fullWidth
+      <>
+        <CssBaseline />
+        <Stack height="100vh" p={2} justifyContent="center">
+          <Card
               variant="outlined"
-              required
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                alignSelf: "center",
+                width: "100%",
+                maxWidth: 450,
+                p: 4,
+                gap: 2,
+                m: "auto",
+                boxShadow: theme.shadows[3],
               }}
-            />
-
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              disabled={loading}
+          >
+            <Typography
+                component="h1"
+                variant="h4"
+                textAlign="center"
+                fontWeight={600}
             >
-              {loading ? "Loading..." : "Sign in"}
-            </Button>
-          </Box>
+              Sign in
+            </Typography>
 
-          <Divider>or</Divider>
-
-          <Box display="flex" flexDirection="column" gap={2}>
-            <Button
-              fullWidth
-              variant="outlined"
-              startIcon={<GoogleIcon />}
-              onClick={() => googleLogin()}
-              disabled={loading}
+            <Box
+                component="form"
+                onSubmit={handleSubmit}
+                display="flex"
+                flexDirection="column"
+                gap={2}
             >
-              Sign in with Google
-            </Button>
+              <FormControl>
+                <TextField
+                    type="email"
+                    label="Email"
+                    fullWidth
+                    variant="outlined"
+                    name="email"
+                    required
+                />
+              </FormControl>
 
-            <FacebookLogin
-              appId="614205724757167"
-              scope="public_profile,email"
-              onSuccess={facebookLogin}
-              render={({ onClick }) => (
-                <Button
+              <TextField
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  label="Password"
                   fullWidth
                   variant="outlined"
-                  startIcon={<FacebookIcon />}
-                  onClick={onClick}
-                  disabled={loading}
-                >
-                  Sign in with Facebook
-                </Button>
-              )}
-            />
+                  required
+                  InputProps={{
+                    endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                              onClick={() => setShowPassword(!showPassword)}
+                              edge="end"
+                          >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                          </IconButton>
+                        </InputAdornment>
+                    ),
+                  }}
+              />
 
-            <Typography textAlign="center">
-              Don't have an account?{" "}
-              <Link onClick={() => router.push("/registration")}>Sign up</Link>
-            </Typography>
-          </Box>
-        </Card>
-      </Stack>
-    </>
+              <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  disabled={loading}
+              >
+                {loading ? "Loading..." : "Sign in"}
+              </Button>
+            </Box>
+
+            <Divider>or</Divider>
+
+            <Box display="flex" flexDirection="column" gap={2}>
+              <Button
+                  fullWidth
+                  variant="outlined"
+                  startIcon={<GoogleIcon />}
+                  onClick={() => googleLogin()}
+                  disabled={loading}
+              >
+                Sign in with Google
+              </Button>
+
+              <FacebookLogin
+                  appId="614205724757167"
+                  scope="public_profile,email"
+                  onSuccess={facebookLogin}
+                  render={({ onClick }) => (
+                      <Button
+                          fullWidth
+                          variant="outlined"
+                          startIcon={<FacebookIcon />}
+                          onClick={onClick}
+                          disabled={loading}
+                      >
+                        Sign in with Facebook
+                      </Button>
+                  )}
+              />
+
+              <Typography textAlign="center">
+                Don't have an account?{" "}
+                <Link onClick={() => router.push("/registration")}>Sign up</Link>
+              </Typography>
+            </Box>
+          </Card>
+        </Stack>
+      </>
   );
 }

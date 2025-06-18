@@ -1,10 +1,11 @@
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import ErrorBoundary from "./components/error";
-import { Metadata } from "next";
-import ClientProviders from "./components/clientsProvider";
-import Navbar from "./components/navbar";
-import Footer from "./components/footer";
+import {Geist, Geist_Mono} from "next/font/google";
+import "../styles/globals.css";
+import ErrorBoundary from "@/components/common/error";
+import {Metadata} from "next";
+import ClientProviders from "@/provider/clientsProvider";
+import Navbar from "@/components/layout/navbar";
+import Footer from "@/components/layout/footer";
+import React from "react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -61,6 +62,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
     <html lang="en">
       <body
@@ -68,9 +70,9 @@ export default function RootLayout({
       >
         <ClientProviders>
           <ErrorBoundary>
-            <Navbar />
-            {children}
-            <Footer />
+              <Navbar />
+              {children}
+              <Footer />
           </ErrorBoundary>
         </ClientProviders>
       </body>
