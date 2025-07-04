@@ -1,6 +1,6 @@
 "use client";
 
-import {AppBar, Avatar, Badge, Box, IconButton, Toolbar, Tooltip, useMediaQuery, useTheme} from "@mui/material";
+import {AppBar, Avatar, Badge, Box, Container, IconButton, Toolbar, Tooltip, useMediaQuery, useTheme} from "@mui/material";
 import {Divide as Hamburger} from "hamburger-react";
 import Image from "next/image";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
@@ -18,124 +18,125 @@ import {useMenuStore} from "@/features/menu/store";
 export default function Navbar() {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-    const { mode, toggleColorMode } = useThemeContext();
+    const {mode, toggleColorMode} = useThemeContext();
     const isDark = mode === "dark";
     const router = useRouter();
-    const { enqueueSnackbar } = useSnackbar();
-
-    const { isOpen, toggleOpen } = useMenuStore();
-    const { isAuthenticated } = useAuthStore();
-    const { user } = useAuthStore();
-
-    const { cartCount, fetchCart } = useCartStore();
+    const pathname = usePathname();
+    const {enqueueSnackbar} = useSnackbar();
+    const {isOpen, toggleOpen} = useMenuStore();
+    const {isAuthenticated, user} = useAuthStore();
+    const {cartCount, fetchCart} = useCartStore();
 
     useEffect(() => {
-        if (isAuthenticated) {
-            fetchCart().then(() => {});
-        }
+        if (isAuthenticated) void fetchCart();
     }, [isAuthenticated, fetchCart]);
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const handleClose = () => setAnchorEl(null);
 
-    const pathname = usePathname();
-    const isRoute = pathname !== "/";
-
     const handleProfileClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
     };
 
-    const renderLogoAndBackButton = () => (
+    const renderLogo = () => (
         <Box
             component="a"
             onClick={() => router.push("/")}
             sx={{
-                pr: 6,
-                width: 255,
+                pr: {xs: 0, md: 6},
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
                 position: "relative",
+                cursor: 'pointer',
             }}
         >
-            <Image src="/logo_white.svg" alt="logo" width={125} height={50} />
-            {isRoute && (
-                <IconButton
-                    color="inherit"
-                    onClick={() => router.push("/")}
-                    sx={{
-                        position: "absolute",
-                        ml: 32,
-                    }}
-                >
-                    <ArrowBackIcon sx={{ color: "#E6E7E9" }} />
-                </IconButton>
-            )}
+            <Image src="/logo_white.svg" alt="logo" width={125} height={50}/>
         </Box>
     );
 
-    const renderMobileMenu = () => (
-        <Box sx={{ display: "flex", alignItems: "center" }}>
-            {isRoute ? (
-                <IconButton onClick={() => router.push("/")}>
-                    <ArrowBackIcon />
-                </IconButton>
-            ) : (
-                <Hamburger toggled={isOpen} toggle={toggleOpen} rounded />
-            )}
-        </Box>
+    const renderBackButton = () => (
+        <IconButton
+            color="inherit"
+            onClick={() => router.push("/")}
+        >
+            <ArrowBackIcon/>
+        </IconButton>
+    );
+
+    const renderHamburger = () => (
+        <Hamburger toggled={isOpen} toggle={toggleOpen} rounded size={24}/>
     );
 
     return (
         <AppBar position="fixed" elevation={1} color="default">
-            <Toolbar
-                sx={{
-                    minHeight: 60,
-                    display: "flex",
-                    justifyContent: "space-between",
-                }}
-            >
-                {isMobile ? renderMobileMenu() : renderLogoAndBackButton()}
+            <Container maxWidth="lg">
+                <Toolbar
+                    sx={{
+                        minHeight: theme.mixins.toolbar.minHeight,
+                        display: "flex",
+                        justifyContent: "space-between",
+                        px: {xs: 2, md: 3},
+                    }}
+                >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        {(pathname === "/" || !isMobile || (isMobile && pathname !== "/catalog")) &&
+                            renderLogo()}
 
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <Tooltip title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}>
-                        <IconButton onClick={toggleColorMode} color="inherit">
-                            {isDark ? <Brightness7 /> : <Brightness4 />}
-                        </IconButton>
-                    </Tooltip>
+                        {pathname !== "/" && renderBackButton()}
 
-                    <Tooltip title="Shopping Cart">
-                        <IconButton
-                            onClick={() => {
-                                isAuthenticated
-                                    ? router.push("/cart")
-                                    : enqueueSnackbar("You must be authorized", {
-                                        variant: "error",
-                                    });
-                            }}
-                            color="inherit"
-                        >
-                            <Badge badgeContent={cartCount} color="primary">
-                                <ShoppingCartIcon />
-                            </Badge>
-                        </IconButton>
-                    </Tooltip>
+                        {isMobile && pathname === "/catalog" && renderHamburger()}
+                    </Box>
 
-                    <Tooltip title="Profile" sx={{ mx: 1 }} onClick={handleProfileClick}>
-                        <Avatar sx={{ width: 40, height: 40, ml: 1 }}>
-                            {isAuthenticated && user?.full_name
-                                ? user.full_name
-                                    .split(" ")
-                                    .slice(0, 2)
-                                    .map((w: string) => w.charAt(0).toUpperCase())
-                                    .join("")
-                                : ""}
-                        </Avatar>
-                    </Tooltip>
 
-                    <AccountMenu anchorEl={anchorEl} handleCloseAction={handleClose} />
-                </Box>
-            </Toolbar>
+                    <Box sx={{display: "flex", alignItems: "center", gap: {xs: 1, md: 1}}}>
+                        <Tooltip title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}>
+                            <IconButton onClick={toggleColorMode} color="inherit">
+                                {isDark ? <Brightness7/> : <Brightness4/>}
+                            </IconButton>
+                        </Tooltip>
+
+                        <Tooltip title="Shopping Cart">
+                            <IconButton
+                                onClick={() => {
+                                    isAuthenticated
+                                        ? router.push("/cart")
+                                        : enqueueSnackbar("You must be authorized", {
+                                            variant: "error",
+                                        });
+                                }}
+                                color="inherit"
+                            >
+                                <Badge badgeContent={cartCount} color="primary">
+                                    <ShoppingCartIcon/>
+                                </Badge>
+                            </IconButton>
+                        </Tooltip>
+
+                        <Tooltip title="Profile">
+                            <Avatar
+                                onClick={handleProfileClick}
+                                sx={{
+                                    width: theme.spacing(5),
+                                    height: theme.spacing(5),
+                                    ml: {xs: 0, md: 1},
+                                    cursor: 'pointer',
+                                }}
+                            >
+                                {isAuthenticated && user?.full_name
+                                    ? user.full_name
+                                        .split(" ")
+                                        .slice(0, 2)
+                                        .map((w: string) => w.charAt(0).toUpperCase())
+                                        .join("")
+                                    : ""}
+                            </Avatar>
+                        </Tooltip>
+
+                        <AccountMenu anchorEl={anchorEl} handleCloseAction={handleClose}/>
+                    </Box>
+                </Toolbar>
+            </Container>
         </AppBar>
     );
 }

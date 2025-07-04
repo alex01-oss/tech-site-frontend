@@ -1,44 +1,54 @@
 import React, {memo, useEffect, useState} from "react";
 import {
-    Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Collapse, useMediaQuery, useTheme,
+    Checkbox,
+    Drawer,
+    FormControlLabel,
+    FormGroup,
+    List,
+    ListItem,
+    ListItemText,
+    Toolbar,
+    useMediaQuery,
+    useTheme,
 } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
-import SearchIcon from "@mui/icons-material/Search";
 import {useMenuStore} from "@/features/menu/store";
-import {MenuCategory, MenuItem, MenuSubItem} from "@/features/menu/types";
+import {MenuItem} from "@/features/menu/types";
 
 interface SidebarProps {
-    onMenuClick: (placeholder: string, category: string, searchType: string) => void;
+    onFilterChange: (filters: Record<string, string[]>) => void;
 }
 
-const Sidebar = memo(({onMenuClick}: SidebarProps) => {
-    const {menu, fetchMenu, isOpen, toggleOpen} = useMenuStore();
-    const [openCategories, setOpenCategories] = useState<Record<string, boolean>>({});
-    const [openItems, setOpenItems] = useState<Record<string, Record<number, boolean>>>({});
+const Sidebar = memo(({ onFilterChange }: SidebarProps) => {
+    const { menu, fetchMenu, isOpen, toggleOpen } = useMenuStore();
+    const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({});
     const isMobile = useMediaQuery(useTheme().breakpoints.down("md"));
+    const theme = useTheme();
+    const drawerWidth = 256;
 
     useEffect(() => {
         fetchMenu().catch(console.error);
-    }, [fetchMenu]);
+    }, []);
 
-    const toggleCategory = (title: string) => {
-        setOpenCategories((prev) => ({...prev, [title]: !prev[title]}));
-        setOpenItems({});
+    const handleFilterChange = (categoryTitle: string, itemValue: string) => {
+        setSelectedFilters((prevFilters) => {
+            const currentCategoryFilters = prevFilters[categoryTitle] || [];
+            let newCategoryFilters;
+
+            if (currentCategoryFilters.includes(itemValue)) {
+                newCategoryFilters = currentCategoryFilters.filter((value) => value !== itemValue);
+            } else {
+                newCategoryFilters = [...currentCategoryFilters, itemValue];
+            }
+
+            const newFilters = {
+                ...prevFilters,
+                [categoryTitle]: newCategoryFilters,
+            };
+
+            onFilterChange(newFilters);
+            return newFilters;
+        });
     };
-
-    const toggleItem = (category: string, index: number) => {
-        setOpenItems((prev) => ({
-            ...prev,
-            [category]: {
-                ...prev[category],
-                [index]: !prev[category]?.[index],
-            },
-        }));
-    };
-
-    if (!menu.length) return null;
 
     return (
         <Drawer
@@ -46,86 +56,56 @@ const Sidebar = memo(({onMenuClick}: SidebarProps) => {
             anchor="left"
             open={isMobile ? isOpen : true}
             onClose={isMobile ? toggleOpen : undefined}
+            ModalProps={{ keepMounted: true }}
             sx={{
-                width: 256,
+                width: drawerWidth,
                 flexShrink: 0,
-                zIndex: 1200,
-                "& .MuiDrawer-paper": {
-                    width: 256,
-                    borderRight: "1px solid rgba(142, 32, 65, 0.1)",
-                    top: isMobile ? 0 : "60px",
-                    height: isMobile ? "100vh" : "calc(100vh - 60px)",
-                    position: "sticky",
-                    overflowY: "auto",
+                [`& .MuiDrawer-paper`]: {
+                    width: drawerWidth,
+                    boxSizing: "border-box",
+                    position: isMobile ? "fixed" : "sticky",
+                    backgroundColor: theme.palette.background.default,
+                    zIndex: isMobile ? theme.zIndex.drawer : "auto",
+                    top: "64px",
+                    height: `calc(100vh - ${theme.mixins.toolbar.minHeight}px)`,
+                    overflow: "hidden",
                 },
             }}
         >
-            <List>
-                {menu.map((category: MenuCategory, categoryIndex: any) => (
+            {isMobile && <Toolbar />}
+
+            <List disablePadding>
+                {menu.map((category, categoryIndex) => (
                     <React.Fragment key={`cat-${categoryIndex}`}>
-                        <ListItem disablePadding>
-                            <ListItemButton onClick={() => toggleCategory(category.title)}>
-                                <ListItemIcon sx={{minWidth: "30px"}}>
-                                    {openCategories[category.title] ? <ExpandMoreIcon/> : <ChevronRightIcon/>}
-                                </ListItemIcon>
-                                <ListItemText primary={category.title} sx={{
+                        <ListItem disablePadding sx={{ py: 1 }}>
+                            <ListItemText
+                                primary={category.title}
+                                sx={{
                                     "& .MuiTypography-root": {
                                         fontWeight: "bold",
-                                        color: "primary.main"
-                                    }
-                                }}/>
-                            </ListItemButton>
+                                        color: "primary.main",
+                                        ml: 2,
+                                    },
+                                }}
+                            />
                         </ListItem>
 
-                        <Collapse in={openCategories[category.title]} timeout="auto" unmountOnExit>
-                            <List component="div" disablePadding>
-                                {category.items.map((item: MenuItem, itemIndex) => (
-                                    <React.Fragment key={`item-${itemIndex}`}>
-                                        <ListItem disablePadding>
-                                            <ListItemButton onClick={() => toggleItem(category.title, itemIndex)}
-                                                            sx={{pl: 4}}>
-                                                <ListItemIcon sx={{minWidth: "30px"}}>
-                                                    {openItems[category.title]?.[itemIndex] ? <ExpandMoreIcon/> :
-                                                        <ChevronRightIcon/>}
-                                                </ListItemIcon>
-                                                <ListItemText primary={item.text}/>
-                                            </ListItemButton>
-                                        </ListItem>
-
-                                        <Collapse in={openItems[category.title]?.[itemIndex]} timeout="auto"
-                                                  unmountOnExit>
-                                            <List component="div" disablePadding>
-                                                {item.items.map((sub: MenuSubItem, subIndex: any) => (
-                                                    <ListItem key={`sub-${subIndex}`} disablePadding>
-                                                        {sub.type === "button" && sub.url ? (
-                                                            <ListItemButton component="a" href={sub.url} target="_blank"
-                                                                            sx={{pl: 6}}>
-                                                                <ListItemIcon sx={{minWidth: "30px"}}>
-                                                                    <PictureAsPdfIcon fontSize="small"/>
-                                                                </ListItemIcon>
-                                                                <ListItemText primary={sub.text}/>
-                                                            </ListItemButton>
-                                                        ) : (
-                                                            <ListItemButton
-                                                                onClick={() =>
-                                                                    onMenuClick(sub.text, category.title, sub.searchType ?? "")
-                                                                }
-                                                                sx={{pl: 6}}
-                                                            >
-                                                                <ListItemIcon sx={{minWidth: "30px"}}>
-                                                                    <SearchIcon fontSize="small"/>
-                                                                </ListItemIcon>
-                                                                <ListItemText primary={sub.text}/>
-                                                            </ListItemButton>
-                                                        )}
-                                                    </ListItem>
-                                                ))}
-                                            </List>
-                                        </Collapse>
-                                    </React.Fragment>
-                                ))}
-                            </List>
-                        </Collapse>
+                        <FormGroup sx={{ pl: 2 }}>
+                            {category.items.map((item: MenuItem, itemIndex: number) => (
+                                <FormControlLabel
+                                    key={`item-${itemIndex}`}
+                                    control={
+                                        <Checkbox
+                                            size="small"
+                                            checked={selectedFilters[category.title]?.includes(item.searchValue) || false}
+                                            onChange={() => handleFilterChange(category.title, item.searchValue)}
+                                        />
+                                    }
+                                    label={item.text}
+                                    sx={{ py: 0.5 }}
+                                />
+                            ))}
+                        </FormGroup>
                     </React.Fragment>
                 ))}
             </List>

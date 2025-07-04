@@ -17,22 +17,23 @@ interface MenuState {
 
 export const useMenuStore = create<MenuState>()(
     persist(
-        (set, get) => ({
+        (set, get) => ({ // <-- Додали 'get' для доступу до поточного стану
             menu: [],
             loading: false,
             error: null,
             isOpen: false,
-            hasFetched: false,
+            hasFetched: false, // <-- Ініціалізуємо як false
 
             fetchMenu: async () => {
-                const { hasFetched } = get();
-                if (hasFetched) return;
+                if (get().hasFetched) {
+                    return;
+                }
 
                 try {
                     set({ loading: true, error: null });
                     const response = await menuApi.getMenu();
                     set({
-                        menu: response.categories,
+                        menu: response,
                         hasFetched: true,
                     });
                 } catch (e) {
@@ -44,7 +45,7 @@ export const useMenuStore = create<MenuState>()(
             },
 
             clearMenu: () => {
-                set({ menu: [], error: null, hasFetched: false });
+                set({ menu: [], error: null, hasFetched: false }); // <-- Очищаємо hasFetched при скиданні
             },
 
             toggleOpen: () => {
@@ -53,10 +54,6 @@ export const useMenuStore = create<MenuState>()(
         }),
         {
             name: "menu-store",
-            partialize: (state) => ({
-                menu: state.menu,
-                hasFetched: state.hasFetched,
-            }),
         }
     )
 );

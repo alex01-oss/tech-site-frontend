@@ -1,10 +1,10 @@
 export interface CatalogItem {
     code: string;
-    shape?: string;
-    dimensions?: string;
-    images?: string;
-    name_bond?: string;
-    grid_size?: string;
+    shape: string;
+    dimensions: string;
+    images: string;
+    name_bond: string;
+    grid_size: string;
     is_in_cart: boolean;
 }
 

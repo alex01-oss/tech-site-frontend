@@ -136,7 +136,7 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                 <Box sx={{ mt: 1 }}>
                     <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
                         <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>
-                            Розміри:
+                            Dimens:
                         </Typography>
                         <Typography variant="body2" sx={{ fontWeight: 500 }}>
                             {product.dimensions}
@@ -193,10 +193,10 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                         }}
                     >
                         {isCartView
-                            ? "Видалити"
+                            ? "Remove"
                             : product.is_in_cart
-                                ? "В кошику"
-                                : "Додати в кошик"
+                                ? "In cart"
+                                : "Add to cart"
                         }
                     </Button>
                 </Box>

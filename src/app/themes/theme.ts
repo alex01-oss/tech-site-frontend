@@ -6,12 +6,12 @@ import { PaletteMode } from "@mui/material";
 const commonPalette = {
   light: {
     primary: { main: "#950A3D" },
-    secondary: { main: "#E44B7A" },
+    secondary: { main: "#AD1D1D" },
     background: { default: "#E6E7E9", paper: "#FFFFFF" },
     text: { primary: "#121212", secondary: "#1E1E1E" },
   },
   dark: {
-    primary: { main: "#E44B7A" },
+    primary: { main: "#AD1D1D" },
     secondary: { main: "#950A3D" },
     background: { default: "#121212", paper: "#1E1E1E" },
     text: { primary: "#E6E7E9", secondary: "#FFFFFF" },
