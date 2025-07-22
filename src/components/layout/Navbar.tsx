@@ -65,7 +65,7 @@ export default function Navbar() {
     );
 
     const renderHamburger = () => (
-        <Hamburger toggled={isOpen} toggle={toggleOpen} rounded size={24}/>
+        <Hamburger toggled={isOpen} toggle={toggleOpen} rounded size={24} color={"#FFF"} />
     );
 
     return (

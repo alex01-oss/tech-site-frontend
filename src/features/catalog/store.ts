@@ -29,6 +29,7 @@ interface CatalogState {
     resetSearch: () => void;
     setSearchAndResetPage(searchFields: SearchField[]): void;
     setFiltersAndResetPage(newNameBond: string | null, newGridSize: string | null): void;
+    setItemsPerPage: (count: number) => void;
 }
 
 export const useCatalogStore = create<CatalogState>((set, get) => ({
@@ -185,4 +186,8 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
             currentPage: 1,
         }));
     },
+
+    setItemsPerPage: (count: number) => {
+        set({ itemsPerPage: count, currentPage: 1, error: null });
+    }
 }));

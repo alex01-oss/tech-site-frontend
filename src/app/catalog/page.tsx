@@ -10,10 +10,12 @@ import {useCatalogStore} from "@/features/catalog/store";
 import Search from "@/components/common/search";
 import {useMenuStore} from "@/features/menu/store";
 import {SearchField} from "@/features/catalog/types";
+import {useGridItemsPerPage} from "@/hooks/useGridItemsPerPage";
 
 function CatalogPage() {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
     const [isOpen, setOpen] = useState(true);
 
     const {
@@ -29,6 +31,8 @@ function CatalogPage() {
         totalPages,
         setPage,
         fetchCatalog,
+        itemsPerPage: storeItemsPerPage,
+        setItemsPerPage: setStoreItemsPerPage,
     } = useCatalogStore();
 
     const menuLoading = useMenuStore(state => state.loading);
@@ -36,7 +40,11 @@ function CatalogPage() {
     const observer = useRef<IntersectionObserver | null>(null);
     const ref = useRef<HTMLDivElement>(null);
 
-    const isSearchActive = !!searchCode || !!searchShape || !!searchDimensions || !!searchMachine;
+    const itemsPerPage = useGridItemsPerPage()
+
+    const isSearchActive = useMemo(() => {
+        return searchCode || searchShape || searchDimensions || searchMachine;
+    }, [searchCode, searchShape, searchDimensions, searchMachine]);
 
     useEffect(() => {
         setOpen(!isMobile);
@@ -65,8 +73,23 @@ function CatalogPage() {
     }, [isLoading, currentPage, totalPages, setPage]);
 
     useEffect(() => {
+        if (storeItemsPerPage !== itemsPerPage) {
+            setStoreItemsPerPage(itemsPerPage);
+        }
+    }, [itemsPerPage, storeItemsPerPage, setStoreItemsPerPage]);
+
+    useEffect(() => {
         void fetchCatalog()
-    }, [fetchCatalog, currentPage, nameBond, gridSize, searchCode, searchShape, searchDimensions, searchMachine]);
+    }, [
+        fetchCatalog,
+        currentPage,
+        storeItemsPerPage,
+        nameBond, gridSize,
+        searchCode,
+        searchShape,
+        searchDimensions,
+        searchMachine
+    ]);
 
     const handleCombinedSearchSubmit = useCallback((searchFields: SearchField[]) => {
         useCatalogStore.getState().setSearchAndResetPage(searchFields);

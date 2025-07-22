@@ -15,8 +15,8 @@ const ProductsTable: React.FC<ProductTableProps> = memo(({ products, isCartView 
     return (
         <Grid container spacing={3}>
             {products.map((product, index) => (
-                <Grid item xs={6} sm={6} md={6} lg={4} xl={3} key={`product-${index}`}>
-                    <ProductCard
+                <Grid item xs={6} sm={6} md={4} lg={3} xl={3} key={`product-${index}`}>
+                <ProductCard
                         product={{ ...product, is_in_cart: isInCart(product.code) }}
                         isCartView={isCartView}
                         onToggleCart={() => handleToggleCart(product)}
