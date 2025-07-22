@@ -3,8 +3,8 @@ import "../styles/globals.css";
 import ErrorBoundary from "@/components/common/error";
 import {Metadata} from "next";
 import ClientProviders from "@/provider/clientsProvider";
-import Navbar from "@/components/layout/navbar";
-import Footer from "@/components/layout/footer";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 import React from "react";
 
 const geistSans = Geist({

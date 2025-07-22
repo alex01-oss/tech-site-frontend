@@ -1,56 +1,172 @@
-import React from 'react'
-import Container from "@mui/material/Container";
-import Typography from "@mui/material/Typography";
-import Grid from "@mui/material/Grid";
-import Paper from "@mui/material/Paper";
+"use client";
 
-const posts = [
-    {id: 1, title: 'Профільне шліфування', thumbnail: '/images/video_thumb_1.jpg'},
-    {id: 2, title: 'Технологія виробництва', thumbnail: '/images/video_thumb_2.jpg'},
-    {id: 3, title: 'Нові інструменти 2025', thumbnail: '/images/video_thumb_3.jpg'},
-];
+import React from 'react';
+import {Container, Grid, Paper, Typography, Box, Button} from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { Post } from "@/features/blog/types";
+import { useRouter } from 'next/navigation';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/pagination';
 
-export default function BlogSection() {
+interface BlogSectionProps {
+    posts: Post[];
+    baseApiUrl: string;
+}
+
+export default function BlogSection({ posts, baseApiUrl }: BlogSectionProps) {
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+    const router = useRouter();
+
     return (
-        <Container maxWidth="lg" sx={{my: 6}}>
-            <Typography variant="h3" component="h2" sx={{mb: 4, color: 'text.primary'}}>
+        <Container maxWidth="lg" sx={{ my: 6 }}>
+            <Typography variant="h3" component="h2" sx={{ mb: 4, color: 'text.primary' }}>
                 Our blog
             </Typography>
-            <Grid container spacing={3} justifyContent="center">
-                {posts.map((post) => (
-                    <Grid item xs={12} sm={6} md={4} key={post.id}>
-                        <Paper
-                            sx={{
-                                position: 'relative',
-                                height: 200,
-                                backgroundImage: `url(${post.thumbnail})`,
-                                backgroundSize: 'cover',
-                                backgroundPosition: 'center',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                cursor: 'pointer',
-                                overflow: 'hidden',
-                            }}
-                        >
-                            <Typography
-                                variant="subtitle1"
-                                sx={{
-                                    position: 'absolute',
-                                    bottom: 8,
-                                    left: 8,
-                                    color: 'white',
-                                    fontWeight: 'bold',
-                                    zIndex: 2,
-                                    textShadow: '1px 1px 3px rgba(0,0,0,0.7)',
-                                }}
-                            >
-                                {post.title}
-                            </Typography>
-                        </Paper>
+
+            {posts.length > 0 ? (
+                isMobile ? (
+                    <Swiper
+                        modules={[Pagination]}
+                        spaceBetween={20}
+                        slidesPerView={1.1}
+                        centeredSlides={true}
+                        pagination={{ clickable: true }}
+                        breakpoints={{
+                            600: {
+                                slidesPerView: 2.1,
+                                spaceBetween: 30,
+                            },
+                        }}
+                        style={{ paddingBottom: '40px' }}
+                    >
+                        {posts.map((post: Post) => (
+                            <SwiperSlide key={post.id}>
+                                <Paper
+                                    sx={{
+                                        position: 'relative',
+                                        height: 200,
+                                        backgroundImage: `url(${post.image ? `${baseApiUrl}/${post.image}` : '/placeholder-image.png'})`,
+                                        backgroundSize: 'cover',
+                                        backgroundPosition: 'center',
+                                        display: 'flex',
+                                        alignItems: 'flex-end',
+                                        justifyContent: 'flex-start',
+                                        cursor: 'pointer',
+                                        overflow: 'hidden',
+                                        borderRadius: 2,
+                                        '&::before': {
+                                            content: '""',
+                                            position: 'absolute',
+                                            bottom: 0,
+                                            left: 0,
+                                            right: 0,
+                                            height: '50%',
+                                            background: 'linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0))',
+                                            zIndex: 1,
+                                        }
+                                    }}
+                                    onClick={() => router.push(`/blog/${post.id}`)}
+                                >
+                                    <Typography
+                                        variant="subtitle1"
+                                        sx={{
+                                            position: 'relative',
+                                            bottom: 8,
+                                            left: 8,
+                                            color: 'white',
+                                            fontWeight: 'bold',
+                                            zIndex: 2,
+                                            textShadow: '1px 1px 3px rgba(0,0,0,0.7)',
+                                            p: 1,
+                                        }}
+                                    >
+                                        {post.title}
+                                    </Typography>
+                                </Paper>
+                            </SwiperSlide>
+                        ))}
+                    </Swiper>
+                ) : (
+                    <Grid container spacing={3} justifyContent="center">
+                        {posts.map((post: Post) => (
+                            <Grid item xs={12} sm={6} md={4} key={post.id}>
+                                <Paper
+                                    sx={{
+                                        position: 'relative',
+                                        height: 200,
+                                        backgroundImage: `url(${post.image ? `${baseApiUrl}/${post.image}` : '/placeholder-image.png'})`,
+                                        backgroundSize: 'cover',
+                                        backgroundPosition: 'center',
+                                        display: 'flex',
+                                        alignItems: 'flex-end',
+                                        justifyContent: 'flex-start',
+                                        cursor: 'pointer',
+                                        overflow: 'hidden',
+                                        borderRadius: 2,
+                                        '&::before': {
+                                            content: '""',
+                                            position: 'absolute',
+                                            bottom: 0,
+                                            left: 0,
+                                            right: 0,
+                                            height: '50%',
+                                            background: 'linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0))',
+                                            zIndex: 1,
+                                        }
+                                    }}
+                                    onClick={() => router.push(`/blog/${post.id}`)}
+                                >
+                                    <Typography
+                                        variant="subtitle1"
+                                        sx={{
+                                            position: 'relative',
+                                            bottom: 8,
+                                            left: 8,
+                                            color: 'white',
+                                            fontWeight: 'bold',
+                                            zIndex: 2,
+                                            textShadow: '1px 1px 3px rgba(0,0,0,0.7)',
+                                            p: 1,
+                                        }}
+                                    >
+                                        {post.title}
+                                    </Typography>
+                                </Paper>
+                            </Grid>
+                        ))}
                     </Grid>
-                ))}
-            </Grid>
+                )
+            ) : (
+                <Grid item xs={12}>
+                    <Typography variant="h6" color="text.secondary" align="center">
+                        No blog posts available yet.
+                    </Typography>
+                </Grid>
+            )}
+
+            {posts.length > 0 && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        size="large"
+                        onClick={() => router.push("/blog")}
+                        sx={{
+                            px: 4,
+                            py: 1.5,
+                            borderRadius: 2,
+                            fontWeight: 'bold',
+                            textTransform: 'none',
+                        }}
+                    >
+                        View All Posts
+                    </Button>
+                </Box>
+            )}
         </Container>
-    )
+    );
 }

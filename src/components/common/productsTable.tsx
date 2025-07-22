@@ -1,10 +1,8 @@
 import {Grid} from "@mui/material";
-import {useSnackbar} from "notistack";
 import React, {memo} from "react";
-import {useAuthStore} from "@/features/auth/store";
-import {useCartStore} from "@/features/cart/store";
 import {CatalogItem} from "@/features/catalog/types";
 import {ProductCard} from "@/components/common/productCard";
+import {useToggleCart} from "@/hooks/useToggleCart";
 
 interface ProductTableProps {
     products: CatalogItem[];
@@ -12,26 +10,7 @@ interface ProductTableProps {
 }
 
 const ProductsTable: React.FC<ProductTableProps> = memo(({ products, isCartView = false }) => {
-    const { enqueueSnackbar } = useSnackbar();
-    const { toggleCartItem, isInCart } = useCartStore();
-    const { isAuthenticated } = useAuthStore();
-
-    const handleToggleCart = async (product: CatalogItem) => {
-        if (!isAuthenticated) {
-            enqueueSnackbar("You must be logged in", { variant: "error" });
-            return;
-        }
-
-        try {
-            await toggleCartItem(product);
-            enqueueSnackbar(
-                isInCart(product.code) ? "Added to cart" : "Removed from cart",
-                { variant: isInCart(product.code) ? "success" : "info" }
-            );
-        } catch {
-            enqueueSnackbar("Error updating cart", { variant: "error" });
-        }
-    };
+    const { handleToggleCart, isInCart } = useToggleCart()
 
     return (
         <Grid container spacing={3}>
@@ -40,7 +19,7 @@ const ProductsTable: React.FC<ProductTableProps> = memo(({ products, isCartView 
                     <ProductCard
                         product={{ ...product, is_in_cart: isInCart(product.code) }}
                         isCartView={isCartView}
-                        onToggleCart={handleToggleCart}
+                        onToggleCart={() => handleToggleCart(product)}
                     />
                 </Grid>
             ))}

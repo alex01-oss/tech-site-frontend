@@ -1,7 +1,10 @@
+"use client"
+
 import {Box, Button, Chip, Typography} from "@mui/material";
 import {CheckBox, Delete, ShoppingCart} from "@mui/icons-material";
 import React, {memo} from "react";
 import {CatalogItem} from "@/features/catalog/types";
+import {useRouter} from "next/navigation";
 
 interface ProductCardProps {
     product: CatalogItem;
@@ -15,9 +18,11 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
     onToggleCart
 }) => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:8080/api";
+    const router = useRouter();
 
     return (
         <Box
+            onClick={() => router.push(`/catalog/${product.code}`)}
             sx={(theme) => ({
                 display: "flex",
                 flexDirection: "column",

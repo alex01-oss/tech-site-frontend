@@ -1,14 +1,15 @@
 "use client";
 
-import React, {useCallback, useEffect, useRef, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {Box, CircularProgress, Toolbar, useMediaQuery, useTheme} from "@mui/material";
 import SidebarSkeleton from "@/components/skeletons/SidebarSkeleton";
-import Sidebar from "@/components/layout/sidebar";
+import Sidebar from "@/components/layout/Sidebar";
 import ProductSkeleton from "@/components/skeletons/TableSkeleton";
 import ProductsTable from "@/components/common/productsTable";
 import {useCatalogStore} from "@/features/catalog/store";
 import Search from "@/components/common/search";
 import {useMenuStore} from "@/features/menu/store";
+import {SearchField} from "@/features/catalog/types";
 
 function CatalogPage() {
     const theme = useTheme();
@@ -17,29 +18,29 @@ function CatalogPage() {
 
     const {
         items: products,
-        search,
-        searchType,
+        searchCode,
+        searchShape,
+        searchDimensions,
+        searchMachine,
         nameBond,
         gridSize,
         isLoading,
         currentPage,
         totalPages,
-        setSearch,
-        setSearchType,
         setPage,
         fetchCatalog,
-        setNameBond,
-        setGridSize,
     } = useCatalogStore();
 
     const menuLoading = useMenuStore(state => state.loading);
 
+    const observer = useRef<IntersectionObserver | null>(null);
+    const ref = useRef<HTMLDivElement>(null);
+
+    const isSearchActive = !!searchCode || !!searchShape || !!searchDimensions || !!searchMachine;
+
     useEffect(() => {
         setOpen(!isMobile);
     }, [isMobile]);
-
-    const observer = useRef<IntersectionObserver | null>(null);
-    const ref = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (observer.current) {
@@ -50,7 +51,7 @@ function CatalogPage() {
             if (entries[0].isIntersecting && !isLoading && currentPage < totalPages) {
                 setPage(currentPage + 1);
             }
-        }, { threshold: 0.1 });
+        }, {threshold: 0.1});
 
         if (ref.current) {
             observer.current.observe(ref.current);
@@ -64,32 +65,34 @@ function CatalogPage() {
     }, [isLoading, currentPage, totalPages, setPage]);
 
     useEffect(() => {
-        if (currentPage === 1) {
-            void fetchCatalog();
-        }
-    }, [fetchCatalog, currentPage]);
+        void fetchCatalog()
+    }, [fetchCatalog, currentPage, nameBond, gridSize, searchCode, searchShape, searchDimensions, searchMachine]);
 
-    const handleSearchSubmit = useCallback((query: string, type: string) => {
-        setSearch(query);
-        setSearchType(type);
-        void fetchCatalog();
-    }, [setSearch, setSearchType, fetchCatalog]);
-
-    const handleSearchTypeChangeFromSearch = useCallback((type: string) => {
-        setSearchType(type);
-    }, [setSearchType]);
+    const handleCombinedSearchSubmit = useCallback((searchFields: SearchField[]) => {
+        useCatalogStore.getState().setSearchAndResetPage(searchFields);
+    }, []);
 
     const handleFilterChangeFromSidebar = useCallback((filters: Record<string, string[]>) => {
         const newNameBond = filters["Bond"] && filters["Bond"].length > 0 ? filters["Bond"][0] : null;
         const newGridSize = filters["Grid Size"] && filters["Grid Size"].length > 0 ? filters["Grid Size"][0] : null;
 
-        if (newNameBond !== nameBond) {
-            setNameBond(newNameBond);
+        if (newNameBond !== nameBond || newGridSize !== gridSize) {
+            useCatalogStore.getState().setFiltersAndResetPage(newNameBond, newGridSize);
         }
-        if (newGridSize !== gridSize) {
-            setGridSize(newGridSize);
+    }, [nameBond, gridSize]);
+
+    const memoizedInitialSearchFields = useMemo(() => {
+        const fields: SearchField[] = [];
+        if (searchCode) fields.push({id: 'code-field', value: searchCode, type: 'code'});
+        if (searchShape) fields.push({id: 'shape-field', value: searchShape, type: 'shape'});
+        if (searchDimensions) fields.push({id: 'dimensions-field', value: searchDimensions, type: 'dimensions'});
+        if (searchMachine) fields.push({id: 'machine-field', value: searchMachine, type: 'machine'});
+
+        if (fields.length === 0) {
+            return [{id: 'field-0', value: '', type: 'code'}];
         }
-    }, [nameBond, gridSize, setNameBond, setGridSize]);
+        return fields;
+    }, [searchCode, searchShape, searchDimensions, searchMachine]);
 
     return (
         <Box sx={{display: "flex", flexDirection: "column", minHeight: "100vh"}}>
@@ -117,7 +120,7 @@ function CatalogPage() {
                     />
                 )}
 
-                {menuLoading ? <SidebarSkeleton/> : <Sidebar onFilterChange={handleFilterChangeFromSidebar} />}
+                {menuLoading ? <SidebarSkeleton/> : <Sidebar onFilterChange={handleFilterChangeFromSidebar}/>}
 
                 <Box
                     component="main"
@@ -135,10 +138,8 @@ function CatalogPage() {
                 >
                     <Box sx={{p: {xs: 2, md: 3}}}>
                         <Search
-                            onSearch={handleSearchSubmit}
-                            searchType={searchType}
-                            value={search}
-                            onSearchTypeChange={handleSearchTypeChangeFromSearch}
+                            onSearch={handleCombinedSearchSubmit}
+                            initialSearchFields={memoizedInitialSearchFields}
                         />
                     </Box>
 
@@ -158,12 +159,12 @@ function CatalogPage() {
                                 <CircularProgress/>
                             </Box>
                         )}
-                        {!isLoading && products.length === 0 && (search.trim() || nameBond || gridSize) && (
+                        {!isLoading && products.length === 0 && (isSearchActive || nameBond || gridSize) && (
                             <Box sx={{textAlign: "center", my: {xs: 2, md: 3}, color: 'text.secondary'}}>
                                 No items found for the current filters.
                             </Box>
                         )}
-                        {!isLoading && products.length === 0 && !search.trim() && !nameBond && !gridSize && (
+                        {!isLoading && products.length === 0 && !isSearchActive && !nameBond && !gridSize && (
                             <Box sx={{textAlign: "center", my: {xs: 2, md: 3}, color: 'text.secondary'}}>
                                 Start typing or select a filter to find items.
                             </Box>
