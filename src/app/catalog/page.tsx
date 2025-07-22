@@ -74,7 +74,7 @@ function CatalogPage() {
 
     useEffect(() => {
         if (storeItemsPerPage !== itemsPerPage) {
-            setStoreItemsPerPage(itemsPerPage);
+            setStoreItemsPerPage(itemsPerPage, false);
         }
     }, [itemsPerPage, storeItemsPerPage, setStoreItemsPerPage]);
 
