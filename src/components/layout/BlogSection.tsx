@@ -1,15 +1,16 @@
 "use client";
 
 import React from 'react';
-import {Container, Grid, Paper, Typography, Box, Button} from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+import {Box, Button, Container, Grid, Typography} from '@mui/material';
+import {useTheme} from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { Post } from "@/features/blog/types";
-import { useRouter } from 'next/navigation';
-import { Swiper, SwiperSlide } from 'swiper/react';
-import { Pagination } from 'swiper/modules';
+import {Post} from "@/features/blog/types";
+import {useRouter} from 'next/navigation';
+import {Swiper, SwiperSlide} from 'swiper/react';
+import {Pagination} from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
+import PostCard from "@/components/layout/PostCard";
 
 interface BlogSectionProps {
     posts: Post[];
@@ -45,48 +46,7 @@ export default function BlogSection({ posts, baseApiUrl }: BlogSectionProps) {
                     >
                         {posts.map((post: Post) => (
                             <SwiperSlide key={post.id}>
-                                <Paper
-                                    sx={{
-                                        position: 'relative',
-                                        height: 200,
-                                        backgroundImage: `url(${post.image ? `${baseApiUrl}/${post.image}` : '/placeholder-image.png'})`,
-                                        backgroundSize: 'cover',
-                                        backgroundPosition: 'center',
-                                        display: 'flex',
-                                        alignItems: 'flex-end',
-                                        justifyContent: 'flex-start',
-                                        cursor: 'pointer',
-                                        overflow: 'hidden',
-                                        borderRadius: 2,
-                                        '&::before': {
-                                            content: '""',
-                                            position: 'absolute',
-                                            bottom: 0,
-                                            left: 0,
-                                            right: 0,
-                                            height: '50%',
-                                            background: 'linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0))',
-                                            zIndex: 1,
-                                        }
-                                    }}
-                                    onClick={() => router.push(`/blog/${post.id}`)}
-                                >
-                                    <Typography
-                                        variant="subtitle1"
-                                        sx={{
-                                            position: 'relative',
-                                            bottom: 8,
-                                            left: 8,
-                                            color: 'white',
-                                            fontWeight: 'bold',
-                                            zIndex: 2,
-                                            textShadow: '1px 1px 3px rgba(0,0,0,0.7)',
-                                            p: 1,
-                                        }}
-                                    >
-                                        {post.title}
-                                    </Typography>
-                                </Paper>
+                                <PostCard post={post} baseApiUrl={baseApiUrl} />
                             </SwiperSlide>
                         ))}
                     </Swiper>
@@ -94,48 +54,7 @@ export default function BlogSection({ posts, baseApiUrl }: BlogSectionProps) {
                     <Grid container spacing={3} justifyContent="center">
                         {posts.map((post: Post) => (
                             <Grid item xs={12} sm={6} md={4} key={post.id}>
-                                <Paper
-                                    sx={{
-                                        position: 'relative',
-                                        height: 200,
-                                        backgroundImage: `url(${post.image ? `${baseApiUrl}/${post.image}` : '/placeholder-image.png'})`,
-                                        backgroundSize: 'cover',
-                                        backgroundPosition: 'center',
-                                        display: 'flex',
-                                        alignItems: 'flex-end',
-                                        justifyContent: 'flex-start',
-                                        cursor: 'pointer',
-                                        overflow: 'hidden',
-                                        borderRadius: 2,
-                                        '&::before': {
-                                            content: '""',
-                                            position: 'absolute',
-                                            bottom: 0,
-                                            left: 0,
-                                            right: 0,
-                                            height: '50%',
-                                            background: 'linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0))',
-                                            zIndex: 1,
-                                        }
-                                    }}
-                                    onClick={() => router.push(`/blog/${post.id}`)}
-                                >
-                                    <Typography
-                                        variant="subtitle1"
-                                        sx={{
-                                            position: 'relative',
-                                            bottom: 8,
-                                            left: 8,
-                                            color: 'white',
-                                            fontWeight: 'bold',
-                                            zIndex: 2,
-                                            textShadow: '1px 1px 3px rgba(0,0,0,0.7)',
-                                            p: 1,
-                                        }}
-                                    >
-                                        {post.title}
-                                    </Typography>
-                                </Paper>
+                                <PostCard post={post} baseApiUrl={baseApiUrl} />
                             </Grid>
                         ))}
                     </Grid>

@@ -1,9 +1,20 @@
 <component name="ProjectDictionaryState">
   <dictionary name="project">
     <words>
+      <w>advlist</w>
+      <w>aligncenter</w>
+      <w>alignjustify</w>
+      <w>alignleft</w>
+      <w>alignright</w>
       <w>bgcolor</w>
+      <w>charmap</w>
       <w>dimens</w>
+      <w>forecolor</w>
+      <w>insertdatetime</w>
+      <w>numlist</w>
       <w>pjsc</w>
+      <w>removeformat</w>
+      <w>searchreplace</w>
     </words>
   </dictionary>
 </component>

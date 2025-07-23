@@ -51,7 +51,7 @@ export default function Navbar() {
                 cursor: 'pointer',
             }}
         >
-            <Image src="/logo_white.svg" alt="logo" width={125} height={50}/>
+            <Image src="/logo_white.svg" alt="logo" width={125} height={50} onClick={() => router.push('/')} />
         </Box>
     );
 

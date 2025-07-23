@@ -35,27 +35,37 @@ const VideosSection: React.FC<VideosSectionProps> = ({ videos }) => {
 
             {videos.length > 0 ? (
                 isMobile ? (
-                    <Swiper
-                        modules={[Pagination, Navigation]}
-                        spaceBetween={20}
-                        slidesPerView={1.1}
-                        centeredSlides={true}
-                        pagination={{ clickable: true }}
-                        navigation={true}
-                        breakpoints={{
-                            600: {
-                                slidesPerView: 2.1,
-                                spaceBetween: 30,
-                            },
-                        }}
-                        style={{ paddingBottom: '40px' }}
-                    >
-                        {videos.map((video) => (
-                            <SwiperSlide key={video.snippet.resourceId.videoId}>
-                                <VideoCard video={video} onClick={() => handleVideoClick(video.snippet.resourceId.videoId)} />
-                            </SwiperSlide>
-                        ))}
-                    </Swiper>
+                    <>
+                        <Swiper
+                            modules={[Pagination, Navigation]}
+                            spaceBetween={20}
+                            slidesPerView={1.1}
+                            centeredSlides={true}
+                            pagination={{ clickable: true }}
+                            breakpoints={{
+                                600: {
+                                    slidesPerView: 2.1,
+                                    spaceBetween: 30,
+                                },
+                            }}
+                            style={{ paddingBottom: '40px' }}
+                        >
+                            {videos.map((video) => (
+                                <SwiperSlide key={video.snippet.resourceId.videoId}>
+                                    <VideoCard video={video} onClick={() => handleVideoClick(video.snippet.resourceId.videoId)} />
+                                </SwiperSlide>
+                            ))}
+                        </Swiper>
+
+                        <style jsx global>{`
+                        .swiper-pagination-bullet {
+                            background: rgba(0, 0, 0, 0.2);
+                        }
+                        .swiper-pagination-bullet-active {
+                            background: ${theme.palette.primary.main};
+                        }
+                    `}</style>
+                    </>
                 ) : (
                     <Grid container spacing={3} justifyContent="center">
                         {videos.map((video) => (

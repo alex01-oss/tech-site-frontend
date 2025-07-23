@@ -11,7 +11,7 @@ export interface Post {
 export interface PostRequest {
     title: string;
     content: string;
-    image?: string;
+    image?: string | null;
 }
 
 export interface DeletePostResponse {
