@@ -4,9 +4,10 @@ import ProductDetailPage from "@/components/layout/ProductDetailPage";
 import {catalogApi} from "@/features/catalog/api";
 
 export default async function CatalogItemPage({params}: { params: { code: string }}) {
+    const { code } = await params;
     let productData
     try {
-        productData = await catalogApi.fetchCatalogItem(params.code);
+        productData = await catalogApi.fetchCatalogItem(code);
     } catch (e) {
         console.error("Failed to fetch product data:", e)
         notFound()

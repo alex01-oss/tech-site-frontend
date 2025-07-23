@@ -58,7 +58,7 @@ export default function Navbar() {
     const renderBackButton = () => (
         <IconButton
             color="inherit"
-            onClick={() => router.push("/")}
+            onClick={() => router.back()}
         >
             <ArrowBackIcon/>
         </IconButton>

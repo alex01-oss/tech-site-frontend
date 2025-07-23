@@ -3,7 +3,7 @@ import {useAuthStore} from "@/features/auth/store";
 
 export function AuthInitializer() {
     useEffect(() => {
-        useAuthStore.getState().initialize().then(() => {});
+        void useAuthStore.getState().initialize();
     }, [])
 
     return null;

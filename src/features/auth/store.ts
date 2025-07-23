@@ -49,7 +49,7 @@ export const useAuthStore = create<AuthState>()(
                     }
 
                     try {
-                        const { user } = await usersApi.getUser();
+                        const user: User = await usersApi.getUser();
                         set({
                             user,
                             isAuthenticated: true,
@@ -61,7 +61,7 @@ export const useAuthStore = create<AuthState>()(
 
                             if (refreshSuccess) {
                                 try {
-                                    const { user } = await usersApi.getUser();
+                                    const user: User = await usersApi.getUser();
                                     set({
                                         user,
                                         isAuthenticated: true,
@@ -100,7 +100,7 @@ export const useAuthStore = create<AuthState>()(
                     });
 
                     try {
-                        const { user } = await usersApi.getUser();
+                        const user: User = await usersApi.getUser();
                         set({ user });
                     } catch (error) {
                         console.warn("Failed to fetch user after login:", error);

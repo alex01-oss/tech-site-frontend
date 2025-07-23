@@ -1,25 +1,26 @@
 import {useEffect, useState} from 'react'
 
-export function useGridItemsPerPage(): number {
-    const [itemsPerPage, setItemsPerPage] = useState(8);
+export function useGridItemsPerPage(): number | null {
+    const [itemsPerPage, setItemsPerPage] = useState<number | null>(null);
 
     useEffect(() => {
         function updateItemsPerPage() {
             const width = window.innerWidth;
-            console.log("Current window width (logical px):", width);
-            console.log("Current itemsPerPage before update:", itemsPerPage);
+            let value: number
 
             if (width >= 1536) {                // xl
-                setItemsPerPage(12);
+                value = 12;
             } else if (width >= 1200) {         // lg
-                setItemsPerPage(12);
+                value = 12;
             } else if (width >= 900) {          // md
-                setItemsPerPage(9);
+                value = 9;
             } else if (width >= 600) {          // sm
-                setItemsPerPage(6);
+                value = 6;
             } else {                            // xs
-                setItemsPerPage(6);
+                value = 6;
             }
+
+            setItemsPerPage(value);
         }
 
         updateItemsPerPage();

@@ -1,6 +1,7 @@
-import {CatalogItem, CatalogResponse, SearchField} from "@/features/catalog/types";
+import {CatalogItem, CatalogResponse} from "@/features/catalog/types";
 import { create } from "zustand";
 import {catalogApi} from "@/features/catalog/api";
+import {SearchField} from "@/types/searchField";
 
 interface CatalogState {
     items: CatalogItem[];
@@ -16,6 +17,7 @@ interface CatalogState {
     gridSize: string | null;
     isLoading: boolean;
     error: string | null;
+    loadedPages: Set<number>;
 
     fetchCatalog: () => Promise<void>;
     setSearchCode: (code: string | null) => void;
@@ -46,6 +48,7 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
     gridSize: null,
     isLoading: false,
     error: null,
+    loadedPages: new Set(),
 
     fetchCatalog: async () => {
         const {
@@ -57,10 +60,11 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
             nameBond,
             gridSize,
             isLoading,
-            itemsPerPage
+            itemsPerPage,
+            loadedPages
         } = get();
 
-        if (isLoading) {
+        if (isLoading || loadedPages.has(currentPage)) {
             console.log("Fetch already in progress, preventing duplicate.");
             return;
         }
@@ -87,6 +91,7 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
                 totalPages: res.total_pages,
                 currentPage: res.current_page,
                 itemsPerPage: res.items_per_page,
+                loadedPages: new Set(state.loadedPages).add(currentPage),
             }));
         } catch (e) {
             console.error("Fetch catalog failed", e);
@@ -95,7 +100,8 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
                 items: [],
                 totalItems: 0,
                 totalPages: 0,
-                currentPage: 1
+                currentPage: 1,
+                loadedPages: new Set()
             });
         } finally {
             set({ isLoading: false });

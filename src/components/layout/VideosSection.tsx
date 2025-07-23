@@ -13,6 +13,7 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import VideoCard from "@/components/layout/VideoCard";
+import {Video} from "@/features/youtube/types";
 
 interface VideosSectionProps {
     videos: Video[];
@@ -23,7 +24,7 @@ const VideosSection: React.FC<VideosSectionProps> = ({ videos }) => {
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
     const handleVideoClick = (videoId: string) => {
-        window.open(`https://googleusercontent.com/youtube.com/watch?v=${videoId}`, '_blank');
+        window.open(`https://youtube.com/watch?v=${videoId}`, '_blank');
     };
 
     return (

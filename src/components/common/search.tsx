@@ -15,12 +15,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-
-interface SearchField {
-    id: string;
-    value: string;
-    type: string;
-}
+import {SearchField} from "@/types/searchField";
 
 interface SearchProps {
     onSearch: (searchFields: SearchField[]) => void;
@@ -28,10 +23,10 @@ interface SearchProps {
 }
 
 const SEARCH_TYPE_OPTIONS = [
-    { value: 'code', label: 'Code' },
-    { value: 'shape', label: 'Shape' },
-    { value: 'dimensions', label: 'Dimensions' },
-    { value: 'machine', label: 'Machine' },
+    {value: 'code', label: 'Code'},
+    {value: 'shape', label: 'Shape'},
+    {value: 'dimensions', label: 'Dimensions'},
+    {value: 'machine', label: 'Machine'},
 ];
 
 const getPlaceholderText = (type: string): string => {
@@ -51,13 +46,13 @@ const getPlaceholderText = (type: string): string => {
 
 const Search: React.FC<SearchProps> = memo(({
                                                 onSearch,
-                                                initialSearchFields = [{ id: 'field-0', value: '', type: 'code' }] // Початково одне поле
+                                                initialSearchFields = [{id: 'field-0', value: '', type: 'code'}]
                                             }) => {
     const [searchFields, setSearchFields] = useState<SearchField[]>(initialSearchFields);
 
     useEffect(() => {
         if (initialSearchFields.length === 0) {
-            setSearchFields([{ id: 'field-0', value: '', type: 'code' }]);
+            setSearchFields([{id: 'field-0', value: '', type: 'code'}]);
         } else {
             setSearchFields(initialSearchFields);
         }
@@ -66,7 +61,7 @@ const Search: React.FC<SearchProps> = memo(({
     const handleValueChange = useCallback((id: string, newValue: string) => {
         setSearchFields(prevFields =>
             prevFields.map(field =>
-                field.id === id ? { ...field, value: newValue } : field
+                field.id === id ? {...field, value: newValue} : field
             )
         );
     }, []);
@@ -74,7 +69,7 @@ const Search: React.FC<SearchProps> = memo(({
     const handleTypeChange = useCallback((id: string, newType: string) => {
         setSearchFields(prevFields =>
             prevFields.map(field =>
-                field.id === id ? { ...field, type: newType } : field
+                field.id === id ? {...field, type: newType} : field
             )
         );
     }, []);
@@ -93,7 +88,7 @@ const Search: React.FC<SearchProps> = memo(({
     const handleClearField = useCallback((id: string) => {
         setSearchFields(prevFields =>
             prevFields.map(field =>
-                field.id === id ? { ...field, value: '' } : field
+                field.id === id ? {...field, value: ''} : field
             )
         );
     }, []);
@@ -108,7 +103,7 @@ const Search: React.FC<SearchProps> = memo(({
         if (nextAvailableType) {
             setSearchFields(prevFields => [
                 ...prevFields,
-                { id: `field-${prevFields.length}-${Date.now()}`, value: '', type: nextAvailableType.value }
+                {id: `field-${prevFields.length}-${Date.now()}`, value: '', type: nextAvailableType.value}
             ]);
         }
     }, [searchFields]);
@@ -120,7 +115,7 @@ const Search: React.FC<SearchProps> = memo(({
     const getAvailableSearchTypes = useCallback((currentFieldId: string) => {
         const usedTypes = new Set(
             searchFields
-                .filter(field => field.id !== currentFieldId) // Виключаємо поточне поле
+                .filter(field => field.id !== currentFieldId)
                 .map(field => field.type)
         );
         return SEARCH_TYPE_OPTIONS.filter(option => !usedTypes.has(option.value));
@@ -128,17 +123,18 @@ const Search: React.FC<SearchProps> = memo(({
 
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'stretch' }}>
+        <Box sx={{display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'stretch'}}>
             {searchFields.map((field) => (
-                <Box key={field.id} sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2, alignItems: 'center' }}>
-                    <FormControl variant="outlined" sx={{ minWidth: 120 }}>
+                <Box key={field.id}
+                     sx={{display: 'flex', flexDirection: {xs: 'column', sm: 'row'}, gap: 2, alignItems: 'center'}}>
+                    <FormControl variant="outlined" sx={{minWidth: 120}}>
                         <InputLabel id={`search-type-label-${field.id}`}>Search by</InputLabel>
                         <Select
                             labelId={`search-type-label-${field.id}`}
                             value={field.type}
                             onChange={(e) => handleTypeChange(field.id, e.target.value as string)}
                             label="Search by"
-                            sx={{ borderRadius: 2 }}
+                            sx={{borderRadius: 2}}
                         >
                             {getAvailableSearchTypes(field.id).map((option) => (
                                 <MenuItem key={option.value} value={option.value}>
@@ -161,7 +157,7 @@ const Search: React.FC<SearchProps> = memo(({
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
-                                    <SearchIcon color="action" />
+                                    <SearchIcon color="action"/>
                                 </InputAdornment>
                             ),
                             endAdornment: (
@@ -173,7 +169,7 @@ const Search: React.FC<SearchProps> = memo(({
                                                 onClick={() => handleClearField(field.id)}
                                                 aria-label="Clear"
                                             >
-                                                <ClearIcon />
+                                                <ClearIcon/>
                                             </IconButton>
                                         </InputAdornment>
                                     )}
@@ -184,7 +180,7 @@ const Search: React.FC<SearchProps> = memo(({
                                                 onClick={() => handleDeleteField(field.id)}
                                                 aria-label="Delete search field"
                                             >
-                                                <DeleteIcon />
+                                                <DeleteIcon/>
                                             </IconButton>
                                         </InputAdornment>
                                     )}
@@ -201,13 +197,13 @@ const Search: React.FC<SearchProps> = memo(({
                 </Box>
             ))}
 
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+            <Box sx={{display: 'flex', justifyContent: 'flex-end', gap: 2}}>
                 {searchFields.length < SEARCH_TYPE_OPTIONS.length && (
                     <Button
                         variant="outlined"
                         onClick={handleAddField}
-                        startIcon={<AddIcon />}
-                        sx={{ borderRadius: 2 }}
+                        startIcon={<AddIcon/>}
+                        sx={{borderRadius: 2}}
                     >
                         Add Search Field
                     </Button>
@@ -215,8 +211,8 @@ const Search: React.FC<SearchProps> = memo(({
                 <Button
                     variant="contained"
                     onClick={handleSearchSubmit}
-                    startIcon={<SearchIcon />}
-                    sx={{ borderRadius: 2 }}
+                    startIcon={<SearchIcon/>}
+                    sx={{borderRadius: 2}}
                 >
                     Search
                 </Button>

@@ -16,12 +16,6 @@ export interface CatalogResponse {
     items_per_page: number;
 }
 
-export interface SearchField {
-    id: string;
-    value: string;
-    type: string;
-}
-
 export interface ProductDetailData {
     item: {
         code: string;

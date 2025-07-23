@@ -27,7 +27,7 @@ export const getThemeOptions = (mode: PaletteMode): ThemeOptions => ({
       main: mode === "light" ? "#074A7F" : "#2C91D7", 
     },
     error: { 
-      main: mode === "light" ? "#950A3D" : "#E44B7A", 
+      main: mode === "light" ? "#950A3D" : "#AD1D1D",
     },
     info: { 
       main: mode === "light" ? "#074A7F" : "#2C91D7", 

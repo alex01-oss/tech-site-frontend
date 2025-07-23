@@ -4,6 +4,7 @@ import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import IconButton from '@mui/material/IconButton';
+import {Video} from "@/features/youtube/types";
 
 interface VideoCardProps {
     video: Video,

@@ -9,8 +9,8 @@ import ProductsTable from "@/components/common/productsTable";
 import {useCatalogStore} from "@/features/catalog/store";
 import Search from "@/components/common/search";
 import {useMenuStore} from "@/features/menu/store";
-import {SearchField} from "@/features/catalog/types";
 import {useGridItemsPerPage} from "@/hooks/useGridItemsPerPage";
+import {SearchField} from "@/types/searchField";
 
 function CatalogPage() {
     const theme = useTheme();
@@ -73,13 +73,14 @@ function CatalogPage() {
     }, [isLoading, currentPage, totalPages, setPage]);
 
     useEffect(() => {
-        if (storeItemsPerPage !== itemsPerPage) {
-            setStoreItemsPerPage(itemsPerPage, false);
+        if (itemsPerPage !== null && storeItemsPerPage !== itemsPerPage) {
+            setStoreItemsPerPage(itemsPerPage, true);
         }
     }, [itemsPerPage, storeItemsPerPage, setStoreItemsPerPage]);
 
     useEffect(() => {
-        void fetchCatalog()
+        if (itemsPerPage === null) return;
+        fetchCatalog().then()
     }, [
         fetchCatalog,
         currentPage,
@@ -88,7 +89,7 @@ function CatalogPage() {
         searchCode,
         searchShape,
         searchDimensions,
-        searchMachine
+        searchMachine,
     ]);
 
     const handleCombinedSearchSubmit = useCallback((searchFields: SearchField[]) => {
