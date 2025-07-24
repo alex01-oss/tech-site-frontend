@@ -45,9 +45,9 @@ const getPlaceholderText = (type: string): string => {
 };
 
 const Search: React.FC<SearchProps> = memo(({
-                                                onSearch,
-                                                initialSearchFields = [{id: 'field-0', value: '', type: 'code'}]
-                                            }) => {
+    onSearch,
+    initialSearchFields = [{id: 'field-0', value: '', type: 'code'}]
+}) => {
     const [searchFields, setSearchFields] = useState<SearchField[]>(initialSearchFields);
 
     useEffect(() => {
@@ -221,5 +221,4 @@ const Search: React.FC<SearchProps> = memo(({
     );
 });
 
-Search.displayName = "Search";
 export default Search;

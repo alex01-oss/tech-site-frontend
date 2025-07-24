@@ -113,5 +113,4 @@ const Sidebar = memo(({ onFilterChange }: SidebarProps) => {
     );
 });
 
-Sidebar.displayName = "Sidebar";
 export default Sidebar;

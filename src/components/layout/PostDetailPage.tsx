@@ -16,7 +16,7 @@ export default function PostDetailPage({ post, baseApiUrl }: PostDetailPageProps
     };
 
     return (
-        <Container maxWidth="md" sx={{ my: 2, py: 4, mt: 9 }}>
+        <Container sx={{ my: 2, py: 4, mt: 9, mh: '100%' }}>
             <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
                 {post.image && (
                     <Box sx={{ mb: 4, width: '100%', aspectRatio: '16/9', position: 'relative', overflow: 'hidden', borderRadius: 2 }}>

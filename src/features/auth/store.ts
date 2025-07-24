@@ -50,6 +50,7 @@ export const useAuthStore = create<AuthState>()(
 
                     try {
                         const user: User = await usersApi.getUser();
+                        console.log("user", user);
                         set({
                             user,
                             isAuthenticated: true,

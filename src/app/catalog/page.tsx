@@ -1,7 +1,7 @@
 "use client";
 
-import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {Box, CircularProgress, Toolbar, useMediaQuery, useTheme} from "@mui/material";
+import React, {useCallback, useEffect, useMemo, useRef} from "react";
+import {Box, CircularProgress, Toolbar, useTheme} from "@mui/material";
 import SidebarSkeleton from "@/components/skeletons/SidebarSkeleton";
 import Sidebar from "@/components/layout/Sidebar";
 import ProductSkeleton from "@/components/skeletons/TableSkeleton";
@@ -9,14 +9,11 @@ import ProductsTable from "@/components/common/productsTable";
 import {useCatalogStore} from "@/features/catalog/store";
 import Search from "@/components/common/search";
 import {useMenuStore} from "@/features/menu/store";
-import {useGridItemsPerPage} from "@/hooks/useGridItemsPerPage";
 import {SearchField} from "@/types/searchField";
+import {useGridItemsPerPage} from "@/hooks/useGridItemsPerPage";
 
 function CatalogPage() {
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
-    const [isOpen, setOpen] = useState(true);
 
     const {
         items: products,
@@ -47,13 +44,7 @@ function CatalogPage() {
     }, [searchCode, searchShape, searchDimensions, searchMachine]);
 
     useEffect(() => {
-        setOpen(!isMobile);
-    }, [isMobile]);
-
-    useEffect(() => {
-        if (observer.current) {
-            observer.current.disconnect();
-        }
+        if (observer.current) observer.current.disconnect()
 
         observer.current = new IntersectionObserver(entries => {
             if (entries[0].isIntersecting && !isLoading && currentPage < totalPages) {
@@ -61,14 +52,10 @@ function CatalogPage() {
             }
         }, {threshold: 0.1});
 
-        if (ref.current) {
-            observer.current.observe(ref.current);
-        }
+        if (ref.current) observer.current.observe(ref.current)
 
         return () => {
-            if (observer.current) {
-                observer.current.disconnect();
-            }
+            if (observer.current) observer.current.disconnect()
         };
     }, [isLoading, currentPage, totalPages, setPage]);
 
@@ -79,7 +66,6 @@ function CatalogPage() {
     }, [itemsPerPage, storeItemsPerPage, setStoreItemsPerPage]);
 
     useEffect(() => {
-        if (itemsPerPage === null) return;
         fetchCatalog().then()
     }, [
         fetchCatalog,
@@ -101,7 +87,9 @@ function CatalogPage() {
         const newGridSize = filters["Grid Size"] && filters["Grid Size"].length > 0 ? filters["Grid Size"][0] : null;
 
         if (newNameBond !== nameBond || newGridSize !== gridSize) {
-            useCatalogStore.getState().setFiltersAndResetPage(newNameBond, newGridSize);
+            setTimeout(() => {
+                useCatalogStore.getState().setFiltersAndResetPage(newNameBond, newGridSize);
+            }, 0);
         }
     }, [nameBond, gridSize]);
 
@@ -112,9 +100,7 @@ function CatalogPage() {
         if (searchDimensions) fields.push({id: 'dimensions-field', value: searchDimensions, type: 'dimensions'});
         if (searchMachine) fields.push({id: 'machine-field', value: searchMachine, type: 'machine'});
 
-        if (fields.length === 0) {
-            return [{id: 'field-0', value: '', type: 'code'}];
-        }
+        if (fields.length === 0) return [{id: 'field-0', value: '', type: 'code'}];
         return fields;
     }, [searchCode, searchShape, searchDimensions, searchMachine]);
 
@@ -130,20 +116,6 @@ function CatalogPage() {
                 display: 'flex',
                 px: {xs: 0, lg: 2},
             }}>
-                {isOpen && isMobile && (
-                    <Box
-                        onClick={() => setOpen(false)}
-                        sx={{
-                            position: "fixed",
-                            top: 0,
-                            left: 0,
-                            width: "100vw",
-                            height: "100vh",
-                            backgroundColor: "rgba(0, 0, 0, 0.3)",
-                        }}
-                    />
-                )}
-
                 {menuLoading ? <SidebarSkeleton/> : <Sidebar onFilterChange={handleFilterChangeFromSidebar}/>}
 
                 <Box

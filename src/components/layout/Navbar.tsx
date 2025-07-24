@@ -123,11 +123,12 @@ export default function Navbar() {
                                     cursor: 'pointer',
                                 }}
                             >
-                                {isAuthenticated && user?.full_name
+                                {isAuthenticated && user?.full_name?.trim()
                                     ? user.full_name
                                         .split(" ")
+                                        .filter(Boolean)
                                         .slice(0, 2)
-                                        .map((w: string) => w.charAt(0).toUpperCase())
+                                        .map(word => word[0]?.toUpperCase())
                                         .join("")
                                     : ""}
                             </Avatar>

@@ -64,10 +64,7 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
             loadedPages
         } = get();
 
-        if (isLoading || loadedPages.has(currentPage)) {
-            console.log("Fetch already in progress, preventing duplicate.");
-            return;
-        }
+        if (isLoading || loadedPages.has(currentPage)) return
 
         set({ isLoading: true, error: null });
 
@@ -109,16 +106,40 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
     },
 
     setSearchCode: (code: string | null) => {
-        set({ searchCode: code, currentPage: 1, error: null });
+        set({
+            searchCode: code,
+            currentPage: 1,
+            loadedPages: new Set(),
+            items: [],
+            error: null
+        });
     },
     setSearchShape: (shape: string | null) => {
-        set({ searchShape: shape, currentPage: 1, error: null });
+        set({
+            searchShape: shape,
+            currentPage: 1,
+            loadedPages: new Set(),
+            items: [],
+            error: null
+        });
     },
     setSearchDimensions: (dimensions: string | null) => {
-        set({ searchDimensions: dimensions, currentPage: 1, error: null });
+        set({
+            searchDimensions: dimensions,
+            currentPage: 1,
+            loadedPages: new Set(),
+            items: [],
+            error: null
+        });
     },
     setSearchMachine: (machine: string | null) => {
-        set({ searchMachine: machine, currentPage: 1, error: null });
+        set({
+            searchMachine: machine,
+            currentPage: 1,
+            loadedPages: new Set(),
+            items: [],
+            error: null
+        });
     },
 
     setPage: (page: number) => {
@@ -126,11 +147,23 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
     },
 
     setNameBond: (bond: string | null) => {
-        set({ nameBond: bond, currentPage: 1, error: null });
+        set({
+            nameBond: bond,
+            currentPage: 1,
+            loadedPages: new Set(),
+            items: [],
+            error: null
+        });
     },
 
     setGridSize: (size: string | null) => {
-        set({ gridSize: size, currentPage: 1, error: null });
+        set({
+            gridSize: size,
+            currentPage: 1,
+            loadedPages: new Set(),
+            items: [],
+            error: null
+        });
     },
 
     resetSearch: () => {
@@ -140,6 +173,8 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
             searchDimensions: null,
             searchMachine: null,
             currentPage: 1,
+            loadedPages: new Set(),
+            items: [],
             error: null,
         });
     },
@@ -149,61 +184,89 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
             nameBond: null,
             gridSize: null,
             currentPage: 1,
+            loadedPages: new Set(),
+            items: [],
             error: null,
         });
     },
 
     setSearchAndResetPage: (newSearchFields: SearchField[]) => {
         set(state => {
-            const newState = { ...state, currentPage: 1 };
+            const newState: Partial<CatalogState> = {
+                currentPage: 1,
+                loadedPages: new Set(),
+                items: [],
+                error: null
+            };
+
+
             newSearchFields.forEach(field => {
                 const valueToSet = field.value.trim() === '' ? null : field.value;
                 switch (field.type) {
-                    case 'code':
-                        newState.searchCode = valueToSet;
-                        break;
-                    case 'shape':
-                        newState.searchShape = valueToSet;
-                        break;
-                    case 'dimensions':
-                        newState.searchDimensions = valueToSet;
-                        break;
-                    case 'machine':
-                        newState.searchMachine = valueToSet;
-                        break;
-                    default:
-                        break;
+                    case 'code': newState.searchCode = valueToSet; break;
+                    case 'shape': newState.searchShape = valueToSet; break;
+                    case 'dimensions': newState.searchDimensions = valueToSet; break;
+                    case 'machine': newState.searchMachine = valueToSet; break;
                 }
             });
+
             if (!newSearchFields.some(f => f.type === 'code')) newState.searchCode = null;
             if (!newSearchFields.some(f => f.type === 'shape')) newState.searchShape = null;
             if (!newSearchFields.some(f => f.type === 'dimensions')) newState.searchDimensions = null;
             if (!newSearchFields.some(f => f.type === 'machine')) newState.searchMachine = null;
 
-            return newState;
+            const currentSearchCode = state.searchCode;
+            const currentSearchShape = state.searchShape;
+            const currentSearchDimensions = state.searchDimensions;
+            const currentSearchMachine = state.searchMachine;
+
+            const hasSearchChanged =
+                currentSearchCode !== newState.searchCode ||
+                currentSearchShape !== newState.searchShape ||
+                currentSearchDimensions !== newState.searchDimensions ||
+                currentSearchMachine !== newState.searchMachine;
+
+            if (!hasSearchChanged) {
+                return state;
+            }
+
+            return {...state, ...newState};
         });
     },
 
     setFiltersAndResetPage: (newNameBond: string | null, newGridSize: string | null) => {
-        set(state => ({
-            ...state,
-            nameBond: newNameBond,
-            gridSize: newGridSize,
-            currentPage: 1,
-        }));
+        set(state => {
+            if (state.nameBond === newNameBond && state.gridSize === newGridSize) {
+                return state;
+            }
+
+            return {
+                ...state,
+                nameBond: newNameBond,
+                gridSize: newGridSize,
+                currentPage: 1,
+                loadedPages: new Set(),
+                items: [],
+            }
+        });
     },
 
-    setItemsPerPage: (count: number, resetPage: boolean = true) => {
+    setItemsPerPage: (count: number, resetPaginationAndCache: boolean = true) => {
         set((state) => {
-            const newState = {
-                ...state,
+            if (state.itemsPerPage === count) {
+                return state;
+            }
+
+            const newState: Partial<CatalogState> = {
                 itemsPerPage: count,
                 error: null
             };
-            if (resetPage) {
+            if (resetPaginationAndCache) {
                 newState.currentPage = 1
+                newState.loadedPages = new Set()
+                newState.items = []
             }
-            return newState;
+            return {...state, ...newState} as CatalogState;
         })
     }
 }));
