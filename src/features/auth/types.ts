@@ -31,7 +31,7 @@ export interface LogoutRequest {
     refresh_token: string;
 }
 
-interface User {
+export interface User {
     id: number;
     email: string;
     full_name: string;

@@ -15,14 +15,14 @@ interface AccountMenuProps {
 }
 
 export default function AccountMenu({
-    anchorEl,
-    handleCloseAction,
-}: AccountMenuProps) {
+                                        anchorEl,
+                                        handleCloseAction,
+                                    }: AccountMenuProps) {
     const open = Boolean(anchorEl);
     const router = useRouter();
     const {enqueueSnackbar} = useSnackbar();
 
-    const {logout, isAuthenticated} = useAuthStore();
+    const {logout, isAuthenticated, user} = useAuthStore();
 
     const handleLogout = () => {
         void logout()

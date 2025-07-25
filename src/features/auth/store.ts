@@ -1,5 +1,5 @@
 import {authApi} from "@/features/auth/api";
-import {RegisterRequest} from "@/features/auth/types";
+import {LoginRequest, RegisterRequest, User} from "@/features/auth/types";
 import {usersApi} from "@/features/users/api";
 import {persist} from "zustand/middleware";
 import {create} from "zustand";
@@ -15,7 +15,7 @@ interface AuthState {
     error: string | null;
 
     initialize: () => Promise<void>;
-    login: (email: string, password: string) => Promise<boolean>;
+    login: (data: LoginRequest) => Promise<boolean>;
     register: (data: RegisterRequest) => Promise<boolean>;
     logout: () => Promise<void>;
     refresh: () => Promise<boolean>;
@@ -88,11 +88,11 @@ export const useAuthStore = create<AuthState>()(
                 }
             },
 
-            login: async (email: string, password: string) => {
+            login: async (data: LoginRequest) => {
                 try {
                     set({ loading: true, error: null });
 
-                    const response = await authApi.login({ email, password });
+                    const response = await authApi.login(data);
 
                     set({
                         accessToken: response.access_token,
@@ -126,11 +126,17 @@ export const useAuthStore = create<AuthState>()(
                     const response = await authApi.register(data);
 
                     set({
-                        user: response.user,
                         accessToken: response.access_token,
                         refreshToken: response.refresh_token,
                         isAuthenticated: true,
                     });
+
+                    try {
+                        const user: User = await usersApi.getUser();
+                        set({ user });
+                    } catch (error) {
+                        console.warn("Failed to fetch user after registration:", error);
+                    }
 
                     return true;
                 } catch (error: any) {
