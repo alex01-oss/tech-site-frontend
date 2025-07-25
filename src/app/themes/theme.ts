@@ -50,7 +50,7 @@ export const getThemeOptions = (mode: PaletteMode): ThemeOptions => ({
           color: mode === "light" ? "#121212" : "#E6E7E9",
           "&.Mui-disabled": {
             backgroundColor: mode === "light" ? "#E6E7E9" : "#1E1E1E",
-            color: mode === "light" ? "#950A3D" : "#E44B7A",
+            color: mode === "light" ? "#950A3D" : "#AD1D1D",
           },
         },
         contained: {
@@ -81,7 +81,7 @@ export const getThemeOptions = (mode: PaletteMode): ThemeOptions => ({
         root: {
           borderRadius: 4,
           "&.Mui-selected": {
-            backgroundColor: mode === "light" ? "#950A3D" : "#E44B7A",
+            backgroundColor: mode === "light" ? "#950A3D" : "#AD1D1D",
             color: "#FFFFFF",
           },
         },

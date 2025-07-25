@@ -1,6 +1,6 @@
 import {Geist, Geist_Mono} from "next/font/google";
 import "../styles/globals.css";
-import ErrorBoundary from "@/components/common/error";
+import ErrorBoundary from "@/components/common/Error";
 import {Metadata} from "next";
 import ClientProviders from "@/provider/clientsProvider";
 import Navbar from "@/components/layout/Navbar";

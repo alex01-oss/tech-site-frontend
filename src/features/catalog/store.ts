@@ -1,7 +1,6 @@
 import {CatalogItem, CatalogResponse} from "@/features/catalog/types";
-import { create } from "zustand";
+import {create} from "zustand";
 import {catalogApi} from "@/features/catalog/api";
-import {SearchField} from "@/types/searchField";
 
 interface CatalogState {
     items: CatalogItem[];
@@ -29,7 +28,8 @@ interface CatalogState {
     setGridSize: (size: string | null) => void;
     resetFilters: () => void;
     resetSearch: () => void;
-    setSearchAndResetPage(searchFields: SearchField[]): void;
+
+    setSearchAndResetPage(searchFields: { code?: string; shape?: string; dimensions?: string; machine?: string }): void;
     setFiltersAndResetPage(newNameBond: string | null, newGridSize: string | null): void;
     setItemsPerPage: (count: number, resetPage: boolean) => void;
 }
@@ -190,7 +190,7 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
         });
     },
 
-    setSearchAndResetPage: (newSearchFields: SearchField[]) => {
+    setSearchAndResetPage: (newSearchFields) => {
         set(state => {
             const newState: Partial<CatalogState> = {
                 currentPage: 1,
@@ -199,21 +199,10 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
                 error: null
             };
 
-
-            newSearchFields.forEach(field => {
-                const valueToSet = field.value.trim() === '' ? null : field.value;
-                switch (field.type) {
-                    case 'code': newState.searchCode = valueToSet; break;
-                    case 'shape': newState.searchShape = valueToSet; break;
-                    case 'dimensions': newState.searchDimensions = valueToSet; break;
-                    case 'machine': newState.searchMachine = valueToSet; break;
-                }
-            });
-
-            if (!newSearchFields.some(f => f.type === 'code')) newState.searchCode = null;
-            if (!newSearchFields.some(f => f.type === 'shape')) newState.searchShape = null;
-            if (!newSearchFields.some(f => f.type === 'dimensions')) newState.searchDimensions = null;
-            if (!newSearchFields.some(f => f.type === 'machine')) newState.searchMachine = null;
+            newState.searchCode = newSearchFields.code === '' ? null : newSearchFields.code ?? null;
+            newState.searchShape = newSearchFields.shape === '' ? null : newSearchFields.shape ?? null;
+            newState.searchDimensions = newSearchFields.dimensions === '' ? null : newSearchFields.dimensions ?? null;
+            newState.searchMachine = newSearchFields.machine === '' ? null : newSearchFields.machine ?? null;
 
             const currentSearchCode = state.searchCode;
             const currentSearchShape = state.searchShape;
@@ -230,7 +219,7 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
                 return state;
             }
 
-            return {...state, ...newState};
+            return { ...state, ...newState };
         });
     },
 

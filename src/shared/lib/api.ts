@@ -3,7 +3,7 @@ import {useAuthStore} from "@/features/auth/store";
 
 const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
-    withCredentials: true,
+    // withCredentials: true,
     timeout: 10000,
 });
 

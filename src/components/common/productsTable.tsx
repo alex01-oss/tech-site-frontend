@@ -1,8 +1,9 @@
 import {Grid} from "@mui/material";
 import React, {memo} from "react";
 import {CatalogItem} from "@/features/catalog/types";
-import {ProductCard} from "@/components/common/productCard";
+import {ProductCard} from "@/components/common/ProductCard";
 import {useToggleCart} from "@/hooks/useToggleCart";
+import ScrollToTopFab from "@/components/common/ScrollToTopFab";
 
 interface ProductTableProps {
     products: CatalogItem[];

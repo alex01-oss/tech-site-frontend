@@ -7,12 +7,10 @@ interface MenuState {
     menu: MenuCategory[];
     loading: boolean;
     error: string | null;
-    isOpen: boolean;
     hasFetched: boolean;
 
     fetchMenu: () => Promise<void>;
     clearMenu: () => void;
-    toggleOpen: () => void;
 }
 
 export const useMenuStore = create<MenuState>()(
@@ -21,7 +19,6 @@ export const useMenuStore = create<MenuState>()(
             menu: [],
             loading: false,
             error: null,
-            isOpen: false,
             hasFetched: false,
 
             fetchMenu: async () => {
@@ -46,11 +43,7 @@ export const useMenuStore = create<MenuState>()(
 
             clearMenu: () => {
                 set({ menu: [], error: null, hasFetched: false });
-            },
-
-            toggleOpen: () => {
-                set((state) => ({ isOpen: !state.isOpen }));
-            },
+            }
         }),
         {
             name: "menu-store",

@@ -23,7 +23,7 @@ import {useSnackbar} from "notistack";
 import * as React from "react";
 import {useState} from "react";
 import {useAuthStore} from "@/features/auth/store";
-import GoogleIcon, {FacebookIcon} from "@/components/common/customIcon";
+import GoogleIcon, {FacebookIcon} from "@/components/common/CustomIcon";
 
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);

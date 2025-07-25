@@ -24,7 +24,7 @@ import { useSnackbar } from "notistack";
 import React, { useState } from "react";
 import * as Yup from "yup";
 import {useAuthStore} from "@/features/auth/store";
-import GoogleIcon, {FacebookIcon} from "@/components/common/customIcon";
+import GoogleIcon, {FacebookIcon} from "@/components/common/CustomIcon";
 
 const SignUpSchema = Yup.object().shape({
   username: Yup.string().required("Full name is required"),
