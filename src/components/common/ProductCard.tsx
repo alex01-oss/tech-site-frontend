@@ -5,6 +5,7 @@ import {CheckBox, Delete, ShoppingCart} from "@mui/icons-material";
 import React, {memo} from "react";
 import {CatalogItem} from "@/features/catalog/types";
 import {useRouter} from "next/navigation";
+import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 
 interface ProductCardProps {
     product: CatalogItem;
@@ -18,7 +19,7 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
     onToggleCart
 }) => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:8080/api";
-    const router = useRouter();
+    const router = useNavigatingRouter();
 
     return (
         <Box

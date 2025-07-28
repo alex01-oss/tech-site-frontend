@@ -1,10 +1,11 @@
 "use client";
 
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {
     Box,
     Button,
     Chip,
+    CircularProgress,
     Divider,
     Grid,
     List,
@@ -19,21 +20,76 @@ import {
 import {Build, CheckBox, Delete, InfoOutlined, ShoppingCart} from "@mui/icons-material";
 import {ProductDetailData} from "@/features/catalog/types";
 import {useToggleCart} from "@/hooks/useToggleCart";
+import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
+import {catalogApi} from "@/features/catalog/api";
 
 interface ProductDetailPageProps {
-    productData: ProductDetailData;
+    initialProductData?: ProductDetailData;
+    productCode: string;
 }
 
-function ProductDetailPage({ productData }: ProductDetailPageProps) {
-    const { item, bond, machines } = productData;
+function ProductDetailPage({ initialProductData, productCode }: ProductDetailPageProps) {
+    const [productData, setProductData] = useState<ProductDetailData | null>(initialProductData || null);
+    const [isLoading, setIsLoading] = useState<boolean>(!initialProductData);
+    const [error, setError] = useState<string | null>(null);
+    const router = useNavigatingRouter();
+
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:8080/api";
-    const imageUrl = `${apiUrl}/${item.images}`;
 
     const { handleToggleCart, isInCart } = useToggleCart();
 
+    useEffect(() => {
+        if (!productData && productCode) {
+            setIsLoading(true);
+            catalogApi.fetchCatalogItem(productCode)
+                .then(fetchedData => {
+                    if (!fetchedData) {
+                        setError("Product not found.");
+                        return;
+                    }
+                    setProductData(fetchedData);
+                })
+                .catch(err => {
+                    console.error("Failed to fetch product data:", err);
+                    setError(err.message || 'Failed to load product data.');
+                })
+                .finally(() => {
+                    setIsLoading(false);
+                });
+        }
+    }, [productData, productCode, router]);
+
+    if (isLoading) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+                <CircularProgress />
+                <Typography variant="h6" sx={{ ml: 2 }}>Loading product...</Typography>
+            </Box>
+        );
+    }
+
+    if (error) {
+        return (
+            <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="100vh">
+                <Typography color="error" variant="h6">{error}</Typography>
+                <Button onClick={() => router.back()} sx={{ mt: 2 }}>Go Back</Button>
+            </Box>
+        );
+    }
+
+    if (!productData) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+                <Typography variant="h6" color="textSecondary">Product data not available.</Typography>
+            </Box>
+        );
+    }
+
+    const { item, bond, machines } = productData;
+    const imageUrl = `${apiUrl}/${item.images}`;
     const inCart = isInCart(item.code);
 
     return (

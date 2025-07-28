@@ -31,15 +31,15 @@ export const PasswordField: React.FC<{
     showPassword: boolean,
     setShowPassword: React.Dispatch<React.SetStateAction<boolean>>
 }> = ({
-          showPassword,
-          setShowPassword,
-          name,
-          label,
-          value,
-          onChange,
-          onBlur,
-          required = false
-      }) => {
+      showPassword,
+      setShowPassword,
+      name,
+      label,
+      value,
+      onChange,
+      onBlur,
+      required = false
+  }) => {
     return (
         <FormControl fullWidth margin="normal">
             <Field

@@ -1,14 +1,15 @@
 "use client";
 
-import {ReactNode, useEffect, useState} from "react";
+import React, {ReactNode, useEffect, useState} from "react";
 import {SnackbarProvider} from "notistack";
 import ThemeProviderWrapper from "@/context/context";
-import {GoogleOAuthProvider} from "@react-oauth/google";
-import {CssBaseline} from "@mui/material";
+import {Box, CssBaseline, LinearProgress} from "@mui/material";
 import {AuthInitializer} from "@/provider/initializer";
+import {useNavigationStore} from "@/app/store/navigationStore";
 
 export default function ClientProviders({children}: { children: ReactNode }) {
     const [mounted, setMounted] = useState(false);
+    const { isNavigating } = useNavigationStore();
 
     useEffect(() => {
         setMounted(true);
@@ -17,14 +18,23 @@ export default function ClientProviders({children}: { children: ReactNode }) {
     if (!mounted) return null;
 
     return (
-        <GoogleOAuthProvider clientId="173029689005-nnbq1m264cqvke820ik5jn0gio5pbd6d.apps.googleusercontent.com">
-            <SnackbarProvider maxSnack={3} autoHideDuration={3000}>
-                <ThemeProviderWrapper key="mui-theme">
-                    <CssBaseline/>
-                    <AuthInitializer/>
-                    {children}
-                </ThemeProviderWrapper>
-            </SnackbarProvider>
-        </GoogleOAuthProvider>
+        <SnackbarProvider maxSnack={3} autoHideDuration={3000}>
+            <ThemeProviderWrapper key="mui-theme">
+                <CssBaseline/>
+                <AuthInitializer/>
+                {isNavigating && (
+                    <Box sx={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        zIndex: 2000,
+                    }}>
+                        <LinearProgress color="primary" />
+                    </Box>
+                )}
+                {children}
+            </ThemeProviderWrapper>
+        </SnackbarProvider>
     );
 }

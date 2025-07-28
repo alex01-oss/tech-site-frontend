@@ -1,16 +1,64 @@
 "use client";
 
-import React from 'react';
-import { Container, Typography, Box, Paper } from '@mui/material';
+import React, {useEffect, useState} from 'react';
+import {Box, Button, CircularProgress, Container, Paper, Typography} from '@mui/material';
 import Image from 'next/image';
-import { Post } from '@/features/blog/types';
+import {Post} from '@/features/blog/types';
+import {blogApi} from "@/features/blog/api";
+import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 
 interface PostDetailPageProps {
-    post: Post;
+    initialPost?: Post;
+    postId: number;
     baseApiUrl: string;
 }
 
-export default function PostDetailPage({ post, baseApiUrl }: PostDetailPageProps) {
+export default function PostDetailPage({ initialPost, postId, baseApiUrl }: PostDetailPageProps) {
+    const [post, setPost] = useState<Post | null>(initialPost || null);
+    const [isLoading, setIsLoading] = useState<boolean>(!initialPost);
+    const [error, setError] = useState<string | null>(null);
+    const router = useNavigatingRouter();
+
+    useEffect(() => {
+        if (!post && postId) {
+            setIsLoading(true);
+            blogApi.fetchPost(postId)
+                .then(fetchedPost => {
+                    if (!fetchedPost) return
+                    setPost(fetchedPost);
+                })
+                .catch(err => {
+                    console.error("Failed to fetch post data:", err);
+                    setError(err.message || 'Failed to load post data.');
+                })
+                .finally(() => {
+                    setIsLoading(false);
+                });
+        }
+    }, [postId, post, router]);
+
+    if (isLoading) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+                <CircularProgress />
+                <Typography variant="h6" sx={{ ml: 2 }}>Loading post...</Typography>
+            </Box>
+        );
+    }
+
+    if (error) {
+        return (
+            <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="100vh">
+                <Typography color="error" variant="h6">{error}</Typography>
+                <Button onClick={() => router.back()} sx={{ mt: 2 }}>Go Back</Button>
+            </Box>
+        );
+    }
+
+    if (!post) {
+        return null;
+    }
+
     const createMarkup = (htmlString: string) => {
         return { __html: htmlString };
     };

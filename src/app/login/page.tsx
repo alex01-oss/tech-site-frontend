@@ -3,12 +3,12 @@
 import {Button, CssBaseline, FormControl, TextField} from "@mui/material";
 import {useState} from "react";
 import {useSnackbar} from "notistack";
-import {useRouter} from "next/navigation";
 import {ErrorMessage, Field, Form, Formik} from "formik";
 import * as Yup from "yup";
 import {useAuthStore} from "@/features/auth/store";
 import AuthCardLayout, {PasswordField} from "@/components/layout/AuthCardLayout";
 import {LoginRequest} from "@/features/auth/types";
+import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 
 const SignInSchema = Yup.object().shape({
     email: Yup.string().email("Invalid email").required("Email is required"),
@@ -21,7 +21,7 @@ export default function SignIn() {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const { enqueueSnackbar } = useSnackbar();
-    const router = useRouter();
+    const router = useNavigatingRouter();
     const { login } = useAuthStore();
 
     const handleAuthError = (error: any) => {

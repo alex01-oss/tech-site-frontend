@@ -5,10 +5,12 @@ import {
     Avatar,
     Badge,
     Box,
+    CircularProgress,
     Container,
     IconButton,
     Toolbar,
-    Tooltip, useMediaQuery,
+    Tooltip,
+    useMediaQuery,
     useTheme
 } from "@mui/material";
 import Image from "next/image";
@@ -16,7 +18,7 @@ import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import {useThemeContext} from "@/context/context";
 import React, {useEffect, useState} from "react";
 import {useSnackbar} from "notistack";
-import {usePathname, useRouter} from "next/navigation";
+import {usePathname} from "next/navigation";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {Brightness4, Brightness7} from "@mui/icons-material";
 import {useAuthStore} from "@/features/auth/store";
@@ -24,20 +26,21 @@ import {useCartStore} from "@/features/cart/store";
 import AccountMenu from "@/components/common/AccountMenu";
 import MenuIcon from '@mui/icons-material/Menu';
 import {useAdminDrawerStore} from "@/app/admin/store/useAdminDrawerStore";
+import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 
 export default function Navbar() {
     const theme = useTheme();
     const {mode, toggleColorMode} = useThemeContext();
     const isDark = mode === "dark";
-    const router = useRouter();
+    const router = useNavigatingRouter();
     const pathname = usePathname();
     const {enqueueSnackbar} = useSnackbar();
     const {isAuthenticated, user} = useAuthStore();
-    const {cartCount, fetchCart} = useCartStore();
+    const {cartCount, fetchCartCount, countLoading} = useCartStore();
 
     useEffect(() => {
-        if (isAuthenticated) void fetchCart();
-    }, [isAuthenticated, fetchCart]);
+        if (isAuthenticated) void fetchCartCount();
+    }, [isAuthenticated, fetchCartCount]);
 
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const handleClose = () => setAnchorEl(null);
@@ -127,9 +130,13 @@ export default function Navbar() {
                                 }}
                                 color="inherit"
                             >
-                                <Badge badgeContent={cartCount} color="primary">
-                                    <ShoppingCartIcon/>
-                                </Badge>
+                                {countLoading ? (
+                                    <CircularProgress size={24} color="inherit" />
+                                ) : (
+                                    <Badge badgeContent={cartCount} color="primary">
+                                        <ShoppingCartIcon/>
+                                    </Badge>
+                                )}
                             </IconButton>
                         </Tooltip>
 

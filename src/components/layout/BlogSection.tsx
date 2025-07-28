@@ -5,12 +5,12 @@ import {Box, Button, Container, Grid, Typography} from '@mui/material';
 import {useTheme} from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import {Post} from "@/features/blog/types";
-import {useRouter} from 'next/navigation';
 import {Swiper, SwiperSlide} from 'swiper/react';
 import {Pagination} from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import PostCard from "@/components/layout/PostCard";
+import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 
 interface BlogSectionProps {
     posts: Post[];
@@ -20,7 +20,7 @@ interface BlogSectionProps {
 export default function BlogSection({ posts, baseApiUrl }: BlogSectionProps) {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-    const router = useRouter();
+    const router = useNavigatingRouter();
 
     return (
         <Container maxWidth="lg" sx={{ my: 6 }}>

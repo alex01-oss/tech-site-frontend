@@ -1,19 +1,12 @@
 "use client";
 
 import React from 'react';
-import {
-    Box,
-    Paper,
-    Typography,
-    IconButton,
-    darken,
-    useTheme
-} from '@mui/material';
+import {Box, darken, IconButton, Paper, Typography, useTheme} from '@mui/material';
 import Image from 'next/image';
 import EditIcon from "@mui/icons-material/Edit";
-import { Post } from '@/features/blog/types';
-import { useRouter } from "next/navigation";
-import { useAuthStore } from "@/features/auth/store";
+import {Post} from '@/features/blog/types';
+import {useAuthStore} from "@/features/auth/store";
+import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 
 interface PostCardProps {
     post: Post;
@@ -32,7 +25,7 @@ const PostCard: React.FC<PostCardProps> = ({
     elevation = 4,
     showDescription = true,
 }) => {
-    const router = useRouter();
+    const router = useNavigatingRouter();
     const { user } = useAuthStore();
     const theme = useTheme();
 

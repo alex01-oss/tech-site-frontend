@@ -2,8 +2,9 @@
 
 import React, {useEffect, useRef, useState} from "react";
 import {
+  Alert,
   Box,
-  Button,
+  Button, Container,
   Divider,
   FormControl,
   FormControlLabel,
@@ -23,16 +24,17 @@ import {
 import {KeyboardArrowLeft, KeyboardArrowRight} from "@mui/icons-material";
 import {useSnackbar} from "notistack";
 import {Field, Form, Formik} from "formik";
-import ProductsTable from "@/components/common/productsTable";
+import ProductsTable from "@/components/common/ProductsTable";
 import {useCartStore} from "@/features/cart/store";
 import {OrderFormData, OrderFormSchema} from "@/types/order";
 import {useAuthStore} from "@/features/auth/store";
+import Spinner from "@/components/common/Spinner";
 
 const OrderForm: React.FC = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [activeStep, setActiveStep] = useState(1);
 
-  const { cart, fetchCart } = useCartStore();
+  const { cart, fetchCart, loading, error } = useCartStore();
   const [formData, setFormData] = useState<OrderFormData>({
     name: "",
     surname: "",
@@ -92,6 +94,14 @@ const OrderForm: React.FC = () => {
   const handleBack = () => {
     setActiveStep((prev) => prev - 1);
   };
+
+  if (loading) return <Spinner />;
+
+  if (error) return (
+      <Container maxWidth="lg" sx={{ mt: 12, minHeight: '80vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <Alert severity="error">Помилка завантаження кошика: {error}</Alert>
+      </Container>
+  )
 
   return (
       <Box

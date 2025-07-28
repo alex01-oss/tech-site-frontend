@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import {useRouter} from "next/navigation";
+import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 
 const categories = [
     'SHARPENING TOOL',
@@ -15,7 +15,7 @@ const categories = [
 ];
 
 const CategoriesSection: React.FC = () => {
-    const router = useRouter();
+    const router = useNavigatingRouter();
 
     return (
         <Container maxWidth="lg" sx={{ my: 6 }}>

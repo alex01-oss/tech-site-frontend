@@ -17,7 +17,7 @@ import * as Yup from "yup";
 import {useAuthStore} from "@/features/auth/store";
 import AuthCardLayout, {PasswordField} from "@/components/layout/AuthCardLayout";
 import {RegisterRequest} from "@/features/auth/types";
-import {useRouter} from "next/navigation";
+import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 
 const SignUpSchema = Yup.object().shape({
     fullname: Yup.string().required("Full name is required"),
@@ -40,7 +40,7 @@ export default function SignUp() {
     const [loading, setLoading] = useState(false);
     const {enqueueSnackbar} = useSnackbar();
     const {register} = useAuthStore();
-    const router = useRouter();
+    const router = useNavigatingRouter();
 
     const handleAuthError = (error: any) => {
         const errorMessages = {

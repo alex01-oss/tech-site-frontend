@@ -12,20 +12,18 @@ export default async function PostPage({params}: {params: { id: string }} ) {
         notFound()
     }
 
-    let post: Post | null = null
-
+    let post: Post | undefined = undefined;
     try {
         post = await blogApi.fetchPost(postId);
-
-        if(!post) {
-            notFound()
-        }
     } catch (e) {
-        console.error("Failed to fetch post data:", e)
-        notFound()
+        console.error("Failed to fetch post data on server:", e);
     }
 
     return (
-        <PostDetailPage post={post} baseApiUrl={BASE_API_URL} />
+        <PostDetailPage
+            initialPost={post}
+            postId={postId}
+            baseApiUrl={BASE_API_URL}
+        />
     );
 }

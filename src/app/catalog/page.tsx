@@ -4,7 +4,7 @@ import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {Box, CircularProgress, Toolbar, useMediaQuery, useTheme} from "@mui/material";
 import SidebarSkeleton from "@/components/skeletons/SidebarSkeleton";
 import ProductSkeleton from "@/components/skeletons/TableSkeleton";
-import ProductsTable from "@/components/common/productsTable";
+import ProductsTable from "@/components/common/ProductsTable";
 import {useCatalogStore} from "@/features/catalog/store";
 import Search from "@/components/common/Search";
 import {useMenuStore} from "@/features/menu/store";

@@ -1,11 +1,9 @@
 'use client';
 
 import React, {ChangeEvent, useCallback, useEffect, useState} from 'react';
-import {useRouter} from 'next/navigation';
 import Image from 'next/image';
 import {useSnackbar} from 'notistack';
 import {
-    AppBar,
     Box,
     Button,
     Card,
@@ -18,8 +16,6 @@ import {
     Typography
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
-import CloseIcon from '@mui/icons-material/Close';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {blogApi} from "@/features/blog/api";
@@ -28,6 +24,7 @@ import {PostRequest} from "@/features/blog/types";
 import {revalidateBlogPosts} from "@/app/actions/actions";
 import {Editor as TinyMCEEditor} from "tinymce";
 import {Editor} from "@tinymce/tinymce-react";
+import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 
 
 const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:8080/api";
@@ -48,7 +45,7 @@ interface PostEditorProps {
 }
 
 const PostEditor: React.FC<PostEditorProps> = ({ mode, postId }) => {
-    const router = useRouter();
+    const router = useNavigatingRouter();
     const { enqueueSnackbar } = useSnackbar();
 
     const [formState, setFormState] = useState<PostEditorFormState>({

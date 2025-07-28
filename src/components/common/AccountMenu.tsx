@@ -5,10 +5,10 @@ import {Divider, ListItemIcon, Menu, MenuItem} from "@mui/material";
 import Settings from "@mui/icons-material/Settings";
 import Logout from "@mui/icons-material/Logout";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
-import {useRouter} from "next/navigation";
 import {useSnackbar} from "notistack";
 import {useAuthStore} from "@/features/auth/store";
 import AdminPanel from '@mui/icons-material/AdminPanelSettings';
+import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 
 interface AccountMenuProps {
     anchorEl: null | HTMLElement;
@@ -16,11 +16,11 @@ interface AccountMenuProps {
 }
 
 export default function AccountMenu({
-                                        anchorEl,
-                                        handleCloseAction,
-                                    }: AccountMenuProps) {
+    anchorEl,
+    handleCloseAction,
+}: AccountMenuProps) {
     const open = Boolean(anchorEl);
-    const router = useRouter();
+    const router = useNavigatingRouter();
     const {enqueueSnackbar} = useSnackbar();
 
     const {logout, isAuthenticated, user} = useAuthStore();
