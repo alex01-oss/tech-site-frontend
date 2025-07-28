@@ -190,27 +190,7 @@ const PostEditor: React.FC<PostEditorProps> = ({ mode, postId }) => {
 
     return (
         <Box sx={{ flexGrow: 1, pt: { xs: 8, md: 10 } }}>
-            <AppBar position="fixed" color="default" elevation={1}>
-                <Toolbar>
-                    <IconButton edge="start" color="inherit" aria-label="back" onClick={() => router.back()}>
-                        <ArrowBackIcon />
-                    </IconButton>
-                    <Typography variant="h6" component="div" sx={{ flexGrow: 1, ml: 2 }}>
-                        {isNewPost ? 'Create New Post' : 'Edit Post'}
-                    </Typography>
-                    <Button
-                        color="inherit"
-                        onClick={handleSavePost}
-                        startIcon={<SaveIcon />}
-                        disabled={isSaving}
-                    >
-                        {isSaving ? <CircularProgress size={24} color="inherit" /> : 'Save'}
-                    </Button>
-                    <IconButton color="inherit" onClick={() => router.back()}>
-                        <CloseIcon />
-                    </IconButton>
-                </Toolbar>
-            </AppBar>
+            <Toolbar />
             <Container maxWidth="md" sx={{ mt: 2, pb: 4 }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
                     <TextField

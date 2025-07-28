@@ -329,16 +329,6 @@ const Search: React.FC<Props> = memo(({ onSearch, currentSearchFields, currentFi
                         maxWidth: '100%',
                     }}
                 >
-                    <Box sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        px: 1.5,
-                        color: 'action.active',
-                        flexShrink: 0,
-                    }}>
-                        <SearchIcon sx={{ fontSize: 24 }} />
-                    </Box>
-
                     {FIXED_SEARCH_FIELDS_CONFIG.map((fieldConfig, index) => (
                         <React.Fragment key={fieldConfig.type}>
                             <TextField

@@ -1,110 +1,94 @@
 "use client";
 
-import React from 'react';
-import { Container, Grid, Paper, Typography, Box } from '@mui/material';
-import Image from 'next/image';
-import { Post } from '@/features/blog/types';
+import React, {useMemo} from 'react';
+import {Box, Container, Grid, IconButton, InputAdornment, TextField, Toolbar, Typography} from '@mui/material';
+import {Post} from '@/features/blog/types';
+import SearchIcon from "@mui/icons-material/Search";
+import ClearIcon from "@mui/icons-material/Clear";
+import PostCard from "@/components/layout/PostCard";
 
 interface BlogGridProps {
     posts: Post[];
     baseApiUrl: string;
 }
 
-export default function BlogGrid({ posts, baseApiUrl }: BlogGridProps) {
+export default function BlogGrid({posts, baseApiUrl}: BlogGridProps) {
+    const [searchTerm, setSearchTerm] = React.useState('');
+
+    const filteredPosts = useMemo(() => {
+        if (!searchTerm) return posts;
+        const lowerCaseSearchTerm = searchTerm.toLowerCase();
+        return posts.filter((post) =>
+            post.title.toLowerCase().includes(lowerCaseSearchTerm) ||
+                post.content.toLowerCase().includes(lowerCaseSearchTerm)
+        )
+    }, [posts, searchTerm])
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearchTerm(e.target.value)
+    }
+
+    const handleSearchClear = () => {
+        setSearchTerm('')
+    }
+
     return (
-        <Container maxWidth="lg" sx={{ mt: 12, mb: 6, minHeight: '80vh' }}>
-            <Typography variant="h2" component="h1" align="center" sx={{ mb: 6, color: 'text.primary', fontWeight: 700 }}>
-                Our Blog
-            </Typography>
+        <>
+            <Toolbar />
+            <Container maxWidth="lg" sx={{minHeight: '100vh', mt: 6}}>
+                <Typography variant="h2" component="h1" align="center" sx={{mb: 6, color: 'text.primary', fontWeight: 700}}>
+                    Our Blog
+                </Typography>
 
-            <Grid container spacing={4} justifyContent="center">
-                {posts.length > 0 ? (
-                    posts.map((post: Post) => (
-                        <Grid item xs={12} sm={6} md={4} key={post.id}>
-                            <Paper
-                                elevation={4}
-                                sx={{
-                                    position: 'relative',
-                                    height: 300,
-                                    borderRadius: 3,
-                                    overflow: 'hidden',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    justifyContent: 'flex-end',
-                                    transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
-                                    '&:hover': {
-                                        transform: 'translateY(-8px)',
-                                        boxShadow: '0 8px 25px rgba(0,0,0,0.25)',
-                                    },
-                                }}
-                                onClick={() => window.location.href = `/blog/${post.id}`}
-                            >
-                                <Box sx={{
-                                    position: 'absolute',
-                                    top: 0,
-                                    left: 0,
-                                    width: '100%',
-                                    height: '100%',
-                                    zIndex: 0,
-                                }}>
-                                    <Image
-                                        src={post.image ? `${baseApiUrl}/${post.image}` : '/placeholder-image.png'}
-                                        alt={post.title}
-                                        fill
-                                        style={{ objectFit: 'cover' }}
-                                        sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw"
-                                    />
-                                </Box>
+                <Box sx={{display: 'flex', justifyContent: 'center', mb: 4}}>
+                    <TextField
+                        variant="outlined"
+                        placeholder={"Search posts..."}
+                        value={searchTerm}
+                        onChange={handleSearchChange}
+                        sx={{width: '100%'}}
+                        InputProps={{
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <SearchIcon />
+                                </InputAdornment>
+                            ),
+                            endAdornment: (
+                                searchTerm ? (
+                                    <InputAdornment position="end">
+                                        <IconButton onClick={handleSearchClear} edge="end" size="small">
+                                            <ClearIcon />
+                                        </IconButton>
+                                    </InputAdornment>
+                                ) : null
+                            )
+                        }}
+                    />
+                </Box>
 
-                                <Box sx={{
-                                    position: 'absolute',
-                                    bottom: 0,
-                                    left: 0,
-                                    right: 0,
-                                    height: '60%',
-                                    background: 'linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0))',
-                                    zIndex: 1,
-                                }} />
-
-                                <Box sx={{
-                                    position: 'relative',
-                                    p: 2,
-                                    pt: 4,
-                                    zIndex: 2,
-                                    color: 'white',
-                                }}>
-                                    <Typography
-                                        variant="h6"
-                                        sx={{
-                                            fontWeight: 'bold',
-                                            textShadow: '1px 1px 4px rgba(0,0,0,0.8)',
-                                            mb: 1,
-                                        }}
-                                    >
-                                        {post.title}
-                                    </Typography>
-                                    <Typography
-                                        variant="body2"
-                                        sx={{
-                                            opacity: 0.8,
-                                            textShadow: '1px 1px 2px rgba(0,0,0,0.7)',
-                                        }}
-                                    >
-                                        {post.content.length > 100 ? `${post.content.replace(/<[^>]*>/g, '').substring(0, 97)}...` : post.content.replace(/<[^>]*>/g, '')}
-                                    </Typography>
-                                </Box>
-                            </Paper>
+                <Grid container spacing={4} justifyContent="center">
+                    {filteredPosts.length > 0 ? (
+                        filteredPosts.map((post: Post) => (
+                            <Grid item xs={12} sm={6} md={4} key={post.id}>
+                                <PostCard
+                                    post={post}
+                                    baseApiUrl={baseApiUrl}
+                                    height={300}
+                                    showAdminControls={true}
+                                    elevation={4}
+                                    showDescription={true}
+                                />
+                            </Grid>
+                        ))
+                    ) : (
+                        <Grid item xs={12}>
+                            <Typography variant="h6" color="text.secondary" align="center" sx={{mt: 4}}>
+                                {searchTerm ? `Nothing found for "${searchTerm}".` : 'There are no blog posts yet.'}
+                            </Typography>
                         </Grid>
-                    ))
-                ) : (
-                    <Grid item xs={12}>
-                        <Typography variant="h6" color="text.secondary" align="center" sx={{ mt: 4 }}>
-                            No blog posts available yet.
-                        </Typography>
-                    </Grid>
-                )}
-            </Grid>
-        </Container>
+                    )}
+                </Grid>
+            </Container>
+        </>
     );
 }

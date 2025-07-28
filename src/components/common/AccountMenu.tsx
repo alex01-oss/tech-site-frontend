@@ -8,6 +8,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import {useRouter} from "next/navigation";
 import {useSnackbar} from "notistack";
 import {useAuthStore} from "@/features/auth/store";
+import AdminPanel from '@mui/icons-material/AdminPanelSettings';
 
 interface AccountMenuProps {
     anchorEl: null | HTMLElement;
@@ -92,6 +93,14 @@ export default function AccountMenu({
                             <Logout fontSize="small"/>
                         </ListItemIcon>
                         Logout
+                    </MenuItem>
+                )}
+                {user?.role === "admin" && (
+                    <MenuItem onClick={() => router.push("/admin")}>
+                        <ListItemIcon>
+                            <AdminPanel fontSize="small"/>
+                        </ListItemIcon>
+                        Admin Panel
                     </MenuItem>
                 )}
             </Menu>

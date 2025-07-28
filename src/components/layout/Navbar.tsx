@@ -8,7 +8,7 @@ import {
     Container,
     IconButton,
     Toolbar,
-    Tooltip,
+    Tooltip, useMediaQuery,
     useTheme
 } from "@mui/material";
 import Image from "next/image";
@@ -22,6 +22,8 @@ import {Brightness4, Brightness7} from "@mui/icons-material";
 import {useAuthStore} from "@/features/auth/store";
 import {useCartStore} from "@/features/cart/store";
 import AccountMenu from "@/components/common/AccountMenu";
+import MenuIcon from '@mui/icons-material/Menu';
+import {useAdminDrawerStore} from "@/app/admin/store/useAdminDrawerStore";
 
 export default function Navbar() {
     const theme = useTheme();
@@ -40,6 +42,10 @@ export default function Navbar() {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const handleClose = () => setAnchorEl(null);
 
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+    const toggleDrawer = useAdminDrawerStore(state => state.toggleDrawer);
+
     const handleProfileClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
     };
@@ -57,7 +63,7 @@ export default function Navbar() {
                 cursor: 'pointer',
             }}
         >
-            <Image src="/logo_white.svg" alt="logo" width={125} height={50} />
+            <Image src="/logo_white.svg" alt="logo" width={125} height={50}/>
         </Box>
     );
 
@@ -70,6 +76,16 @@ export default function Navbar() {
         </IconButton>
     );
 
+    const renderBurgerButton = () => {
+        if (pathname === '/admin') {
+            return (
+                <IconButton onClick={toggleDrawer}>
+                    <MenuIcon />
+                </IconButton>
+            )
+        }
+    }
+
     return (
         <AppBar position="fixed" elevation={1} color="default">
             <Container maxWidth="lg">
@@ -81,8 +97,16 @@ export default function Navbar() {
                         px: {xs: 2, md: 3},
                     }}
                 >
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        {pathname === "/" ? renderLogo() : renderBackButton()}
+                    <Box sx={{display: "flex", alignItems: "center", gap: 1}}>
+                        {pathname === "/" ? (
+                            renderLogo()
+                        ) : (
+                            <>
+                                {pathname === "/admin" && isMobile && renderBurgerButton()}
+                                {renderBackButton()}
+                            </>
+                        )}
+
                     </Box>
 
                     <Box sx={{display: "flex", alignItems: "center", gap: {xs: 1, md: 1}}}>
@@ -124,7 +148,7 @@ export default function Navbar() {
                                         .split(" ")
                                         .filter(Boolean)
                                         .slice(0, 2)
-                                        .map((word: string[]) => word[0]?.toUpperCase())
+                                        .map((word: string) => word[0]?.toUpperCase())
                                         .join("")
                                     : ""}
                             </Avatar>

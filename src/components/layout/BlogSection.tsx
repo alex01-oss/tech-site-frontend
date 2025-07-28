@@ -46,7 +46,14 @@ export default function BlogSection({ posts, baseApiUrl }: BlogSectionProps) {
                     >
                         {posts.map((post: Post) => (
                             <SwiperSlide key={post.id}>
-                                <PostCard post={post} baseApiUrl={baseApiUrl} />
+                                <PostCard
+                                    post={post}
+                                    baseApiUrl={baseApiUrl}
+                                    height={200}
+                                    elevation={0}
+                                    showDescription={false}
+                                    showAdminControls={false}
+                                />
                             </SwiperSlide>
                         ))}
                     </Swiper>
@@ -54,7 +61,14 @@ export default function BlogSection({ posts, baseApiUrl }: BlogSectionProps) {
                     <Grid container spacing={3} justifyContent="center">
                         {posts.map((post: Post) => (
                             <Grid item xs={12} sm={6} md={4} key={post.id}>
-                                <PostCard post={post} baseApiUrl={baseApiUrl} />
+                                <PostCard
+                                    post={post}
+                                    baseApiUrl={baseApiUrl}
+                                    height={200}
+                                    elevation={0}
+                                    showDescription={false}
+                                    showAdminControls={false}
+                                />
                             </Grid>
                         ))}
                     </Grid>

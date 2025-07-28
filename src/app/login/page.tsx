@@ -8,6 +8,7 @@ import {ErrorMessage, Field, Form, Formik} from "formik";
 import * as Yup from "yup";
 import {useAuthStore} from "@/features/auth/store";
 import AuthCardLayout, {PasswordField} from "@/components/layout/AuthCardLayout";
+import {LoginRequest} from "@/features/auth/types";
 
 const SignInSchema = Yup.object().shape({
     email: Yup.string().email("Invalid email").required("Email is required"),
@@ -42,8 +43,14 @@ export default function SignIn() {
 
     const handleSubmit = async (values: SignInFormValues) => {
         setLoading(true);
+
+        const loginData: LoginRequest = {
+            email: values.email,
+            password: values.password
+        }
+
         try {
-            const success = await login(values.email, values.password);
+            const success = await login(loginData);
             if (success) {
                 enqueueSnackbar("Login successful!", { variant: "success" });
                 router.push("/");
