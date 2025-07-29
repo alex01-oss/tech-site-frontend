@@ -10,11 +10,16 @@ export const catalogApi = {
             search_machine: string | undefined;
             page: number;
             items_per_page: number;
-            name_bond: string | undefined;
-            grid_size: string | undefined
+            name_bond: string[] | undefined;
+            grid_size: string[] | undefined
         }
     ): Promise<CatalogResponse> => {
-        const res = await api.get('catalog', { params });
+        const res = await api.get('catalog', {
+            params,
+            paramsSerializer: {
+                indexes: null
+            }
+        });
         return res.data
     },
 

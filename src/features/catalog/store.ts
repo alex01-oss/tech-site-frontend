@@ -1,6 +1,7 @@
 import {CatalogItem, CatalogResponse} from "@/features/catalog/types";
 import {create} from "zustand";
 import {catalogApi} from "@/features/catalog/api";
+import {shallow} from "zustand/vanilla/shallow";
 
 interface CatalogState {
     items: CatalogItem[];
@@ -12,8 +13,8 @@ interface CatalogState {
     searchShape: string | null;
     searchDimensions: string | null;
     searchMachine: string | null;
-    nameBond: string | null;
-    gridSize: string | null;
+    nameBond: string[] | null;
+    gridSize: string[] | null;
     isLoading: boolean;
     error: string | null;
     loadedPages: Set<number>;
@@ -24,13 +25,13 @@ interface CatalogState {
     setSearchDimensions: (dimensions: string | null) => void;
     setSearchMachine: (machine: string | null) => void;
     setPage: (page: number) => void;
-    setNameBond: (bond: string | null) => void;
-    setGridSize: (size: string | null) => void;
+    setNameBond: (bond: string[] | null) => void;
+    setGridSize: (size: string[] | null) => void;
     resetFilters: () => void;
     resetSearch: () => void;
 
     setSearchAndResetPage(searchFields: { code?: string; shape?: string; dimensions?: string; machine?: string }): void;
-    setFiltersAndResetPage(newNameBond: string | null, newGridSize: string | null): void;
+    setFiltersAndResetPage(newNameBond: string[] | null, newGridSize: string[] | null): void;
     setItemsPerPage: (count: number, resetPage: boolean) => void;
 }
 
@@ -76,8 +77,8 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
                 search_machine: searchMachine || undefined,
                 page: currentPage,
                 items_per_page: itemsPerPage,
-                name_bond: nameBond || undefined,
-                grid_size: gridSize || undefined,
+                name_bond: nameBond && nameBond.length > 0 ? nameBond : undefined,
+                grid_size: gridSize && gridSize.length > 0 ? gridSize : undefined,
             });
 
             set((state) => ({
@@ -146,7 +147,7 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
         set({ currentPage: page, error: null });
     },
 
-    setNameBond: (bond: string | null) => {
+    setNameBond: (bond: string[] | null) => {
         set({
             nameBond: bond,
             currentPage: 1,
@@ -156,7 +157,7 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
         });
     },
 
-    setGridSize: (size: string | null) => {
+    setGridSize: (size: string[] | null) => {
         set({
             gridSize: size,
             currentPage: 1,
@@ -223,9 +224,12 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
         });
     },
 
-    setFiltersAndResetPage: (newNameBond: string | null, newGridSize: string | null) => {
+    setFiltersAndResetPage: (newNameBond: string[] | null, newGridSize: string[] | null) => {
         set(state => {
-            if (state.nameBond === newNameBond && state.gridSize === newGridSize) {
+            const bondEqual = shallow(state.nameBond, newNameBond);
+            const gridEqual = shallow(state.gridSize, newGridSize);
+
+            if (bondEqual && gridEqual) {
                 return state;
             }
 

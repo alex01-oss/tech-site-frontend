@@ -105,8 +105,8 @@ export default function Navbar() {
                             renderLogo()
                         ) : (
                             <>
-                                {pathname === "/admin" && isMobile && renderBurgerButton()}
                                 {renderBackButton()}
+                                {pathname === "/admin" && isMobile && renderBurgerButton()}
                             </>
                         )}
 

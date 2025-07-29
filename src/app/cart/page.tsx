@@ -4,7 +4,8 @@ import React, {useEffect, useRef, useState} from "react";
 import {
   Alert,
   Box,
-  Button, Container,
+  Button,
+  Container,
   Divider,
   FormControl,
   FormControlLabel,
@@ -51,18 +52,12 @@ const OrderForm: React.FC = () => {
   const { initializing } = useAuthStore();
 
   useEffect(() => {
-    if (!initializing) {
-      void fetchCart();
-    }
+    if (!initializing) void fetchCart()
   }, [initializing]);
 
   useEffect(() => {
     let count = 0;
-
-    cart.forEach(() => {
-      count += 1;
-    });
-
+    cart.forEach(() => count += 1)
     setTotalItems(count);
   }, [cart]);
 
@@ -86,20 +81,16 @@ const OrderForm: React.FC = () => {
         });
         formikInstance.validateForm();
       }
-    } else {
-      setActiveStep((prev) => prev + 1);
-    }
+    } else setActiveStep((prev) => prev + 1)
   };
 
-  const handleBack = () => {
-    setActiveStep((prev) => prev - 1);
-  };
+  const handleBack = () => setActiveStep((prev) => prev - 1)
 
   if (loading) return <Spinner />;
 
   if (error) return (
       <Container maxWidth="lg" sx={{ mt: 12, minHeight: '80vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <Alert severity="error">Помилка завантаження кошика: {error}</Alert>
+        <Alert severity="error">Loading cart error: {error}</Alert>
       </Container>
   )
 
@@ -112,7 +103,6 @@ const OrderForm: React.FC = () => {
             padding: 2,
           }}
       >
-        {/* STEPPER */}
         <MobileStepper
             variant="progress"
             steps={4}
@@ -142,7 +132,6 @@ const OrderForm: React.FC = () => {
         />
 
         <Box sx={{ maxWidth: 800, mx: "auto" }}>
-          {/* CART BLOCK */}
           {activeStep === 1 &&
               (cart.length === 0 ? (
                   <Typography
@@ -155,7 +144,6 @@ const OrderForm: React.FC = () => {
                   <ProductsTable products={cart.map(item => item.product)} isCartView />
               ))}
 
-          {/* ORDER FORM BLOCK */}
           {activeStep === 2 && (
               <Paper sx={{ p: 3, borderRadius: 2 }}>
                 <Typography variant="h5" sx={{ mb: 2 }}>
@@ -291,7 +279,6 @@ const OrderForm: React.FC = () => {
               </Paper>
           )}
 
-          {/* ORDER SUMMARY BLOCK */}
           {activeStep === 3 && (
               <Grid xs={12} md={4}>
                 <Paper sx={{ p: 3, borderRadius: 2 }}>

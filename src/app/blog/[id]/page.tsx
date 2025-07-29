@@ -8,9 +8,7 @@ const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhos
 export default async function PostPage({params}: {params: { id: string }} ) {
     const postId = parseInt(params.id, 10);
 
-    if (isNaN(postId)) {
-        notFound()
-    }
+    if (isNaN(postId)) notFound()
 
     let post: Post | undefined = undefined;
     try {

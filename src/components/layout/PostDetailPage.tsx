@@ -64,7 +64,7 @@ export default function PostDetailPage({ initialPost, postId, baseApiUrl }: Post
     };
 
     return (
-        <Container sx={{ my: 2, py: 4, mt: 9, mh: '100%' }}>
+        <Container sx={{ inHeight: '100vh', my: 2, py: 4, mt: 9, mh: '100%' }}>
             <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
                 {post.image && (
                     <Box sx={{ mb: 4, width: '100%', aspectRatio: '16/9', position: 'relative', overflow: 'hidden', borderRadius: 2 }}>

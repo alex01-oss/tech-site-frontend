@@ -11,6 +11,7 @@ import {useMenuStore} from "@/features/menu/store";
 import {useGridItemsPerPage} from "@/hooks/useGridItemsPerPage";
 import FiltersPanel from "@/components/layout/FiltersPanel";
 import ScrollToTopFab from "@/components/common/ScrollToTopFab";
+import {shallow} from "zustand/vanilla/shallow";
 
 function CatalogPage() {
     const theme = useTheme();
@@ -73,7 +74,8 @@ function CatalogPage() {
         fetchCatalog,
         currentPage,
         storeItemsPerPage,
-        nameBond, gridSize,
+        nameBond,
+        gridSize,
         searchCode,
         searchShape,
         searchDimensions,
@@ -84,12 +86,8 @@ function CatalogPage() {
 
     useEffect(() => {
         const initialFilters: Record<string, Set<string>> = {};
-        if (nameBond) {
-            initialFilters["Bond"] = new Set([nameBond]);
-        }
-        if (gridSize) {
-            initialFilters["Grid Size"] = new Set([gridSize]);
-        }
+        if (nameBond && nameBond.length > 0) initialFilters["Bond"] = new Set(nameBond)
+        if (gridSize && gridSize.length > 0) initialFilters["Grid Size"] = new Set(gridSize)
         setLocalFiltersState(initialFilters);
     }, [nameBond, gridSize]);
 
@@ -106,51 +104,67 @@ function CatalogPage() {
             }
         }
 
-        const newNameBond = newFiltersForStore["Bond"] && newFiltersForStore["Bond"].length > 0 ? newFiltersForStore["Bond"][0] : null;
-        const newGridSize = newFiltersForStore["Grid Size"] && newFiltersForStore["Grid Size"].length > 0 ? newFiltersForStore["Grid Size"][0] : null;
+        const newNameBond = newFiltersForStore["Bond"] && newFiltersForStore["Bond"].length > 0
+            ? newFiltersForStore["Bond"] : null;
 
-        if (newNameBond !== nameBond || newGridSize !== gridSize) {
+        const newGridSize = newFiltersForStore["Grid Size"] && newFiltersForStore["Grid Size"].length > 0
+            ? newFiltersForStore["Grid Size"] : null;
+
+        console.log("handleCombinedSearchSubmit: newNameBond:", newNameBond, "newGridSize:", newGridSize);
+
+        const currentNameBond = useCatalogStore.getState().nameBond
+        const currentGridSize = useCatalogStore.getState().gridSize
+
+        const bondEquals = shallow(currentNameBond, newNameBond)
+        const gridSizeEquals = shallow(currentGridSize, newGridSize)
+
+        if (!bondEquals || !gridSizeEquals) {
             useCatalogStore.getState().setFiltersAndResetPage(newNameBond, newGridSize);
         }
-    }, [nameBond, gridSize]);
-
-
-    const handleDesktopFilterToggle = useCallback((categoryTitle: string, itemValue: string, checked: boolean) => {
-        setLocalFiltersState((prevFilters) => {
-            const currentCategoryFilters = prevFilters[categoryTitle] || new Set();
-            const newCategoryFilters = new Set(currentCategoryFilters);
-
-            if (checked) {
-                newCategoryFilters.add(itemValue);
-            } else {
-                newCategoryFilters.delete(itemValue);
-            }
-
-            if (newCategoryFilters.size === 0) {
-                const {[categoryTitle]: _, ...rest} = prevFilters;
-                return rest;
-            }
-
-            const updatedFilters = {
-                ...prevFilters,
-                [categoryTitle]: newCategoryFilters,
-            };
-
-            const newFiltersForStore: Record<string, string[]> = {};
-            for (const category in updatedFilters) {
-                if (updatedFilters.hasOwnProperty(category)) {
-                    newFiltersForStore[category] = Array.from(updatedFilters[category]);
-                }
-            }
-
-            const newNameBond = newFiltersForStore["Bond"] && newFiltersForStore["Bond"].length > 0 ? newFiltersForStore["Bond"][0] : null;
-            const newGridSize = newFiltersForStore["Grid Size"] && newFiltersForStore["Grid Size"].length > 0 ? newFiltersForStore["Grid Size"][0] : null;
-
-            useCatalogStore.getState().setFiltersAndResetPage(newNameBond, newGridSize);
-
-            return updatedFilters;
-        });
     }, []);
+
+
+    const handleDesktopFilterToggle = useCallback(
+        (categoryTitle: string, itemValue: string, checked: boolean) => {
+            setLocalFiltersState((prevFilters) => {
+                const currentCategoryFilters = prevFilters[categoryTitle] || new Set();
+                const newCategoryFilters = new Set(currentCategoryFilters);
+
+                if (checked) newCategoryFilters.add(itemValue)
+                else newCategoryFilters.delete(itemValue)
+
+                const updatedFilters = { ...prevFilters }
+                if (newCategoryFilters.size === 0) {
+                    delete updatedFilters[categoryTitle];
+                } else {
+                    updatedFilters[categoryTitle] = newCategoryFilters;
+                }
+
+                const newFiltersForStore: Record<string, string[]> = {};
+                for (const category in updatedFilters) {
+                    if (updatedFilters.hasOwnProperty(category)) {
+                        newFiltersForStore[category] = Array.from(updatedFilters[category]);
+                    }
+                }
+
+                const newNameBond = newFiltersForStore["Bond"] && newFiltersForStore["Bond"].length > 0
+                    ? newFiltersForStore["Bond"] : null;
+                const newGridSize = newFiltersForStore["Grid Size"] && newFiltersForStore["Grid Size"].length > 0
+                    ? newFiltersForStore["Grid Size"] : null;
+
+                const currentNameBond = useCatalogStore.getState().nameBond
+                const currentGridSize = useCatalogStore.getState().gridSize
+
+                const bondEquals = shallow(currentNameBond, newNameBond)
+                const gridSizeEquals = shallow(currentGridSize, newGridSize)
+
+                if (!bondEquals || !gridSizeEquals) {
+                    useCatalogStore.getState().setFiltersAndResetPage(newNameBond, newGridSize);
+                }
+
+                return updatedFilters;
+            });
+        }, []);
 
     const handleDesktopClearAllFilters = useCallback(() => {
         setLocalFiltersState({});
@@ -170,12 +184,8 @@ function CatalogPage() {
 
     const currentFiltersForSearchComponent = useMemo(() => {
         const filters: Record<string, string[]> = {};
-        if (nameBond) {
-            filters["Bond"] = [nameBond];
-        }
-        if (gridSize) {
-            filters["Grid Size"] = [gridSize];
-        }
+        if (nameBond && nameBond.length > 0) filters["Bond"] = nameBond;
+        if (gridSize && gridSize.length > 0) filters["Grid Size"] = gridSize;
         return filters;
     }, [nameBond, gridSize]);
 
@@ -229,11 +239,10 @@ function CatalogPage() {
                         flexGrow: 1,
                         maxWidth: '100%',
                     }}>
-                        {isLoading && products.length === 0 ? (
-                            <ProductSkeleton/>
-                        ) : (
-                            <ProductsTable products={products}/>
-                        )}
+                        {isLoading && products.length === 0
+                            ? <ProductSkeleton/>
+                            : <ProductsTable products={products}/>
+                        }
                         {isLoading && products.length > 0 && (
                             <Box sx={{textAlign: "center", my: {xs: 2, md: 3}}}>
                                 <CircularProgress/>
@@ -253,7 +262,7 @@ function CatalogPage() {
                             height: theme.spacing(3),
                             visibility: isLoading && products.length > 0 ? 'hidden' : 'visible'
                         }}/>
-                        <ScrollToTopFab />
+                        <ScrollToTopFab/>
                     </Box>
                 </Box>
             </Box>

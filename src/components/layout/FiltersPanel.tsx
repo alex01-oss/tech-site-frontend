@@ -44,17 +44,13 @@ const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
 
     const handleApplyAndClose = useCallback(() => {
         onApplyFilters();
-        if (onClose) {
-            onClose();
-        }
+        if (onClose) onClose()
     }, [onApplyFilters, onClose]);
 
     const handleClearAllAndApplyAndClose = useCallback(() => {
         onClearAllFilters();
         onApplyFilters();
-        if (onClose) {
-            onClose();
-        }
+        if (onClose) onClose()
     }, [onClearAllFilters, onApplyFilters, onClose]);
 
     return (

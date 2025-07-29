@@ -35,7 +35,7 @@ export default function BlogGrid({posts, baseApiUrl}: BlogGridProps) {
     return (
         <>
             <Toolbar />
-            <Container maxWidth="lg" sx={{minHeight: '100vh', mt: 6}}>
+            <Container maxWidth="lg" sx={{minHeight: '100vh', my: 6}}>
                 <Typography variant="h2" component="h1" align="center" sx={{mb: 6, color: 'text.primary', fontWeight: 700}}>
                     Our Blog
                 </Typography>

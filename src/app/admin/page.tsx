@@ -94,7 +94,6 @@ const AdminLayout: React.FC = () => {
                 )}
 
                 <Box sx={{ flexGrow: 1, py: 2 }}>
-                    {/* Content */}
                     <Typography variant="h4" component="h1" gutterBottom>
                         Welcome to the Admin Panel!
                     </Typography>
