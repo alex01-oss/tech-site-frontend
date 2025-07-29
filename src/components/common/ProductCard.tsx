@@ -1,10 +1,9 @@
 "use client"
 
-import {Box, Button, Chip, Typography} from "@mui/material";
-import {CheckBox, Delete, ShoppingCart} from "@mui/icons-material";
+import {Box, Button, Chip, Typography, useTheme} from "@mui/material";
+import {Delete, Star, StarBorder} from "@mui/icons-material";
 import React, {memo} from "react";
 import {CatalogItem} from "@/features/catalog/types";
-import {useRouter} from "next/navigation";
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 
 interface ProductCardProps {
@@ -20,6 +19,7 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
 }) => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:8080/api";
     const router = useNavigatingRouter();
+    const theme = useTheme();
 
     return (
         <Box
@@ -27,80 +27,71 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
             sx={(theme) => ({
                 display: "flex",
                 flexDirection: "column",
-                borderRadius: 2,
+                borderRadius: 1,
                 bgcolor: theme.palette.background.paper,
-                boxShadow: theme.shadows[1],
+                border: `1px solid ${theme.palette.divider}`,
                 transition: theme.transitions.create(
-                    ["transform", "box-shadow", "border-color"],
+                    ["border-color", "box-shadow"],
                     {
                         duration: theme.transitions.duration.short,
                     }
                 ),
                 overflow: "hidden",
                 height: "100%",
-                border: `2px solid ${product.is_in_cart ? theme.palette.success.main : theme.palette.divider}`,
                 position: "relative",
+                cursor: "pointer",
                 "&:hover": {
-                    transform: "translateY(-4px)",
-                    boxShadow: theme.shadows[8],
                     borderColor: theme.palette.primary.main,
+                    boxShadow: `0 0 0 1px ${theme.palette.primary.main}`,
                 },
+                ...(product.is_in_cart && {
+                    borderColor: theme.palette.success.main,
+                    borderWidth: 2,
+                }),
             })}
         >
-            {/* STATUS BADGE */}
-            {product.is_in_cart && !isCartView && (
-                <Box
-                    sx={(theme) => ({
-                        position: "absolute",
-                        top: 8,
-                        right: 8,
-                        bgcolor: theme.palette.success.main,
-                        color: theme.palette.common.white,
-                        borderRadius: "50%",
-                        width: 24,
-                        height: 24,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        zIndex: 1,
-                    })}
-                >
-                    <CheckBox sx={{ fontSize: 16 }} />
-                </Box>
-            )}
-
-            {/* CODE CHIP */}
             <Box
                 sx={{
-                    position: "absolute",
-                    top: 8,
-                    left: 8,
-                    zIndex: 1,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    px: 2,
+                    py: 1,
+                    bgcolor: "grey.50",
+                    borderBottom: `1px solid ${theme.palette.divider}`,
                 }}
             >
                 <Chip
+                    variant="outlined"
                     label={product.code}
                     size="small"
                     sx={(theme) => ({
-                        bgcolor: theme.palette.primary.main,
-                        color: theme.palette.common.white,
+                        borderRadius: 1,
                         fontWeight: 600,
                         fontSize: "0.75rem",
                     })}
                 />
+
+                {product.is_in_cart && (
+                    <Box
+                        sx={{
+                            width: 8,
+                            height: 8,
+                            bgcolor: "success.main",
+                            borderRadius: 0,
+                        }}
+                    />
+                )}
             </Box>
 
-            {/* IMAGE */}
             <Box
                 sx={{
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
-                    padding: 3,
-                    paddingTop: 5,
-                    height: 120,
-                    borderBottom: "1px solid",
-                    borderColor: "divider",
+                    height: 140,
+                    padding: 2,
+                    bgcolor: "grey.25",
                 }}
             >
                 <img
@@ -110,73 +101,109 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                         maxWidth: "100%",
                         maxHeight: "100%",
                         objectFit: "contain",
-                        filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))",
                     }}
                 />
             </Box>
 
-            {/* CONTENT */}
             <Box
                 sx={{
-                    padding: 2.5,
+                    padding: 2,
                     display: "flex",
                     flexDirection: "column",
                     flexGrow: 1,
-                    gap: 1,
                 }}
             >
-                {/* MAIN TITLE */}
                 <Typography
-                    variant="h6"
+                    variant="subtitle2"
                     sx={{
                         fontWeight: 600,
                         color: "text.primary",
-                        fontSize: "1.1rem",
-                        lineHeight: 1.2,
+                        fontSize: "0.95rem",
+                        lineHeight: 1.3,
+                        mb: 1.5,
                     }}
                 >
                     {product.shape}
                 </Typography>
 
-                {/* INFO GRID */}
-                <Box sx={{ mt: 1 }}>
-                    <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
-                        <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>
-                            Dimens:
+                <Box sx={{ mb: 2 }}>
+                    <Box sx={{ display: "flex", mb: 1 }}>
+                        <Typography
+                            variant="caption"
+                            sx={{
+                                minWidth: 60,
+                                color: "text.secondary",
+                                textTransform: "uppercase",
+                                letterSpacing: 0.5,
+                            }}
+                        >
+                            SIZE
                         </Typography>
-                        <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                        <Typography
+                            variant="caption"
+                            sx={{
+                                color: "text.primary",
+                                fontWeight: 500,
+                            }}
+                        >
                             {product.dimensions}
                         </Typography>
                     </Box>
 
                     {product.name_bond && (
-                        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
-                            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>
-                                Bond:
+                        <Box sx={{ display: "flex", mb: 1 }}>
+                            <Typography
+                                variant="caption"
+                                sx={{
+                                    minWidth: 60,
+                                    color: "text.secondary",
+                                    textTransform: "uppercase",
+                                    letterSpacing: 0.5,
+                                }}
+                            >
+                                BOND
                             </Typography>
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                            <Typography
+                                variant="caption"
+                                sx={{
+                                    color: "text.primary",
+                                    fontWeight: 500,
+                                }}
+                            >
                                 {product.name_bond}
                             </Typography>
                         </Box>
                     )}
 
                     {product.grid_size && (
-                        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                            <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 500 }}>
-                                Grid:
+                        <Box sx={{ display: "flex" }}>
+                            <Typography
+                                variant="caption"
+                                sx={{
+                                    minWidth: 60,
+                                    color: "text.secondary",
+                                    textTransform: "uppercase",
+                                    letterSpacing: 0.5,
+                                }}
+                            >
+                                GRID
                             </Typography>
-                            <Typography variant="body2" sx={{ fontWeight: 500 }}>
+                            <Typography
+                                variant="caption"
+                                sx={{
+                                    color: "text.primary",
+                                    fontWeight: 500,
+                                }}
+                            >
                                 {product.grid_size}
                             </Typography>
                         </Box>
                     )}
                 </Box>
 
-                {/* ACTION BUTTON */}
-                <Box sx={{ mt: "auto", pt: 2 }}>
+                <Box sx={{ mt: "auto" }}>
                     <Button
-                        fullWidth
-                        variant={isCartView ? "contained" : product.is_in_cart ? "outlined" : "contained"}
+                        variant="contained"
                         color={isCartView ? "error" : product.is_in_cart ? "success" : "primary"}
                         onClick={(e) => {
                             e.stopPropagation();
@@ -184,25 +211,31 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                         }}
                         startIcon={
                             isCartView ? (
-                                <Delete />
+                                <Delete sx={{ fontSize: 20 }} />
                             ) : product.is_in_cart ? (
-                                <CheckBox />
+                                <Star sx={{ fontSize: 20 }} />
                             ) : (
-                                <ShoppingCart />
+                                <StarBorder sx={{ fontSize: 20 }} />
                             )
                         }
                         sx={{
-                            py: 1,
-                            fontWeight: 600,
-                            borderRadius: 1.5,
+                            borderRadius: 1,
                             textTransform: "none",
+                            fontWeight: 500,
+                            px: 1,
+                            py: 0.5,
+                            minHeight: 'auto',
+                            alignSelf: 'flex-start',
+                            "&:hover": {
+                                bgcolor: "action.hover",
+                            },
                         }}
                     >
                         {isCartView
                             ? "Remove"
                             : product.is_in_cart
-                                ? "In cart"
-                                : "Add to cart"
+                                ? "Saved"
+                                : "Save"
                         }
                     </Button>
                 </Box>
