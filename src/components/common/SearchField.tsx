@@ -1,7 +1,6 @@
 import React, {memo, useCallback, useEffect, useState} from 'react';
-import {Autocomplete, CircularProgress, IconButton, InputAdornment, TextField,} from '@mui/material';
+import {Autocomplete, CircularProgress, InputAdornment, TextField,} from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import ClearIcon from '@mui/icons-material/Clear';
 import debounce from 'lodash.debounce';
 import {autoCompleteApi} from "@/features/autocomplete/api";
 
@@ -62,18 +61,25 @@ const AutocompleteSearchField: React.FC<AutocompleteSearchFieldProps> = memo(
         }, [fetchOptionsDebounced]);
 
         const handleInputChange = useCallback(
-            (_: React.SyntheticEvent, newInputValue: string) => {
+            (_: React.SyntheticEvent, newInputValue: string, reason: string) => {
                 onChange(type, newInputValue);
-                void fetchOptionsDebounced(newInputValue);
+
+                if (reason === 'input') void fetchOptionsDebounced(newInputValue);
+                else if (reason === 'clear') {
+                    setOptions([]);
+                    fetchOptionsDebounced.cancel()
+                }
             },
             [onChange, type, fetchOptionsDebounced]
         );
 
         const handleSelectChange = useCallback(
             (_: React.SyntheticEvent, newValue: string | null) => {
-                onChange(type, newValue || "");
+                onChange(type, newValue || '');
+                setOptions([]);
+                fetchOptionsDebounced.cancel();
             },
-            [onChange, type]
+            [onChange, type, fetchOptionsDebounced]
         );
 
         const inputPropsSx = isMobile ? {

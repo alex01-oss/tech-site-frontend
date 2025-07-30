@@ -104,219 +104,156 @@ const Search: React.FC<Props> = memo(({onSearch, currentSearchFields, currentFil
         if (e.key === 'Enter') handleSearch()
     }, [handleSearch]);
 
-    return (
-        <Box sx={{width: '100%', maxWidth: '100%', mx: 'auto', mb: 2}}>
-            {isMobile ? (
-                <Box
-                    sx={{
-                        display: 'flex',
-                        gap: 3,
-                        width: '100%',
-                        flexDirection: 'row',
-                        p: 0,
-                    }}
-                >
-                    <Button
-                        variant="contained"
-                        fullWidth
-                        onClick={() => setOpenSearchDrawer(true)}
-                        startIcon={<SearchIcon/>}
-                        sx={{
-                            borderRadius: 1,
-                            height: '48px',
-                            minHeight: '48px',
-                            boxShadow: 'none',
-                            fontWeight: 'bold',
-                            color: 'white',
-                        }}
-                    >
-                        Search
-                    </Button>
+    const drawerStyles = {
+        PaperProps: {
+            sx: {
+                borderRadius: { xs: '0 0 16px 16px', sm: '0 0 8px 8px' },
+                overflow: 'hidden',
+            },
+        },
+    };
 
+    const buttonStyle = {
+        borderRadius: 1,
+        height: 48,
+        fontWeight: 'bold',
+    };
+
+    const renderSearchFields = () => FIXED_SEARCH_FIELDS_CONFIG.map((f, i) => (
+        <React.Fragment key={f.type}>
+            <AutocompleteSearchField
+                {...f}
+                value={fields[f.type]}
+                onChange={handleChange}
+                onKeyPress={handleKeyPress}
+                isMobile={isMobile}
+            />
+            {!isMobile && i < FIXED_SEARCH_FIELDS_CONFIG.length - 1 && (
+                <Divider orientation="vertical" flexItem sx={{ my: 1, borderColor: 'grey.300' }} />
+            )}
+        </React.Fragment>
+    ));
+
+    const mobileDrawer = (open: boolean, setOpen: (v: boolean) => void, content: React.ReactNode) => (
+        <Drawer anchor="bottom" open={open} onClose={() => setOpen(false)} {...drawerStyles}>
+            <Box
+                p={3}
+                sx={{
+                    width: { xs: '100vw', sm: 350 },
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 2,
+                    alignItems: 'stretch',
+                    maxHeight: '80vh',
+                    overflowY: 'auto',
+                }}
+            >
+                {content}
+            </Box>
+        </Drawer>
+    );
+
+    const content = isMobile ? (
+        <Box sx={{ display: 'flex', gap: 3 }}>
+            <Button
+                variant="contained"
+                fullWidth
+                onClick={() => setOpenSearchDrawer(true)}
+                startIcon={<SearchIcon />}
+                sx={{ ...buttonStyle, boxShadow: 'none', color: 'white' }}
+            >
+                Search
+            </Button>
+
+            <Button
+                variant="outlined"
+                fullWidth
+                onClick={() => setOpenFiltersDrawer(true)}
+                startIcon={<TuneIcon />}
+                sx={{
+                    ...buttonStyle,
+                    borderColor: 'grey.300',
+                    color: 'text.primary',
+                    '&:hover': {
+                        backgroundColor: 'grey.100',
+                        borderColor: 'grey.400',
+                    },
+                }}
+            >
+                Filters
+            </Button>
+
+            {mobileDrawer(openSearchDrawer, setOpenSearchDrawer, (
+                <>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                        <Typography variant="h6">Search Parameters</Typography>
+                        <IconButton onClick={() => setOpenSearchDrawer(false)}>
+                            <CloseIcon />
+                        </IconButton>
+                    </Box>
+                    {renderSearchFields()}
+                    <Button variant="contained" fullWidth onClick={handleSearch} startIcon={<SearchIcon />} sx={{ ...buttonStyle, height: 50 }}>
+                        Apply Search
+                    </Button>
                     <Button
                         variant="outlined"
                         fullWidth
-                        onClick={() => setOpenFiltersDrawer(true)}
-                        startIcon={<TuneIcon/>}
+                        onClick={() => FIXED_SEARCH_FIELDS_CONFIG.forEach(f => handleChange(f.type, ''))}
                         sx={{
-                            borderRadius: 1,
-                            height: '48px',
-                            minHeight: '48px',
-                            fontWeight: 'bold',
+                            ...buttonStyle,
+                            height: 50,
                             borderColor: 'grey.300',
                             color: 'text.primary',
                             '&:hover': {
                                 backgroundColor: 'grey.100',
                                 borderColor: 'grey.400',
-                            }
+                            },
                         }}
                     >
-                        Filters
+                        Clear All Fields
                     </Button>
+                </>
+            ))}
 
-                    <Drawer
-                        anchor="bottom"
-                        open={openSearchDrawer}
-                        onClose={() => setOpenSearchDrawer(false)}
-                        PaperProps={{
-                            sx: {
-                                borderRadius: {xs: '0 0 16px 16px', sm: '0 0 8px 8px'},
-                                overflow: 'hidden',
-                            }
-                        }}
-                    >
-                        <Box
-                            p={3}
-                            sx={{
-                                width: {xs: '100vw', sm: 350},
-                                display: 'flex',
-                                flexDirection: 'column',
-                                gap: 2,
-                                alignItems: 'stretch',
-                                maxHeight: '80vh',
-                                overflowY: 'auto',
-                            }}
-                        >
-                            <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                                <Typography variant="h6" component="div">
-                                    Search Parameters
-                                </Typography>
-                                <IconButton onClick={() => setOpenSearchDrawer(false)} aria-label="close search">
-                                    <CloseIcon/>
-                                </IconButton>
-                            </Box>
+            {mobileDrawer(openFiltersDrawer, setOpenFiltersDrawer, (
+                <FiltersPanel
+                    filters={filters}
+                    onFilterToggle={handleFilterToggle}
+                    onClearAllFilters={handleClearAllFilters}
+                    onApplyFilters={handleSearch}
+                    onClose={() => setOpenFiltersDrawer(false)}
+                    isMobileDrawer
+                />
+            ))}
+        </Box>
+    ) : (
+        <Paper
+            elevation={0}
+            sx={{
+                display: 'flex',
+                alignItems: 'stretch',
+                p: 0.5,
+                borderRadius: 1,
+                border: '1px solid',
+                borderColor: 'grey.300',
+                overflow: 'hidden',
+            }}
+        >
+            {renderSearchFields()}
+            <Button
+                variant="contained"
+                onClick={handleSearch}
+                startIcon={<SearchIcon />}
+                sx={{ ...buttonStyle, boxShadow: 'none', px: 3 }}
+            >
+                Search
+            </Button>
+        </Paper>
+    );
 
-                            {FIXED_SEARCH_FIELDS_CONFIG.map((fieldConfig) => (
-                                <AutocompleteSearchField
-                                    key={fieldConfig.type}
-                                    type={fieldConfig.type}
-                                    label={fieldConfig.label}
-                                    minLength={fieldConfig.minLength}
-                                    value={fields[fieldConfig.type]}
-                                    onChange={handleChange}
-                                    onKeyPress={handleKeyPress}
-                                    isMobile={isMobile}
-                                />
-                            ))}
-
-                            <Button
-                                variant="contained"
-                                fullWidth
-                                onClick={handleSearch}
-                                startIcon={<SearchIcon/>}
-                                sx={{
-                                    mt: 2,
-                                    borderRadius: 1,
-                                    height: 50,
-                                    boxShadow: 'none',
-                                    fontWeight: 'bold',
-                                }}
-                            >
-                                Apply Search
-                            </Button>
-                            <Button
-                                variant="outlined"
-                                fullWidth
-                                onClick={() => {
-                                    FIXED_SEARCH_FIELDS_CONFIG.forEach(config => handleChange(config.type, ""));
-                                }}
-                                sx={{
-                                    borderRadius: 1,
-                                    height: 50,
-                                    fontWeight: 'bold',
-                                    borderColor: 'grey.300',
-                                    color: 'text.primary',
-                                    '&:hover': {
-                                        backgroundColor: 'grey.100',
-                                        borderColor: 'grey.400',
-                                    }
-                                }}
-                            >
-                                Clear All Fields
-                            </Button>
-                        </Box>
-                    </Drawer>
-
-                    <Drawer
-                        anchor="bottom"
-                        open={openFiltersDrawer}
-                        onClose={() => setOpenFiltersDrawer(false)}
-                        PaperProps={{
-                            sx: {
-                                borderRadius: {xs: '0 0 16px 16px', sm: '0 0 8px 8px'},
-                                overflow: 'hidden',
-                            }
-                        }}
-                    >
-                        <FiltersPanel
-                            filters={filters}
-                            onFilterToggle={handleFilterToggle}
-                            onClearAllFilters={handleClearAllFilters}
-                            onApplyFilters={handleSearch}
-                            onClose={() => setOpenFiltersDrawer(false)}
-                            isMobileDrawer={true}
-                        />
-                    </Drawer>
-                </Box>
-            ) : (
-                <Paper
-                    elevation={0}
-                    sx={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        alignItems: 'stretch',
-                        p: 0.5,
-                        borderRadius: 1,
-                        border: '1px solid',
-                        borderColor: 'grey.300',
-                        overflow: 'hidden',
-                        width: '100%',
-                        maxWidth: '100%',
-                    }}
-                >
-                    {FIXED_SEARCH_FIELDS_CONFIG.map((fieldConfig, index) => (
-                        <React.Fragment key={fieldConfig.type}>
-                            <AutocompleteSearchField
-                                type={fieldConfig.type}
-                                label={fieldConfig.label}
-                                minLength={fieldConfig.minLength}
-                                value={fields[fieldConfig.type]}
-                                onChange={handleChange}
-                                onKeyPress={handleKeyPress}
-                                isMobile={isMobile}
-                            />
-                            {index < FIXED_SEARCH_FIELDS_CONFIG.length - 1 && (
-                                <Divider
-                                    orientation="vertical"
-                                    flexItem
-                                    sx={{
-                                        my: 1,
-                                        borderColor: 'grey.300',
-                                    }}
-                                />
-                            )}
-                        </React.Fragment>
-                    ))}
-
-                    <Button
-                        variant="contained"
-                        onClick={handleSearch}
-                        startIcon={<SearchIcon/>}
-                        sx={{
-                            borderRadius: 1,
-                            height: '48px',
-                            minHeight: '48px',
-                            boxShadow: 'none',
-                            fontWeight: 'bold',
-                            flexShrink: 0,
-                            px: 3,
-                            alignSelf: 'stretch',
-                        }}
-                    >
-                        Search
-                    </Button>
-                </Paper>
-            )}
+    return (
+        <Box sx={{ width: '100%', maxWidth: '100%', mx: 'auto', mb: 2 }}>
+            {content}
         </Box>
     );
 });
