@@ -1,23 +1,12 @@
-import React, {memo, useCallback, useEffect, useState} from "react";
-import {
-    Box,
-    Button,
-    Divider,
-    Drawer,
-    IconButton,
-    InputAdornment,
-    Paper,
-    TextField,
-    Typography,
-    useMediaQuery,
-    useTheme,
-} from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
-import ClearIcon from "@mui/icons-material/Clear";
-import TuneIcon from "@mui/icons-material/Tune";
-import CloseIcon from "@mui/icons-material/Close";
+import React, {memo, useCallback, useEffect, useState} from 'react';
+import {Box, Button, Divider, Drawer, IconButton, Paper, Typography, useMediaQuery, useTheme,} from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import TuneIcon from '@mui/icons-material/Tune';
+import CloseIcon from '@mui/icons-material/Close';
 import {useMenuStore} from "@/features/menu/store";
+import AutocompleteSearchField from "@/components/common/SearchField";
 import FiltersPanel from "@/components/layout/FiltersPanel";
+
 
 interface Props {
     onSearch: (
@@ -30,22 +19,18 @@ interface Props {
 
 type SearchFieldKey = "code" | "shape" | "dimensions" | "machine";
 
-const FIXED_SEARCH_FIELDS_CONFIG: { type: SearchFieldKey; label: string }[] = [
-    { type: "code", label: "Code" },
-    { type: "shape", label: "Shape" },
-    { type: "dimensions", label: "Dimensions" },
-    { type: "machine", label: "Machine" },
+const FIXED_SEARCH_FIELDS_CONFIG: { type: SearchFieldKey; label: string; minLength: number }[] = [
+    {type: "code", label: "Code", minLength: 1},
+    {type: "shape", label: "Shape", minLength: 1},
+    {type: "dimensions", label: "Dimensions", minLength: 1},
+    {type: "machine", label: "Machine", minLength: 1},
 ];
 
-const getPlaceholderText = (label: string): string => {
-    return `Enter ${label}...`;
-};
-
-const Search: React.FC<Props> = memo(({ onSearch, currentSearchFields, currentFilters }) => {
+const Search: React.FC<Props> = memo(({onSearch, currentSearchFields, currentFilters}) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-    const { fetchMenu } = useMenuStore();
+    const {fetchMenu} = useMenuStore();
 
     const [openSearchDrawer, setOpenSearchDrawer] = useState(false);
     const [openFiltersDrawer, setOpenFiltersDrawer] = useState(false);
@@ -82,7 +67,7 @@ const Search: React.FC<Props> = memo(({ onSearch, currentSearchFields, currentFi
 
 
     const handleChange = useCallback((key: keyof typeof fields, value: string) => {
-        setFields((prev) => ({ ...prev, [key]: value }));
+        setFields((prev) => ({...prev, [key]: value}));
     }, []);
 
     const handleFilterToggle = useCallback((categoryTitle: string, itemValue: string, checked: boolean) => {
@@ -90,14 +75,11 @@ const Search: React.FC<Props> = memo(({ onSearch, currentSearchFields, currentFi
             const currentCategoryFilters = prevFilters[categoryTitle] || new Set();
             const newCategoryFilters = new Set(currentCategoryFilters);
 
-            if (checked) {
-                newCategoryFilters.add(itemValue);
-            } else {
-                newCategoryFilters.delete(itemValue);
-            }
+            if (checked) newCategoryFilters.add(itemValue)
+            else newCategoryFilters.delete(itemValue)
 
             if (newCategoryFilters.size === 0) {
-                const { [categoryTitle]: _, ...rest } = prevFilters;
+                const {[categoryTitle]: _, ...rest} = prevFilters;
                 return rest;
             }
 
@@ -119,13 +101,11 @@ const Search: React.FC<Props> = memo(({ onSearch, currentSearchFields, currentFi
     }, [fields, filters, onSearch]);
 
     const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
-        if (e.key === 'Enter') {
-            handleSearch();
-        }
+        if (e.key === 'Enter') handleSearch()
     }, [handleSearch]);
 
     return (
-        <Box sx={{ width: '100%', maxWidth: '100%', mx: 'auto', mb: 2 }}>
+        <Box sx={{width: '100%', maxWidth: '100%', mx: 'auto', mb: 2}}>
             {isMobile ? (
                 <Box
                     sx={{
@@ -140,7 +120,7 @@ const Search: React.FC<Props> = memo(({ onSearch, currentSearchFields, currentFi
                         variant="contained"
                         fullWidth
                         onClick={() => setOpenSearchDrawer(true)}
-                        startIcon={<SearchIcon />}
+                        startIcon={<SearchIcon/>}
                         sx={{
                             borderRadius: 1,
                             height: '48px',
@@ -157,7 +137,7 @@ const Search: React.FC<Props> = memo(({ onSearch, currentSearchFields, currentFi
                         variant="outlined"
                         fullWidth
                         onClick={() => setOpenFiltersDrawer(true)}
-                        startIcon={<TuneIcon />}
+                        startIcon={<TuneIcon/>}
                         sx={{
                             borderRadius: 1,
                             height: '48px',
@@ -180,7 +160,7 @@ const Search: React.FC<Props> = memo(({ onSearch, currentSearchFields, currentFi
                         onClose={() => setOpenSearchDrawer(false)}
                         PaperProps={{
                             sx: {
-                                borderRadius: { xs: '0 0 16px 16px', sm: '0 0 8px 8px' },
+                                borderRadius: {xs: '0 0 16px 16px', sm: '0 0 8px 8px'},
                                 overflow: 'hidden',
                             }
                         }}
@@ -188,7 +168,7 @@ const Search: React.FC<Props> = memo(({ onSearch, currentSearchFields, currentFi
                         <Box
                             p={3}
                             sx={{
-                                width: { xs: '100vw', sm: 350 },
+                                width: {xs: '100vw', sm: 350},
                                 display: 'flex',
                                 flexDirection: 'column',
                                 gap: 2,
@@ -202,55 +182,20 @@ const Search: React.FC<Props> = memo(({ onSearch, currentSearchFields, currentFi
                                     Search Parameters
                                 </Typography>
                                 <IconButton onClick={() => setOpenSearchDrawer(false)} aria-label="close search">
-                                    <CloseIcon />
+                                    <CloseIcon/>
                                 </IconButton>
                             </Box>
 
                             {FIXED_SEARCH_FIELDS_CONFIG.map((fieldConfig) => (
-                                <TextField
+                                <AutocompleteSearchField
                                     key={fieldConfig.type}
-                                    variant="outlined"
-                                    placeholder={getPlaceholderText(fieldConfig.label)}
+                                    type={fieldConfig.type}
+                                    label={fieldConfig.label}
+                                    minLength={fieldConfig.minLength}
                                     value={fields[fieldConfig.type]}
-                                    onChange={(e) => handleChange(fieldConfig.type, e.target.value)}
+                                    onChange={handleChange}
                                     onKeyPress={handleKeyPress}
-                                    fullWidth
-                                    InputProps={{
-                                        startAdornment: (
-                                            <InputAdornment position="start">
-                                                <SearchIcon color="action" />
-                                            </InputAdornment>
-                                        ),
-                                        endAdornment: fields[fieldConfig.type] && (
-                                            <InputAdornment position="end">
-                                                <IconButton
-                                                    onClick={() => handleChange(fieldConfig.type, "")}
-                                                    size="small"
-                                                    aria-label={`Clear ${fieldConfig.label}`}
-                                                >
-                                                    <ClearIcon fontSize="small" />
-                                                </IconButton>
-                                            </InputAdornment>
-                                        ),
-                                        sx: {
-                                            borderRadius: 1,
-                                            height: 50,
-                                            backgroundColor: 'transparent',
-                                            '& fieldset': {
-                                                borderColor: 'grey.300',
-                                            },
-                                            '&:hover fieldset': {
-                                                borderColor: 'grey.400',
-                                            },
-                                            '&.Mui-focused fieldset': {
-                                                borderColor: 'primary.main',
-                                            },
-                                        }
-                                    }}
-                                    sx={{
-                                        '& .MuiOutlinedInput-root': { borderRadius: 1 },
-                                        mb: 0
-                                    }}
+                                    isMobile={isMobile}
                                 />
                             ))}
 
@@ -258,7 +203,7 @@ const Search: React.FC<Props> = memo(({ onSearch, currentSearchFields, currentFi
                                 variant="contained"
                                 fullWidth
                                 onClick={handleSearch}
-                                startIcon={<SearchIcon />}
+                                startIcon={<SearchIcon/>}
                                 sx={{
                                     mt: 2,
                                     borderRadius: 1,
@@ -298,7 +243,7 @@ const Search: React.FC<Props> = memo(({ onSearch, currentSearchFields, currentFi
                         onClose={() => setOpenFiltersDrawer(false)}
                         PaperProps={{
                             sx: {
-                                borderRadius: { xs: '0 0 16px 16px', sm: '0 0 8px 8px' },
+                                borderRadius: {xs: '0 0 16px 16px', sm: '0 0 8px 8px'},
                                 overflow: 'hidden',
                             }
                         }}
@@ -331,46 +276,14 @@ const Search: React.FC<Props> = memo(({ onSearch, currentSearchFields, currentFi
                 >
                     {FIXED_SEARCH_FIELDS_CONFIG.map((fieldConfig, index) => (
                         <React.Fragment key={fieldConfig.type}>
-                            <TextField
-                                variant="outlined"
-                                placeholder={getPlaceholderText(fieldConfig.label)}
+                            <AutocompleteSearchField
+                                type={fieldConfig.type}
+                                label={fieldConfig.label}
+                                minLength={fieldConfig.minLength}
                                 value={fields[fieldConfig.type]}
-                                onChange={(e) => handleChange(fieldConfig.type, e.target.value)}
+                                onChange={handleChange}
                                 onKeyPress={handleKeyPress}
-                                size="small"
-                                sx={{
-                                    flexGrow: 1,
-                                    minWidth: 120,
-                                    '& .MuiOutlinedInput-root': {
-                                        height: '48px',
-                                        borderRadius: 0,
-                                        backgroundColor: 'transparent',
-                                        '& fieldset': { border: 'none' },
-                                    },
-                                    '& .MuiInputBase-input': {
-                                        py: 1.25,
-                                        px: 1.5,
-                                    },
-                                }}
-                                InputProps={{
-                                    sx: {
-                                        height: '100%',
-                                        borderRadius: 0,
-                                        pr: 0.5,
-                                    },
-                                    endAdornment: fields[fieldConfig.type] && (
-                                        <InputAdornment position="end" sx={{ mr: 1 }}>
-                                            <IconButton
-                                                size="small"
-                                                onClick={() => handleChange(fieldConfig.type, "")}
-                                                aria-label={`Clear ${fieldConfig.label}`}
-                                                sx={{ p: '4px' }}
-                                            >
-                                                <ClearIcon fontSize="small" />
-                                            </IconButton>
-                                        </InputAdornment>
-                                    ),
-                                }}
+                                isMobile={isMobile}
                             />
                             {index < FIXED_SEARCH_FIELDS_CONFIG.length - 1 && (
                                 <Divider
@@ -388,7 +301,7 @@ const Search: React.FC<Props> = memo(({ onSearch, currentSearchFields, currentFi
                     <Button
                         variant="contained"
                         onClick={handleSearch}
-                        startIcon={<SearchIcon />}
+                        startIcon={<SearchIcon/>}
                         sx={{
                             borderRadius: 1,
                             height: '48px',

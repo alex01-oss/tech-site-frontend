@@ -1,6 +1,6 @@
 "use client"
 
-import {Box, Button, Chip, Typography, useTheme} from "@mui/material";
+import {Box, Button, Chip, Tooltip, Typography, useTheme} from "@mui/material";
 import {Delete, Star, StarBorder} from "@mui/icons-material";
 import React, {memo} from "react";
 import {CatalogItem} from "@/features/catalog/types";
@@ -65,11 +65,11 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                     variant="outlined"
                     label={product.code}
                     size="small"
-                    sx={(theme) => ({
+                    sx={{
                         borderRadius: 1,
                         fontWeight: 600,
                         fontSize: "0.75rem",
-                    })}
+                    }}
                 />
 
                 {product.is_in_cart && (
@@ -139,15 +139,24 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                         >
                             SIZE
                         </Typography>
-                        <Typography
-                            variant="caption"
-                            sx={{
-                                color: "text.primary",
-                                fontWeight: 500,
-                            }}
+                        <Tooltip
+                            title={product.dimensions}
+                            placement="top"
                         >
-                            {product.dimensions}
-                        </Typography>
+                            <Typography
+                                variant="caption"
+                                sx={{
+                                    color: "text.primary",
+                                    fontWeight: 500,
+                                    whiteSpace: "nowrap",
+                                    overflow: "hidden",
+                                    textOverflow: "ellipsis",
+                                    flexGrow: 1,
+                                }}
+                            >
+                                {product.dimensions}
+                            </Typography>
+                        </Tooltip>
                     </Box>
 
                     {product.name_bond && (
