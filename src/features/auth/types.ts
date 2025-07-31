@@ -17,18 +17,10 @@ export interface AuthResponse {
     refresh_token: string;
 }
 
-export interface RefreshRequest {
-    refresh_token: string;
-}
-
 export interface RefreshResponse {
     access_token: string;
     refresh_token: string;
     token_type: string;
-}
-
-export interface LogoutRequest {
-    refresh_token: string;
 }
 
 export interface User {

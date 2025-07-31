@@ -1,11 +1,4 @@
-import {
-    AuthResponse,
-    LoginRequest,
-    LogoutRequest,
-    RefreshRequest,
-    RefreshResponse,
-    RegisterRequest
-} from "@/features/auth/types";
+import {AuthResponse, LoginRequest, RefreshResponse, RegisterRequest} from "@/features/auth/types";
 import api from "@/shared/lib/api";
 
 export const authApi = {
@@ -19,12 +12,12 @@ export const authApi = {
         return res.data;
     },
 
-    refresh: async (data: RefreshRequest): Promise<RefreshResponse> => {
-        const res = await api.post("auth/refresh", data);
+    refresh: async (): Promise<RefreshResponse> => {
+        const res = await api.post("auth/refresh");
         return res.data;
     },
 
-    logout: async (data: LogoutRequest): Promise<void> => {
-        await api.post("auth/logout", data);
+    logout: async (): Promise<void> => {
+        await api.post("auth/logout");
     }
 };

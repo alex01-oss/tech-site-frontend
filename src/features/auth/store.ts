@@ -7,8 +7,6 @@ import {useCartStore} from "@/features/cart/store";
 
 interface AuthState {
     user: User | null;
-    accessToken: string | null;
-    refreshToken: string | null;
     isAuthenticated: boolean;
     initializing: boolean;
     loading: boolean;
@@ -27,8 +25,6 @@ export const useAuthStore = create<AuthState>()(
     persist(
         (set, get) => ({
             user: null,
-            accessToken: null,
-            refreshToken: null,
             isAuthenticated: false,
             initializing: true,
             loading: false,
@@ -36,17 +32,7 @@ export const useAuthStore = create<AuthState>()(
 
             initialize: async () => {
                 try {
-                    set({ initializing: true, error: null });
-
-                    const { accessToken, refreshToken } = get();
-
-                    if (!accessToken && !refreshToken) {
-                        set({
-                            isAuthenticated: false,
-                            initializing: false
-                        });
-                        return;
-                    }
+                    set({initializing: true, error: null});
 
                     try {
                         const user: User = await usersApi.getUser();
@@ -57,7 +43,8 @@ export const useAuthStore = create<AuthState>()(
                             initializing: false
                         });
                     } catch (error: any) {
-                        if (error.response?.status === 401 && refreshToken) {
+                        console.warn("User fetch failed during initialization, attempting refresh:", error);
+                        if (error.response?.status === 401) {
                             const refreshSuccess = await get().refresh();
 
                             if (refreshSuccess) {
@@ -68,45 +55,36 @@ export const useAuthStore = create<AuthState>()(
                                         isAuthenticated: true,
                                         initializing: false
                                     });
-                                } catch {
+                                } catch (retryError) {
+                                    console.error("Failed to fetch user after refresh retry:", retryError);
                                     get().clearAuth();
-                                    set({ initializing: false });
+                                    set({initializing: false});
                                 }
                             } else {
+                                console.warn("Refresh failed, clearing auth.");
                                 get().clearAuth();
-                                set({ initializing: false });
+                                set({initializing: false});
                             }
                         } else {
+                            console.error("Non-401 error during user fetch initialization:", error);
                             get().clearAuth();
-                            set({ initializing: false });
+                            set({initializing: false});
                         }
                     }
                 } catch (error) {
                     console.error("Auth initialization failed:", error);
                     get().clearAuth();
-                    set({ initializing: false });
+                    set({initializing: false});
                 }
             },
 
             login: async (data: LoginRequest) => {
                 try {
-                    set({ loading: true, error: null });
+                    set({loading: true, error: null});
+                    await authApi.login(data);
+                    set({isAuthenticated: true});
 
-                    const response = await authApi.login(data);
-
-                    set({
-                        accessToken: response.access_token,
-                        refreshToken: response.refresh_token,
-                        isAuthenticated: true,
-                    });
-
-                    try {
-                        const user: User = await usersApi.getUser();
-                        set({ user });
-                    } catch (error) {
-                        console.warn("Failed to fetch user after login:", error);
-                    }
-
+                    await get().initialize();
                     return true;
                 } catch (error: any) {
                     console.error("Login failed:", error);
@@ -115,29 +93,17 @@ export const useAuthStore = create<AuthState>()(
                     });
                     return false;
                 } finally {
-                    set({ loading: false });
+                    set({loading: false});
                 }
             },
 
             register: async (data: RegisterRequest) => {
                 try {
-                    set({ loading: true, error: null });
+                    set({loading: true, error: null});
+                    await authApi.register(data);
+                    set({isAuthenticated: true});
 
-                    const response = await authApi.register(data);
-
-                    set({
-                        accessToken: response.access_token,
-                        refreshToken: response.refresh_token,
-                        isAuthenticated: true,
-                    });
-
-                    try {
-                        const user: User = await usersApi.getUser();
-                        set({ user });
-                    } catch (error) {
-                        console.warn("Failed to fetch user after registration:", error);
-                    }
-
+                    await get().initialize();
                     return true;
                 } catch (error: any) {
                     console.error("Registration failed:", error);
@@ -146,41 +112,25 @@ export const useAuthStore = create<AuthState>()(
                     });
                     return false;
                 } finally {
-                    set({ loading: false });
+                    set({loading: false});
                 }
             },
 
             refresh: async () => {
                 try {
-                    const { refreshToken } = get();
-
-                    if (!refreshToken) {
-                        console.warn("No refresh token available");
-                        return false;
-                    }
-
-                    const response = await authApi.refresh({ refresh_token: refreshToken });
-
-                    set({
-                        accessToken: response.access_token,
-                        refreshToken: response.refresh_token,
-                        isAuthenticated: true,
-                    });
-
+                    await authApi.refresh();
+                    set({isAuthenticated: true});
                     return true;
                 } catch (error: any) {
                     console.error("Token refresh failed:", error);
+                    get().clearAuth();
                     return false;
                 }
             },
 
             logout: async () => {
                 try {
-                    const { refreshToken } = get();
-
-                    if (refreshToken) {
-                        await authApi.logout({ refresh_token: refreshToken });
-                    }
+                    await authApi.logout();
                 } catch (error) {
                     console.warn("Logout request failed:", error);
                 } finally {
@@ -188,25 +138,20 @@ export const useAuthStore = create<AuthState>()(
                     useCartStore.getState().clearCart();
                 }
             },
+
             clearAuth: () => {
                 set({
                     user: null,
-                    accessToken: null,
-                    refreshToken: null,
                     isAuthenticated: false,
                     error: null,
                 });
             },
+
             clearError: () => {
-                set({ error: null });
+                set({error: null});
             },
+
         }),
-        {
-            name: "auth-store",
-            partialize: (state): Partial<AuthState> => ({
-                accessToken: state.accessToken,
-                refreshToken: state.refreshToken,
-            }),
-        }
+        {name: "auth-store"}
     )
 );

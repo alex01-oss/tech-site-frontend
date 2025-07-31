@@ -3,18 +3,9 @@ import {useAuthStore} from "@/features/auth/store";
 
 const api = axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
-    // withCredentials: true,
+    withCredentials: true,
     timeout: 10000,
 });
-
-api.interceptors.request.use(
-    (config) => {
-        const token = useAuthStore.getState().accessToken;
-        if (token) config.headers.Authorization = `Bearer ${token}`;
-        return config;
-    },
-    (error) => Promise.reject(error)
-);
 
 let isRefreshing = false;
 let failedQueue: Array<{
@@ -58,16 +49,11 @@ api.interceptors.response.use(
                 const refreshSuccess = await useAuthStore.getState().refresh();
 
                 if (refreshSuccess) {
-                    const newToken = useAuthStore.getState().accessToken;
-                    processQueue(null, newToken);
-
-                    if (newToken) {
-                        originalRequest.headers.Authorization = `Bearer ${newToken}`;
-                        return api(originalRequest);
-                    }
+                    processQueue(null, null);
+                    return api(originalRequest);
+                } else {
+                    throw new Error("Refresh failed: Token invalid or expired.");
                 }
-
-                throw new Error("Refresh failed");
             } catch (refreshError) {
                 processQueue(refreshError);
                 useAuthStore.getState().clearAuth();
@@ -77,7 +63,6 @@ api.interceptors.response.use(
                 isRefreshing = false;
             }
         }
-
         return Promise.reject(error);
     }
 );
