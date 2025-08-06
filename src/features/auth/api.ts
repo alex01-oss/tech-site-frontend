@@ -19,5 +19,9 @@ export const authApi = {
 
     logout: async (): Promise<void> => {
         await api.post("auth/logout");
-    }
+    },
+
+    logoutAllDevices: async (): Promise<void> => {
+        await api.post("auth/logout-all");
+    },
 };

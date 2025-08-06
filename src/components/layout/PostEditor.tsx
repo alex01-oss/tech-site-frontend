@@ -13,7 +13,8 @@ import {
     IconButton,
     TextField,
     Toolbar,
-    Typography
+    Typography,
+    useTheme
 } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
@@ -21,7 +22,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import {blogApi} from "@/features/blog/api";
 import {mediaApi} from '@/features/media/api';
 import {PostRequest} from "@/features/blog/types";
-import {revalidateBlogPosts} from "@/app/actions/actions";
+import {revalidateBlogPosts} from "@/actions/actions";
 import {Editor as TinyMCEEditor} from "tinymce";
 import {Editor} from "@tinymce/tinymce-react";
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
@@ -48,6 +49,9 @@ const PostEditor: React.FC<PostEditorProps> = ({ mode, postId }) => {
     const router = useNavigatingRouter();
     const { enqueueSnackbar } = useSnackbar();
 
+    const theme = useTheme();
+    const isDarkMode = theme.palette.mode === 'dark';
+
     const [formState, setFormState] = useState<PostEditorFormState>({
         title: '',
         content: '',
@@ -66,6 +70,12 @@ const PostEditor: React.FC<PostEditorProps> = ({ mode, postId }) => {
         : `${BASE_API_URL}/${formState.imageUrl}`;
 
     const editorRef = React.useRef<TinyMCEEditor | null>(null)
+
+    const [editorKey, setEditorKey] = useState(0);
+
+    useEffect(() => {
+        setEditorKey(prevKey => prevKey + 1);
+    }, [isDarkMode]);
 
     useEffect(() => {
         if (mode === 'edit' && postId) {
@@ -186,7 +196,7 @@ const PostEditor: React.FC<PostEditorProps> = ({ mode, postId }) => {
     }
 
     return (
-        <Box sx={{ flexGrow: 1, pt: { xs: 8, md: 10 } }}>
+        <Box sx={{ flexGrow: 1, pt: 1 }}>
             <Toolbar />
             <Container maxWidth="md" sx={{ mt: 2, pb: 4 }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
@@ -250,6 +260,7 @@ const PostEditor: React.FC<PostEditorProps> = ({ mode, postId }) => {
                         <CardContent>
                             <Typography variant="h6" gutterBottom>Content Editor</Typography>
                             <Editor
+                                key={editorKey}
                                 onInit={(_, editor) => editorRef.current = editor}
                                 value={formState.content || ''}
                                 onEditorChange={(newValue) => {
@@ -269,7 +280,16 @@ const PostEditor: React.FC<PostEditorProps> = ({ mode, postId }) => {
                                         'bold italic forecolor | alignleft aligncenter ' +
                                         'alignright alignjustify | bullist numlist outdent indent | ' +
                                         'removeformat | help',
-                                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+                                    skin: isDarkMode ? 'oxide-dark' : 'oxide',
+                                    content_style: isDarkMode
+                                        ? `
+                                            body { font-family: Helvetica,Arial,sans-serif; font-size: 14px; background-color: #1e1e1e; color: #ffffff; }
+                                            h1, h2, h3, h4, h5, h6, p, a { color: #ffffff; }
+                                        `
+                                                        : `
+                                            body { font-family: Helvetica,Arial,sans-serif; font-size: 14px; background-color: #ffffff; color: #000000; }
+                                            h1, h2, h3, h4, h5, h6, p, a { color: #000000; }
+                                        `,
                                 }}
                             />
                         </CardContent>
@@ -281,7 +301,7 @@ const PostEditor: React.FC<PostEditorProps> = ({ mode, postId }) => {
                         onClick={handleSavePost}
                         disabled={isSaving}
                         fullWidth
-                        sx={{ mt: 2 }}
+                        sx={{ mt: 1 }}
                         startIcon={<SaveIcon />}
                     >
                         {isSaving ? <CircularProgress size={24} /> : (isNewPost ? 'Create Post' : 'Update Post')}

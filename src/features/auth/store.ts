@@ -1,8 +1,8 @@
-import {authApi} from "@/features/auth/api";
-import {LoginRequest, RegisterRequest, User} from "@/features/auth/types";
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import {LoginRequest, RegisterRequest, UpdateUserRequest, User} from './types';
 import {usersApi} from "@/features/users/api";
-import {persist} from "zustand/middleware";
-import {create} from "zustand";
+import {authApi} from "@/features/auth/api";
 import {useCartStore} from "@/features/cart/store";
 
 interface AuthState {
@@ -19,6 +19,9 @@ interface AuthState {
     refresh: () => Promise<boolean>;
     clearAuth: () => void;
     clearError: () => void;
+    updateUser: (data: UpdateUserRequest) => Promise<boolean>;
+    deleteUser: () => Promise<boolean>;
+    logoutAll: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -31,59 +34,53 @@ export const useAuthStore = create<AuthState>()(
             error: null,
 
             initialize: async () => {
+                set({ initializing: true, error: null });
+
                 try {
-                    set({initializing: true, error: null});
+                    const user = await usersApi.getUser();
+                    set({
+                        user,
+                        isAuthenticated: true,
+                        initializing: false,
+                        error: null,
+                    });
+                    await useCartStore.getState().fetchCartCount();
+                } catch (error: any) {
+                    console.warn("User fetch failed during initialization, attempting to refresh token.", error);
 
-                    try {
-                        const user: User = await usersApi.getUser();
-                        console.log("user", user);
-                        set({
-                            user,
-                            isAuthenticated: true,
-                            initializing: false
-                        });
-                    } catch (error: any) {
-                        console.warn("User fetch failed during initialization, attempting refresh:", error);
-                        if (error.response?.status === 401) {
+                    if (error.response?.status === 401) {
+                        try {
                             const refreshSuccess = await get().refresh();
-
                             if (refreshSuccess) {
-                                try {
-                                    const user: User = await usersApi.getUser();
-                                    set({
-                                        user,
-                                        isAuthenticated: true,
-                                        initializing: false
-                                    });
-                                } catch (retryError) {
-                                    console.error("Failed to fetch user after refresh retry:", retryError);
-                                    get().clearAuth();
-                                    set({initializing: false});
-                                }
+                                const user = await usersApi.getUser();
+                                set({
+                                    user,
+                                    isAuthenticated: true,
+                                    initializing: false,
+                                    error: null,
+                                });
                             } else {
-                                console.warn("Refresh failed, clearing auth.");
+                                console.warn("Token refresh failed. Clearing authentication.");
                                 get().clearAuth();
-                                set({initializing: false});
+                                set({ initializing: false });
                             }
-                        } else {
-                            console.error("Non-401 error during user fetch initialization:", error);
+                        } catch (refreshError) {
+                            console.error("Failed to refresh token or fetch user after refresh:", refreshError);
                             get().clearAuth();
-                            set({initializing: false});
+                            set({ initializing: false });
                         }
+                    } else {
+                        console.error("An error occurred during authentication initialization:", error);
+                        get().clearAuth();
+                        set({ initializing: false });
                     }
-                } catch (error) {
-                    console.error("Auth initialization failed:", error);
-                    get().clearAuth();
-                    set({initializing: false});
                 }
             },
 
             login: async (data: LoginRequest) => {
                 try {
-                    set({loading: true, error: null});
+                    set({ loading: true, error: null });
                     await authApi.login(data);
-                    set({isAuthenticated: true});
-
                     await get().initialize();
                     return true;
                 } catch (error: any) {
@@ -93,16 +90,14 @@ export const useAuthStore = create<AuthState>()(
                     });
                     return false;
                 } finally {
-                    set({loading: false});
+                    set({ loading: false });
                 }
             },
 
             register: async (data: RegisterRequest) => {
                 try {
-                    set({loading: true, error: null});
+                    set({ loading: true, error: null });
                     await authApi.register(data);
-                    set({isAuthenticated: true});
-
                     await get().initialize();
                     return true;
                 } catch (error: any) {
@@ -112,19 +107,68 @@ export const useAuthStore = create<AuthState>()(
                     });
                     return false;
                 } finally {
-                    set({loading: false});
+                    set({ loading: false });
                 }
             },
 
             refresh: async () => {
                 try {
                     await authApi.refresh();
-                    set({isAuthenticated: true});
+                    set({ isAuthenticated: true });
                     return true;
                 } catch (error: any) {
                     console.error("Token refresh failed:", error);
                     get().clearAuth();
                     return false;
+                }
+            },
+
+            updateUser: async (data: UpdateUserRequest) => {
+                set({ loading: true, error: null });
+                try {
+                    const updatedUser = await usersApi.updateUser(data);
+                    set({ user: updatedUser, error: null });
+                    return true;
+                } catch (error: any) {
+                    console.error("Update user failed:", error);
+                    set({
+                        error: error.response?.data?.message || error.message || "Update user failed"
+                    });
+                    return false;
+                } finally {
+                    set({ loading: false });
+                }
+            },
+
+            deleteUser: async () => {
+                set({ loading: true, error: null });
+                try {
+                    await usersApi.deleteUser();
+                    get().clearAuth();
+                    useCartStore.getState().clearCart();
+                    return true;
+                } catch (error: any) {
+                    console.error("Delete user failed:", error);
+                    set({
+                        error: error.response?.data?.message || error.message || "Delete user failed"
+                    });
+                    return false;
+                } finally {
+                    set({ loading: false });
+                }
+            },
+
+            logoutAll: async () => {
+                set({ loading: true, error: null });
+                try {
+                    await authApi.logoutAllDevices();
+                } catch (error: any) {
+                    console.error("Delete user failed:", error);
+                    set({
+                        error: error.response?.data?.message || error.message || "Failed to log out all devices."
+                    });
+                } finally {
+                    set({ loading: false });
                 }
             },
 
@@ -148,10 +192,15 @@ export const useAuthStore = create<AuthState>()(
             },
 
             clearError: () => {
-                set({error: null});
+                set({ error: null });
             },
 
         }),
-        {name: "auth-store"}
+        {
+            name: "auth-store",
+            partialize: (state) => ({
+                isAuthenticated: state.isAuthenticated,
+            }),
+        }
     )
 );

@@ -1,13 +1,13 @@
 "use client";
 
 import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {Box, CircularProgress, Toolbar, useMediaQuery, useTheme} from "@mui/material";
+import {Box, CircularProgress, Container, Toolbar, useMediaQuery, useTheme} from "@mui/material";
 import SidebarSkeleton from "@/components/skeletons/SidebarSkeleton";
 import ProductSkeleton from "@/components/skeletons/TableSkeleton";
 import ProductsTable from "@/components/common/ProductsTable";
 import {useCatalogStore} from "@/features/catalog/store";
 import Search from "@/components/common/Search";
-import {useMenuStore} from "@/features/menu/store";
+import {useDataStore} from "@/features/data/store";
 import {useGridItemsPerPage} from "@/hooks/useGridItemsPerPage";
 import FiltersPanel from "@/components/layout/FiltersPanel";
 import ScrollToTopFab from "@/components/common/ScrollToTopFab";
@@ -33,7 +33,7 @@ function CatalogPage() {
         setItemsPerPage: setStoreItemsPerPage,
     } = useCatalogStore();
 
-    const menuLoading = useMenuStore(state => state.loading);
+    const filtersLoading = useDataStore(state => state.filtersLoading);
 
     const observer = useRef<IntersectionObserver | null>(null);
     const ref = useRef<HTMLDivElement>(null);
@@ -133,7 +133,7 @@ function CatalogPage() {
                 if (checked) newCategoryFilters.add(itemValue)
                 else newCategoryFilters.delete(itemValue)
 
-                const updatedFilters = { ...prevFilters }
+                const updatedFilters = {...prevFilters}
                 if (newCategoryFilters.size === 0) {
                     delete updatedFilters[categoryTitle];
                 } else {
@@ -190,18 +190,15 @@ function CatalogPage() {
     }, [nameBond, gridSize]);
 
     return (
-        <Box sx={{display: "flex", flexDirection: "column", minHeight: "100vh"}}>
+        <>
             <Toolbar/>
 
-            <Box sx={{
-                maxWidth: 'lg',
-                width: '100%',
-                mx: 'auto',
+            <Container maxWidth="lg" sx={{
                 flex: 1,
                 display: 'flex',
-                px: {xs: 0, lg: 2},
+                gap: 2,
             }}>
-                {menuLoading ? <SidebarSkeleton/> : !isMobile &&
+                {filtersLoading ? <SidebarSkeleton/> : !isMobile &&
                     <FiltersPanel
                         filters={localFiltersState}
                         onFilterToggle={handleDesktopFilterToggle}
@@ -225,7 +222,7 @@ function CatalogPage() {
                         minWidth: 0,
                     }}
                 >
-                    <Box sx={{p: {xs: 2, md: 3}}}>
+                    <Box sx={{px: 3, pb: 2, mt: 4}}>
                         <Search
                             onSearch={handleCombinedSearchSubmit}
                             currentSearchFields={currentSearchFieldsForSearchComponent}
@@ -265,8 +262,8 @@ function CatalogPage() {
                         <ScrollToTopFab/>
                     </Box>
                 </Box>
-            </Box>
-        </Box>
+            </Container>
+        </>
     );
 }
 

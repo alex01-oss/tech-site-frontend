@@ -23,7 +23,7 @@ export default function BlogSection({ posts, baseApiUrl }: BlogSectionProps) {
     const router = useNavigatingRouter();
 
     return (
-        <Container maxWidth="lg" sx={{ my: 6 }}>
+        <Container maxWidth="lg" sx={{ mt: 6 }}>
             <Typography variant="h3" component="h2" sx={{ mb: 4, color: 'text.primary' }}>
                 Our blog
             </Typography>

@@ -1,14 +1,15 @@
-"use client"
-
-import {Button, CssBaseline, FormControl, TextField} from "@mui/material";
-import {useState} from "react";
-import {useSnackbar} from "notistack";
-import {ErrorMessage, Field, Form, Formik} from "formik";
-import * as Yup from "yup";
-import {useAuthStore} from "@/features/auth/store";
+// components/SignIn.tsx
+'use client';
+import React, {useState} from 'react';
+import {ErrorMessage, Field, Form, Formik} from 'formik';
+import * as Yup from 'yup';
+import {Button, CssBaseline, FormControl, TextField} from '@mui/material';
+import {useSnackbar} from 'notistack';
+import {useAuthStore} from '@/features/auth/store';
+import {useNavigatingRouter} from '@/hooks/useNavigatingRouter';
+import {useAuthErrors} from '@/hooks/useAuthErrors';
+import {LoginRequest} from '@/features/auth/types';
 import AuthCardLayout, {PasswordField} from "@/components/layout/AuthCardLayout";
-import {LoginRequest} from "@/features/auth/types";
-import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 
 const SignInSchema = Yup.object().shape({
     email: Yup.string().email("Invalid email").required("Email is required"),
@@ -23,32 +24,14 @@ export default function SignIn() {
     const { enqueueSnackbar } = useSnackbar();
     const router = useNavigatingRouter();
     const { login } = useAuthStore();
-
-    const handleAuthError = (error: any) => {
-        const errorMessages = {
-            400: "Required fields are missing",
-            401: "Invalid email or password",
-            404: "User not found, please register",
-            500: "Server error. Please try again later",
-        };
-
-        const status = error.status || (error.response?.status);
-        const message =
-            errorMessages[status as keyof typeof errorMessages] ||
-            error.message ||
-            "Unexpected error";
-
-        enqueueSnackbar(message, { variant: "error" });
-    };
+    const { handleAuthError } = useAuthErrors();
 
     const handleSubmit = async (values: SignInFormValues) => {
         setLoading(true);
-
         const loginData: LoginRequest = {
             email: values.email,
             password: values.password
         }
-
         try {
             const success = await login(loginData);
             if (success) {
@@ -64,7 +47,6 @@ export default function SignIn() {
             setLoading(false);
         }
     };
-
     return (
         <>
             <CssBaseline />
@@ -91,7 +73,6 @@ export default function SignIn() {
                                     helperText={<ErrorMessage name="email" />}
                                 />
                             </FormControl>
-
                             <PasswordField
                                 name="password"
                                 label="Password"
@@ -103,7 +84,6 @@ export default function SignIn() {
                                 required
                             />
                             <ErrorMessage name="password" />
-
                             <Button
                                 type="submit"
                                 fullWidth

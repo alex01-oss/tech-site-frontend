@@ -5,6 +5,7 @@ import {Delete, Star, StarBorder} from "@mui/icons-material";
 import React, {memo} from "react";
 import {CatalogItem} from "@/features/catalog/types";
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
+import Image from "next/image";
 
 interface ProductCardProps {
     product: CatalogItem;
@@ -57,7 +58,6 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                     alignItems: "center",
                     px: 2,
                     py: 1,
-                    bgcolor: "grey.50",
                     borderBottom: `1px solid ${theme.palette.divider}`,
                 }}
             >
@@ -71,17 +71,6 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                         fontSize: "0.75rem",
                     }}
                 />
-
-                {product.is_in_cart && (
-                    <Box
-                        sx={{
-                            width: 8,
-                            height: 8,
-                            bgcolor: "success.main",
-                            borderRadius: 0,
-                        }}
-                    />
-                )}
             </Box>
 
             <Box
@@ -159,7 +148,7 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                         </Tooltip>
                     </Box>
 
-                    {product.name_bond && (
+                    {product.name_bonds && product.name_bonds.length > 0 && (
                         <Box sx={{ display: "flex", mb: 1 }}>
                             <Typography
                                 variant="caption"
@@ -179,7 +168,7 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                                     fontWeight: 500,
                                 }}
                             >
-                                {product.name_bond}
+                                {product.name_bonds.join(', ')}
                             </Typography>
                         </Box>
                     )}

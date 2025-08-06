@@ -5,7 +5,7 @@ import Paper from '@mui/material/Paper';
 
 const AboutUsSection: React.FC = () => {
     return (
-        <Container maxWidth="lg" sx={{ mt: 12, mb: 6 }}>
+        <Container maxWidth="lg">
             <Paper elevation={3} sx={{ p: 4, bgcolor: 'background.paper' }}>
                 <Typography variant="h4" component="h2" sx={{ mb: 2, color: 'primary.main', textAlign: 'center' }}>
                     About us

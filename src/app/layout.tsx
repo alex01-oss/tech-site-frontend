@@ -6,6 +6,7 @@ import ClientProviders from "@/provider/clientsProvider";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import React from "react";
+import {Box} from "@mui/material";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -66,8 +67,12 @@ export default function RootLayout({children}: Readonly<{ children: React.ReactN
         <ClientProviders>
             <ErrorBoundary>
                 <Navbar/>
-                {children}
-                <Footer/>
+                <Box>
+                    {children}
+                </Box>
+                <Box sx={{ mt: 4 }}>
+                    <Footer/>
+                </Box>
             </ErrorBoundary>
         </ClientProviders>
         </body>

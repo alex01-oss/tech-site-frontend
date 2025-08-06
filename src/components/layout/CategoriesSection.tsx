@@ -1,48 +1,76 @@
-'use client'
+"use client"
 
-import React from 'react';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import Container from '@mui/material/Container';
-import Grid from '@mui/material/Grid';
-import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
-
-const categories = [
-    'SHARPENING TOOL',
-    'AXIAL TOOL',
-    'GRINDING TOOL',
-    'CONSTRUCTION TOOL',
-];
+import React, {useEffect} from 'react';
+import {useNavigatingRouter} from '@/hooks/useNavigatingRouter';
+import {Box, CircularProgress, Container, Grid, Typography} from '@mui/material';
+import {useDataStore} from "@/features/data/store";
 
 const CategoriesSection: React.FC = () => {
     const router = useNavigatingRouter();
 
+    const { categories, categoriesLoading, categoriesError, fetchCategories } = useDataStore();
+
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:8080/api";
+
+    useEffect(() => {
+        void fetchCategories();
+    }, [fetchCategories]);
+
+    if (categoriesLoading) {
+        return (
+            <Container maxWidth="lg" sx={{ mt: 6 }}>
+                <CircularProgress />
+            </Container>
+        );
+    }
+
+    if (categoriesError) {
+        return (
+            <Container maxWidth="lg" sx={{ mt: 6 }}>
+                <Typography color="error">Failed to load categories: {categoriesError}</Typography>
+            </Container>
+        );
+    }
+
     return (
-        <Container maxWidth="lg" sx={{ my: 6 }}>
+        <Container maxWidth="lg" sx={{ mt: 6 }}>
             <Typography variant="h3" component="h2" sx={{ mb: 4, color: 'text.primary' }}>
                 Product Categories
             </Typography>
             <Grid container spacing={3} justifyContent="center">
                 {categories.map((category) => (
-                    <Grid item xs={12} sm={6} md={3} key={category}>
-                        <Button
-                            variant="outlined"
-                            onClick={() => router.push("/catalog")}
+                    <Grid
+                        item
+                        xs={12}
+                        md={6}
+                        key={category.name}
+                        onClick={() => router.push(`/catalog?category=${category.name}`)}
+                        sx={{ cursor: 'pointer' }}
+                    >
+                        <Box
                             sx={{
+                                position: 'relative',
                                 width: '100%',
-                                py: 2,
-                                borderColor: 'primary.main',
-                                color: 'primary.main',
-                                fontWeight: 'bold',
-                                '&:hover': {
-                                    bgcolor: 'primary.main',
-                                    color: 'white',
-                                    borderColor: 'primary.main',
+                                borderRadius: 1,
+                                overflow: 'hidden',
+                                '&:hover img': {
+                                    transform: 'scale(1.05)',
+                                    transition: 'transform .3s ease-in-out',
                                 },
                             }}
                         >
-                            {category}
-                        </Button>
+                            <Box
+                                component="img"
+                                src={`${apiUrl}/${category.img_url}`}
+                                alt={category.name}
+                                sx={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'cover',
+                                    transition: 'transform .3s ease-in-out',
+                                }}
+                            />
+                        </Box>
                     </Grid>
                 ))}
             </Grid>

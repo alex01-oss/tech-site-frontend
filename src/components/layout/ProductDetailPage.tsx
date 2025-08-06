@@ -22,6 +22,7 @@ import {ProductDetailData} from "@/features/catalog/types";
 import {useToggleCart} from "@/hooks/useToggleCart";
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 import {catalogApi} from "@/features/catalog/api";
+import Image from "next/image";
 
 interface ProductDetailPageProps {
     initialProductData?: ProductDetailData;
@@ -88,7 +89,7 @@ function ProductDetailPage({ initialProductData, productCode }: ProductDetailPag
         );
     }
 
-    const { item, bond, machines } = productData;
+    const { item, bonds, machines, mounting } = productData;
     const imageUrl = `${apiUrl}/${item.images}`;
     const inCart = isInCart(item.code);
 
@@ -105,7 +106,7 @@ function ProductDetailPage({ initialProductData, productCode }: ProductDetailPag
                 gap: { xs: 3, md: 5 },
             }}
         >
-            <Paper elevation={3} sx={{ borderRadius: 2, p: { xs: 2, md: 4 } }}>
+            <Paper elevation={3} sx={{ borderRadius: 1, p: { xs: 2, md: 4 } }}>
                 <Grid container spacing={{ xs: 3, md: 5 }}>
                     <Grid item xs={12} md={5}>
                         <Box
@@ -123,7 +124,7 @@ function ProductDetailPage({ initialProductData, productCode }: ProductDetailPag
                                     height: isMobile ? 200 : 300,
                                     maxHeight: 300,
                                     bgcolor: theme.palette.grey[100],
-                                    borderRadius: 2,
+                                    borderRadius: 1,
                                     display: 'flex',
                                     justifyContent: 'center',
                                     alignItems: 'center',
@@ -131,7 +132,7 @@ function ProductDetailPage({ initialProductData, productCode }: ProductDetailPag
                                     border: `1px solid ${theme.palette.divider}`,
                                 }}
                             >
-                                <img
+                                <Image
                                     src={imageUrl}
                                     alt={`${item.shape} ${item.code}`}
                                     style={{
@@ -163,7 +164,7 @@ function ProductDetailPage({ initialProductData, productCode }: ProductDetailPag
                                 sx={{
                                     py: 1.5,
                                     fontWeight: 600,
-                                    borderRadius: 2,
+                                    borderRadius: 1,
                                     textTransform: "none",
                                 }}
                             >
@@ -203,6 +204,7 @@ function ProductDetailPage({ initialProductData, productCode }: ProductDetailPag
                                     px: 1.5,
                                     height: 'auto',
                                     alignSelf: 'flex-start',
+                                    borderRadius: 1
                                 })}
                             />
 
@@ -220,7 +222,7 @@ function ProductDetailPage({ initialProductData, productCode }: ProductDetailPag
                                     </Grid>
                                     <Grid item xs={12}>
                                         <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                                            Bond: {item.name_bond}
+                                            Bond: {item.name_bonds}
                                         </Typography>
                                     </Grid>
                                     <Grid item xs={12}>
@@ -228,6 +230,15 @@ function ProductDetailPage({ initialProductData, productCode }: ProductDetailPag
                                             Grid Size: {item.grid_size}
                                         </Typography>
                                     </Grid>
+                                    {mounting && (
+                                        <Grid item xs={12}>
+                                            <Typography variant="body1" sx={{ fontWeight: 500 }}>
+
+                                                {/*localize*/}
+                                                Mounting: {mounting.mm} mm ({mounting.inch} inch)
+                                            </Typography>
+                                        </Grid>
+                                    )}
                                 </Grid>
                             </Box>
                         </Box>
@@ -235,25 +246,32 @@ function ProductDetailPage({ initialProductData, productCode }: ProductDetailPag
                 </Grid>
             </Paper>
 
-            {bond && (
-                <Paper elevation={3} sx={{ borderRadius: 2, p: { xs: 2, md: 4 } }}>
+            {bonds && bonds.length > 0 && (
+                <Box sx={{ mt: 4 }}>
                     <Typography variant="h5" component="h2" sx={{ fontWeight: 600, mb: 2, color: 'text.primary' }}>
-                        Bond Details: {bond.name_bond}
+                        Bond Details
                     </Typography>
-                    <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-                        {bond.bond_description}
-                    </Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-                        <InfoOutlined color="action" />
-                        <Typography variant="body2" color="text.secondary">
-                            Cooling: {bond.bond_cooling}
-                        </Typography>
-                    </Box>
-                </Paper>
+                    {bonds.map((bond, index) => (
+                        <Paper key={index} elevation={3} sx={{ borderRadius: 1, p: { xs: 2, md: 4 }, mb: 2 }}>
+                            <Typography variant="h6" component="h3" sx={{ fontWeight: 600, mb: 1, color: 'text.primary' }}>
+                                {bond.name_bond}
+                            </Typography>
+                            <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+                                {bond.bond_description}
+                            </Typography>
+                            <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
+                                <InfoOutlined color="action" />
+                                <Typography variant="body2" color="text.secondary">
+                                    Cooling: {bond.bond_cooling}
+                                </Typography>
+                            </Box>
+                        </Paper>
+                    ))}
+                </Box>
             )}
 
             {machines && machines.length > 0 && (
-                <Paper elevation={3} sx={{ borderRadius: 2, p: { xs: 2, md: 4 } }}>
+                <Paper elevation={3} sx={{ borderRadius: 1, p: { xs: 2, md: 4 } }}>
                     <Typography variant="h5" component="h2" sx={{ fontWeight: 600, mb: 2, color: 'text.primary' }}>
                         Compatible Machines
                     </Typography>
@@ -266,7 +284,7 @@ function ProductDetailPage({ initialProductData, productCode }: ProductDetailPag
                                 <ListItemText
                                     primary={
                                         <Typography variant="body1" sx={{ fontWeight: 500 }}>
-                                            {machine.name_equipment}
+                                            {machine.model}
                                         </Typography>
                                     }
                                     secondary={machine.name_producer}

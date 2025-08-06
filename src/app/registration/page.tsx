@@ -1,23 +1,24 @@
-"use client"
-
+// components/SignUp.tsx
+'use client';
+import React, { useState } from 'react';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 import {
     Button,
-    CssBaseline,
     FormControl,
-    Link,
     TextField,
-    Typography,
+    CssBaseline,
     Checkbox,
-    FormControlLabel
-} from "@mui/material";
-import {useState} from "react";
-import {useSnackbar} from "notistack";
-import {ErrorMessage, Field, Form, Formik} from "formik";
-import * as Yup from "yup";
-import {useAuthStore} from "@/features/auth/store";
+    FormControlLabel,
+    Typography,
+    Link
+} from '@mui/material';
+import { useSnackbar } from 'notistack';
+import { useAuthStore } from '@/features/auth/store';
+import { useNavigatingRouter } from '@/hooks/useNavigatingRouter';
+import { useAuthErrors } from '@/hooks/useAuthErrors';
+import { RegisterRequest } from '@/features/auth/types';
 import AuthCardLayout, {PasswordField} from "@/components/layout/AuthCardLayout";
-import {RegisterRequest} from "@/features/auth/types";
-import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 
 const SignUpSchema = Yup.object().shape({
     fullname: Yup.string().required("Full name is required"),
@@ -38,39 +39,26 @@ type SignUpFormValues = Yup.InferType<typeof SignUpSchema>;
 export default function SignUp() {
     const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
-    const {enqueueSnackbar} = useSnackbar();
-    const {register} = useAuthStore();
+    const { enqueueSnackbar } = useSnackbar();
+    const { register } = useAuthStore();
     const router = useNavigatingRouter();
-
-    const handleAuthError = (error: any) => {
-        const errorMessages = {
-            409: "User with this email already exists. Please sign in.",
-            500: "Server error. Please try again later.",
-        };
-        const status = error.status || (error.response?.status);
-        const message = errorMessages[status as keyof typeof errorMessages] || error.message || "Unexpected error";
-
-        enqueueSnackbar(message, {variant: "error"});
-    };
+    const { handleAuthError } = useAuthErrors();
 
     const handleSubmit = async (values: SignUpFormValues) => {
         setLoading(true);
-
         const registerData: RegisterRequest = {
             full_name: values.fullname,
             email: values.email,
             phone: values.phone,
             password: values.password,
         }
-
         try {
             const success = await register(registerData);
-
             if (success) {
-                enqueueSnackbar("Registration successful", {variant: "success"});
+                enqueueSnackbar("Registration successful", { variant: "success" });
                 router.push("/");
             } else {
-                enqueueSnackbar("Registration failed", {variant: "error"});
+                enqueueSnackbar("Registration failed", { variant: "error" });
             }
         } catch (error: any) {
             console.error("Registration error:", error);
@@ -79,10 +67,9 @@ export default function SignUp() {
             setLoading(false);
         }
     };
-
     return (
         <>
-            <CssBaseline/>
+            <CssBaseline />
             <AuthCardLayout title="Sign up" isLogin={false}>
                 <Formik
                     initialValues={{
@@ -95,7 +82,7 @@ export default function SignUp() {
                     validationSchema={SignUpSchema}
                     onSubmit={handleSubmit}
                 >
-                    {({values, handleChange, handleBlur}) => (
+                    {({ values, handleChange, handleBlur }) => (
                         <Form>
                             <FormControl fullWidth margin="normal">
                                 <Field
@@ -107,10 +94,9 @@ export default function SignUp() {
                                     onChange={handleChange}
                                     onBlur={handleBlur}
                                     required
-                                    helperText={<ErrorMessage name="fullname"/>}
+                                    helperText={<ErrorMessage name="fullname" />}
                                 />
                             </FormControl>
-
                             <FormControl fullWidth margin="normal">
                                 <Field
                                     as={TextField}
@@ -121,10 +107,9 @@ export default function SignUp() {
                                     onChange={handleChange}
                                     onBlur={handleBlur}
                                     required
-                                    helperText={<ErrorMessage name="email"/>}
+                                    helperText={<ErrorMessage name="email" />}
                                 />
                             </FormControl>
-
                             <FormControl fullWidth margin="normal">
                                 <Field
                                     as={TextField}
@@ -135,10 +120,9 @@ export default function SignUp() {
                                     onChange={handleChange}
                                     onBlur={handleBlur}
                                     required
-                                    helperText={<ErrorMessage name="phone"/>}
+                                    helperText={<ErrorMessage name="phone" />}
                                 />
                             </FormControl>
-
                             <PasswordField
                                 name="password"
                                 label="Password"
@@ -149,7 +133,6 @@ export default function SignUp() {
                                 setShowPassword={setShowPassword}
                                 required
                             />
-
                             <FormControl fullWidth margin="normal">
                                 <FormControlLabel
                                     control={
@@ -179,13 +162,12 @@ export default function SignUp() {
                                 />
                                 <ErrorMessage name="agreeToPrivacy">
                                     {(msg) => (
-                                        <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: '32px' }}> {/* Adjust ml as needed */}
+                                        <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: '32px' }}>
                                             {msg}
                                         </Typography>
                                     )}
                                 </ErrorMessage>
                             </FormControl>
-
                             <Button
                                 type="submit"
                                 fullWidth

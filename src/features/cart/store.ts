@@ -50,16 +50,16 @@ export const useCartStore = create<CartState>()((set, get) => ({
         }
     },
 
-    addToCart: async (code) => {
+    addToCart: async (id) => {
         const { cartCodes } = get();
 
-        if (cartCodes.has(code)) {
+        if (cartCodes.has(id)) {
             return true;
         }
 
         set((state) => {
             const newCartCodes = new Set(state.cartCodes);
-            newCartCodes.add(code);
+            newCartCodes.add(id);
             return {
                 cartCodes: newCartCodes,
                 cartCount: state.cartCount + 1,
@@ -68,14 +68,14 @@ export const useCartStore = create<CartState>()((set, get) => ({
         });
 
         try {
-            await cartApi.addToCart({ code });
+            await cartApi.addToCart({ id });
             await get().fetchCartCount();
             return true;
         } catch (e: any) {
             console.error("Add to cart failed", e);
             set((state) => {
                 const revertedCodes = new Set(state.cartCodes);
-                revertedCodes.delete(code);
+                revertedCodes.delete(id);
                 return {
                     cartCodes: revertedCodes,
                     cartCount: Math.max(0, state.cartCount - 1),

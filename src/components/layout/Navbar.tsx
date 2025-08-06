@@ -16,14 +16,13 @@ import {
 import Image from "next/image";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import {useThemeContext} from "@/context/context";
-import React, {useEffect, useState} from "react";
+import React, {useEffect} from "react";
 import {useSnackbar} from "notistack";
 import {usePathname} from "next/navigation";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import {Brightness4, Brightness7} from "@mui/icons-material";
 import {useAuthStore} from "@/features/auth/store";
 import {useCartStore} from "@/features/cart/store";
-import AccountMenu from "@/components/common/AccountMenu";
 import MenuIcon from '@mui/icons-material/Menu';
 import {useAdminDrawerStore} from "@/app/admin/store/useAdminDrawerStore";
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
@@ -42,16 +41,9 @@ export default function Navbar() {
         if (isAuthenticated) void fetchCartCount();
     }, [isAuthenticated, fetchCartCount]);
 
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const handleClose = () => setAnchorEl(null);
-
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
     const toggleDrawer = useAdminDrawerStore(state => state.toggleDrawer);
-
-    const handleProfileClick = (event: React.MouseEvent<HTMLElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
 
     const renderLogo = () => (
         <Box
@@ -90,17 +82,27 @@ export default function Navbar() {
     }
 
     return (
-        <AppBar position="fixed" elevation={1} color="default">
-            <Container maxWidth="lg">
+        <AppBar
+            position="fixed"
+            elevation={1}
+            color="default"
+            sx={{
+                zIndex: theme => theme.zIndex.drawer + 1,
+                height: '64px',
+                '--navbar-height': '64px'
+            }}
+        >
+            <Container maxWidth="lg" sx={{ height: '100%' }}>
                 <Toolbar
                     sx={{
-                        minHeight: theme.mixins.toolbar.minHeight,
+                        minHeight: '64px !important',
+                        height: '100%',
                         display: "flex",
                         justifyContent: "space-between",
-                        px: {xs: 2, md: 3},
+                        px: { xs: 2, md: 3 },
                     }}
                 >
-                    <Box sx={{display: "flex", alignItems: "center", gap: 1}}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                         {pathname === "/" ? (
                             renderLogo()
                         ) : (
@@ -109,7 +111,6 @@ export default function Navbar() {
                                 {pathname === "/admin" && isMobile && renderBurgerButton()}
                             </>
                         )}
-
                     </Box>
 
                     <Box sx={{display: "flex", alignItems: "center", gap: {xs: 1, md: 1}}}>
@@ -142,7 +143,10 @@ export default function Navbar() {
 
                         <Tooltip title="Profile">
                             <Avatar
-                                onClick={handleProfileClick}
+                                onClick={() => isAuthenticated
+                                    ? router.push("/profile")
+                                    : router.push("/auth/login")
+                                }
                                 sx={{
                                     width: theme.spacing(5),
                                     height: theme.spacing(5),
@@ -160,8 +164,6 @@ export default function Navbar() {
                                     : ""}
                             </Avatar>
                         </Tooltip>
-
-                        <AccountMenu anchorEl={anchorEl} handleCloseAction={handleClose}/>
                     </Box>
                 </Toolbar>
             </Container>

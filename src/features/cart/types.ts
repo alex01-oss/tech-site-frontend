@@ -9,5 +9,5 @@ export interface CartResponse {
 }
 
 export interface CartRequest {
-    code: string;
+    id: string;
 }

@@ -10,7 +10,7 @@ const ProductSkeleton = ({ count = 8 }: ProductSkeletonProps) => {
             {Array(count)
                 .fill(0)
                 .map((_, index) => (
-                    <Grid item xs={12} sm={6} md={4} lg={3} key={`skeleton-${index}`}>
+                    <Grid item xs={6} sm={6} md={4} lg={3} xl={3} key={`skeleton-${index}`}>
                         <Box
                             sx={(theme) => ({
                                 display: "flex",

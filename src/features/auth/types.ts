@@ -30,3 +30,10 @@ export interface User {
     phone: string;
     role: "admin" | "user" | string;
 }
+
+export interface UpdateUserRequest {
+    full_name?: string;
+    phone?: string;
+    email?: string;
+    password?: string;
+}

@@ -2,7 +2,7 @@ import React, {memo, useCallback, useEffect} from "react"; // Added useCallback
 import {
     Box,
     Button,
-    Checkbox,
+    Checkbox, CircularProgress,
     Divider,
     FormControlLabel,
     FormGroup,
@@ -14,9 +14,9 @@ import {
     useTheme,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
-import {useMenuStore} from "@/features/menu/store";
-import {MenuCategory, MenuItem} from "@/features/menu/types";
+import {useDataStore} from "@/features/data/store";
 import CloseIcon from "@mui/icons-material/Close";
+import {FilterItem} from "@/features/data/types";
 
 interface FiltersPanelProps {
     filters: Record<string, Set<string>>;
@@ -35,38 +35,36 @@ const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
     onClose,
     isMobileDrawer = false,
 }) => {
-    const {menu, fetchMenu} = useMenuStore();
+    const {filters: filterData, filtersLoading, filtersError, fetchFilters} = useDataStore();
     const theme = useTheme();
 
     useEffect(() => {
-        fetchMenu().catch(console.error);
-    }, [fetchMenu]);
+        fetchFilters().catch(console.error);
+    }, [fetchFilters]);
 
     const handleApplyAndClose = useCallback(() => {
         onApplyFilters();
-        if (onClose) onClose()
+        if (onClose) onClose();
     }, [onApplyFilters, onClose]);
 
     const handleClearAllAndApplyAndClose = useCallback(() => {
         onClearAllFilters();
         onApplyFilters();
-        if (onClose) onClose()
+        if (onClose) onClose();
     }, [onClearAllFilters, onApplyFilters, onClose]);
 
     return (
         <Box
-            p={3}
             sx={{
-                width: {xs: '100vw', sm: 256},
+                width: {xs: '100%', sm: 256},
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 2,
                 alignItems: 'stretch',
-                maxHeight: '80vh',
                 overflowY: 'auto',
                 ...(isMobileDrawer ? {} : {
                     minWidth: 256,
-                    height: `calc(100vh - ${theme.mixins.toolbar.minHeight}px)`,
+                    maxHeight: 'calc(100vh - 64px)',
                     position: 'sticky',
                     top: theme.mixins.toolbar.minHeight as number,
                     backgroundColor: theme.palette.background.default,
@@ -91,25 +89,29 @@ const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
                 )}
             </Box>
 
-            {useMenuStore.getState().loading && (
-                <Typography sx={{my: 2, textAlign: 'center'}}>Loading filters...</Typography>
+            {filtersLoading && (
+                <Typography sx={{my: 2, textAlign: 'center'}}>
+                    <CircularProgress/>
+                </Typography>
             )}
-            {useMenuStore.getState().error && (
+            {filtersError && (
                 <Typography color="error" sx={{my: 2, textAlign: 'center'}}>
-                    Error: {useMenuStore.getState().error}
+                    Error: {filtersError}
                 </Typography>
             )}
 
-            {!useMenuStore.getState().loading && !useMenuStore.getState().error && menu.map((category: MenuCategory) => {
-                const isChecked = (item: MenuItem) => filters[category.title]?.has(item.searchValue) || false;
+            {filterData && Object.keys(filterData).map((categoryTitle: string) => {
+                const categoryItems = filterData[categoryTitle];
+
+                const isChecked = (item: FilterItem) => filters[categoryTitle]?.has(item.name) || false;
 
                 return (
-                    <React.Fragment key={category.title}>
+                    <React.Fragment key={categoryTitle}>
                         <Box sx={isMobileDrawer ? {mb: 2} : {}}>
                             {isMobileDrawer ? (
                                 <>
                                     <Typography variant="subtitle1" sx={{fontWeight: 'bold'}}>
-                                        {category.title}
+                                        {categoryTitle}
                                     </Typography>
                                     <Divider sx={{my: 1, borderColor: 'grey.200'}}/>
                                 </>
@@ -117,7 +119,7 @@ const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
                                 <List disablePadding>
                                     <ListItem disablePadding sx={{py: 1}}>
                                         <ListItemText
-                                            primary={category.title}
+                                            primary={categoryTitle}
                                             sx={{
                                                 "& .MuiTypography-root": {
                                                     fontWeight: "bold",
@@ -130,23 +132,23 @@ const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
                                 </List>
                             )}
                             <FormGroup sx={{pl: isMobileDrawer ? 0 : 2}}>
-                                {category.items.map((item: MenuItem) => (
+                                {categoryItems.map((item: FilterItem) => (
                                     <FormControlLabel
-                                        key={item.text}
+                                        key={item.name}
                                         control={
                                             <Checkbox
                                                 checked={isChecked(item)}
                                                 onChange={(e) =>
-                                                    onFilterToggle(category.title, item.searchValue, e.target.checked)
+                                                    onFilterToggle(categoryTitle, item.name, e.target.checked)
                                                 }
                                                 size="small"
                                                 sx={isMobileDrawer ? {p: 0.5} : {}}
                                             />
                                         }
                                         label={isMobileDrawer ? (
-                                            <Typography variant="body2">{item.text}</Typography>
+                                            <Typography variant="body2">{item.name}</Typography>
                                         ) : (
-                                            item.text
+                                            item.name
                                         )}
                                         sx={{width: '100%', m: 0, py: isMobileDrawer ? 0 : 0.5}}
                                     />

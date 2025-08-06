@@ -1,4 +1,4 @@
-import {Box} from "@mui/material";
+import {Box, Toolbar} from "@mui/material";
 import AboutUsSection from "@/components/layout/AboutUsSection";
 import CategoriesSection from "@/components/layout/CategoriesSection";
 import BlogSection from "@/components/layout/BlogSection";
@@ -7,6 +7,7 @@ import {Post} from "@/features/blog/types";
 import {blogApi} from "@/features/blog/api";
 import {Video} from "@/features/youtube/types";
 import {youtubeApi} from "@/features/youtube/api";
+import React from "react";
 
 const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:8080/api";
 
@@ -37,6 +38,7 @@ export default async function Page() {
 
     return (
         <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
+            <Toolbar sx={{ mt: 4 }}/>
             <AboutUsSection />
             <CategoriesSection />
             <BlogSection posts={posts} baseApiUrl={BASE_API_URL} />

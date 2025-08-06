@@ -1,11 +1,14 @@
 "use client";
 
 import React, {useMemo} from 'react';
-import {Box, Container, Grid, IconButton, InputAdornment, TextField, Toolbar, Typography} from '@mui/material';
+import {Box, Container, Fab, Grid, IconButton, InputAdornment, TextField, Typography} from '@mui/material';
 import {Post} from '@/features/blog/types';
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
 import PostCard from "@/components/layout/PostCard";
+import AddIcon from '@mui/icons-material/Add';
+import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
+import {useAuthStore} from "@/features/auth/store";
 
 interface BlogGridProps {
     posts: Post[];
@@ -14,6 +17,10 @@ interface BlogGridProps {
 
 export default function BlogGrid({posts, baseApiUrl}: BlogGridProps) {
     const [searchTerm, setSearchTerm] = React.useState('');
+
+    const router = useNavigatingRouter();
+
+    const { user } = useAuthStore();
 
     const filteredPosts = useMemo(() => {
         if (!searchTerm) return posts;
@@ -34,13 +41,15 @@ export default function BlogGrid({posts, baseApiUrl}: BlogGridProps) {
 
     return (
         <>
-            <Toolbar />
-            <Container maxWidth="lg" sx={{minHeight: '100vh', my: 6}}>
-                <Typography variant="h2" component="h1" align="center" sx={{mb: 6, color: 'text.primary', fontWeight: 700}}>
+            <Container maxWidth="lg" sx={{
+                minHeight: 'calc(100vh - 120px)',
+                position: 'relative'
+            }}>
+                <Typography variant="h2" component="h1" align="center" sx={{ color: 'text.primary', fontWeight: 700}}>
                     Our Blog
                 </Typography>
 
-                <Box sx={{display: 'flex', justifyContent: 'center', mb: 4}}>
+                <Box sx={{display: 'flex', justifyContent: 'center', my: 4}}>
                     <TextField
                         variant="outlined"
                         placeholder={"Search posts..."}
@@ -66,7 +75,7 @@ export default function BlogGrid({posts, baseApiUrl}: BlogGridProps) {
                     />
                 </Box>
 
-                <Grid container spacing={4} justifyContent="center">
+                <Grid container spacing={4}>
                     {filteredPosts.length > 0 ? (
                         filteredPosts.map((post: Post) => (
                             <Grid item xs={12} sm={6} md={4} key={post.id}>
@@ -89,6 +98,21 @@ export default function BlogGrid({posts, baseApiUrl}: BlogGridProps) {
                     )}
                 </Grid>
             </Container>
+
+            {user && user.role === 'admin' && (
+                <Fab
+                    color="secondary"
+                    aria-label="add"
+                    sx={{
+                        position: 'fixed',
+                        bottom: 24,
+                        right: 24,
+                    }}
+                    onClick={() => {router.push('/blog/create')}}
+                >
+                    <AddIcon />
+                </Fab>
+            )}
         </>
     );
 }

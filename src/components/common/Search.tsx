@@ -3,7 +3,7 @@ import {Box, Button, Divider, Drawer, IconButton, Paper, Typography, useMediaQue
 import SearchIcon from '@mui/icons-material/Search';
 import TuneIcon from '@mui/icons-material/Tune';
 import CloseIcon from '@mui/icons-material/Close';
-import {useMenuStore} from "@/features/menu/store";
+import {useDataStore} from "@/features/data/store";
 import AutocompleteSearchField from "@/components/common/SearchField";
 import FiltersPanel from "@/components/layout/FiltersPanel";
 
@@ -30,7 +30,7 @@ const Search: React.FC<Props> = memo(({onSearch, currentSearchFields, currentFil
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-    const {fetchMenu} = useMenuStore();
+    const { fetchFilters } = useDataStore();
 
     const [openSearchDrawer, setOpenSearchDrawer] = useState(false);
     const [openFiltersDrawer, setOpenFiltersDrawer] = useState(false);
@@ -45,8 +45,8 @@ const Search: React.FC<Props> = memo(({onSearch, currentSearchFields, currentFil
     const [filters, setFilters] = useState<Record<string, Set<string>>>({});
 
     useEffect(() => {
-        fetchMenu().catch(console.error);
-    }, [fetchMenu]);
+        fetchFilters().catch(console.error);
+    }, [fetchFilters]);
 
     useEffect(() => {
         setFields({
@@ -129,7 +129,7 @@ const Search: React.FC<Props> = memo(({onSearch, currentSearchFields, currentFil
                 isMobile={isMobile}
             />
             {!isMobile && i < FIXED_SEARCH_FIELDS_CONFIG.length - 1 && (
-                <Divider orientation="vertical" flexItem sx={{ my: 1, borderColor: 'grey.300' }} />
+                <Divider orientation="vertical" flexItem sx={{ my: 1 }} />
             )}
         </React.Fragment>
     ));
@@ -234,8 +234,6 @@ const Search: React.FC<Props> = memo(({onSearch, currentSearchFields, currentFil
                 alignItems: 'stretch',
                 p: 0.5,
                 borderRadius: 1,
-                border: '1px solid',
-                borderColor: 'grey.300',
                 overflow: 'hidden',
             }}
         >

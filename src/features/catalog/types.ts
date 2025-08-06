@@ -3,7 +3,7 @@ export interface CatalogItem {
     shape: string;
     dimensions: string;
     images: string;
-    name_bond: string;
+    name_bonds: string[];
     grid_size: string;
     is_in_cart: boolean;
 }
@@ -16,23 +16,34 @@ export interface CatalogResponse {
     items_per_page: number;
 }
 
+export interface BondDetail {
+    name_bond: string;
+    bond_description: string;
+    bond_cooling: string;
+}
+
+export interface MachineDetail {
+    model: string;
+    name_producer: string;
+}
+
+export interface MountingDetail {
+    mm: string;
+    inch: string;
+}
+
 export interface ProductDetailData {
     item: {
+        id: number;
         code: string;
         shape: string;
         dimensions: string;
         images: string;
-        name_bond: string;
+        name_bonds: string[];
         grid_size: string;
         is_in_cart: boolean;
     };
-    bond: {
-        name_bond: string;
-        bond_description: string;
-        bond_cooling: string;
-    };
-    machines: Array<{
-        name_equipment: string;
-        name_producer: string;
-    }>;
+    bonds: BondDetail[];
+    machines: MachineDetail[];
+    mounting: MountingDetail;
 }

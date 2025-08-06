@@ -28,7 +28,7 @@ const VideosSection: React.FC<VideosSectionProps> = ({ videos }) => {
     };
 
     return (
-        <Container maxWidth="lg" sx={{ my: 6 }}>
+        <Container maxWidth="lg" sx={{ mt: 6 }}>
             <Typography variant="h3" component="h2" sx={{ mb: 4, color: 'text.primary' }}>
                 Our videos
             </Typography>
