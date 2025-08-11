@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useRef} from "react";
 import {Box, CircularProgress, Container, Toolbar, useMediaQuery, useTheme} from "@mui/material";
 import SidebarSkeleton from "@/components/skeletons/SidebarSkeleton";
 import ProductSkeleton from "@/components/skeletons/TableSkeleton";
@@ -11,7 +11,6 @@ import {useDataStore} from "@/features/data/store";
 import {useGridItemsPerPage} from "@/hooks/useGridItemsPerPage";
 import FiltersPanel from "@/components/layout/FiltersPanel";
 import ScrollToTopFab from "@/components/common/ScrollToTopFab";
-import {shallow} from "zustand/vanilla/shallow";
 
 function CatalogPage() {
     const theme = useTheme();
@@ -22,8 +21,8 @@ function CatalogPage() {
         searchShape,
         searchDimensions,
         searchMachine,
-        nameBond,
-        gridSize,
+        bondIds,
+        gridIds,
         isLoading,
         currentPage,
         totalPages,
@@ -31,6 +30,7 @@ function CatalogPage() {
         fetchCatalog,
         itemsPerPage: storeItemsPerPage,
         setItemsPerPage: setStoreItemsPerPage,
+        setFiltersAndResetPage
     } = useCatalogStore();
 
     const filtersLoading = useDataStore(state => state.filtersLoading);
@@ -74,106 +74,50 @@ function CatalogPage() {
         fetchCatalog,
         currentPage,
         storeItemsPerPage,
-        nameBond,
-        gridSize,
+        bondIds,
+        gridIds,
         searchCode,
         searchShape,
         searchDimensions,
         searchMachine,
     ]);
 
-    const [localFiltersState, setLocalFiltersState] = useState<Record<string, Set<string>>>({});
-
-    useEffect(() => {
-        const initialFilters: Record<string, Set<string>> = {};
-        if (nameBond && nameBond.length > 0) initialFilters["Bond"] = new Set(nameBond)
-        if (gridSize && gridSize.length > 0) initialFilters["Grid Size"] = new Set(gridSize)
-        setLocalFiltersState(initialFilters);
-    }, [nameBond, gridSize]);
-
     const handleCombinedSearchSubmit = useCallback((
         searchFields: { code?: string; shape?: string; dimensions?: string; machine?: string },
-        filtersFromSearchComponent: Record<string, Set<string>>
     ) => {
         useCatalogStore.getState().setSearchAndResetPage(searchFields);
-
-        const newFiltersForStore: Record<string, string[]> = {};
-        for (const category in filtersFromSearchComponent) {
-            if (filtersFromSearchComponent.hasOwnProperty(category)) {
-                newFiltersForStore[category] = Array.from(filtersFromSearchComponent[category]);
-            }
-        }
-
-        const newNameBond = newFiltersForStore["Bond"] && newFiltersForStore["Bond"].length > 0
-            ? newFiltersForStore["Bond"] : null;
-
-        const newGridSize = newFiltersForStore["Grid Size"] && newFiltersForStore["Grid Size"].length > 0
-            ? newFiltersForStore["Grid Size"] : null;
-
-        console.log("handleCombinedSearchSubmit: newNameBond:", newNameBond, "newGridSize:", newGridSize);
-
-        const currentNameBond = useCatalogStore.getState().nameBond
-        const currentGridSize = useCatalogStore.getState().gridSize
-
-        const bondEquals = shallow(currentNameBond, newNameBond)
-        const gridSizeEquals = shallow(currentGridSize, newGridSize)
-
-        if (!bondEquals || !gridSizeEquals) {
-            useCatalogStore.getState().setFiltersAndResetPage(newNameBond, newGridSize);
-        }
     }, []);
-
 
     const handleDesktopFilterToggle = useCallback(
-        (categoryTitle: string, itemValue: string, checked: boolean) => {
-            setLocalFiltersState((prevFilters) => {
-                const currentCategoryFilters = prevFilters[categoryTitle] || new Set();
-                const newCategoryFilters = new Set(currentCategoryFilters);
+        (categoryTitle: string, itemValue: number, checked: boolean) => {
+            const currentBondIds = new Set(bondIds || []);
+            const currentGridIds = new Set(gridIds || []);
 
-                if (checked) newCategoryFilters.add(itemValue)
-                else newCategoryFilters.delete(itemValue)
+            let newBondIds = bondIds;
+            let newGridIds = gridIds;
 
-                const updatedFilters = {...prevFilters}
-                if (newCategoryFilters.size === 0) {
-                    delete updatedFilters[categoryTitle];
+            if (categoryTitle === "bonds") {
+                if (checked) {
+                    currentBondIds.add(itemValue);
                 } else {
-                    updatedFilters[categoryTitle] = newCategoryFilters;
+                    currentBondIds.delete(itemValue);
                 }
-
-                const newFiltersForStore: Record<string, string[]> = {};
-                for (const category in updatedFilters) {
-                    if (updatedFilters.hasOwnProperty(category)) {
-                        newFiltersForStore[category] = Array.from(updatedFilters[category]);
-                    }
+                newBondIds = Array.from(currentBondIds).length > 0 ? Array.from(currentBondIds) : null;
+            } else if (categoryTitle === "grids") {
+                if (checked) {
+                    currentGridIds.add(itemValue);
+                } else {
+                    currentGridIds.delete(itemValue);
                 }
+                newGridIds = Array.from(currentGridIds).length > 0 ? Array.from(currentGridIds) : null;
+            }
 
-                const newNameBond = newFiltersForStore["Bond"] && newFiltersForStore["Bond"].length > 0
-                    ? newFiltersForStore["Bond"] : null;
-                const newGridSize = newFiltersForStore["Grid Size"] && newFiltersForStore["Grid Size"].length > 0
-                    ? newFiltersForStore["Grid Size"] : null;
-
-                const currentNameBond = useCatalogStore.getState().nameBond
-                const currentGridSize = useCatalogStore.getState().gridSize
-
-                const bondEquals = shallow(currentNameBond, newNameBond)
-                const gridSizeEquals = shallow(currentGridSize, newGridSize)
-
-                if (!bondEquals || !gridSizeEquals) {
-                    useCatalogStore.getState().setFiltersAndResetPage(newNameBond, newGridSize);
-                }
-
-                return updatedFilters;
-            });
-        }, []);
+            setFiltersAndResetPage(newBondIds, newGridIds);
+        }, [bondIds, gridIds, setFiltersAndResetPage]);
 
     const handleDesktopClearAllFilters = useCallback(() => {
-        setLocalFiltersState({});
-        useCatalogStore.getState().setFiltersAndResetPage(null, null);
-    }, []);
-
-    const handleDesktopApplyFilters = useCallback(() => {
-        console.log("Desktop filters applied (implicitly on toggle).");
-    }, []);
+        setFiltersAndResetPage(null, null);
+    }, [setFiltersAndResetPage]);
 
     const currentSearchFieldsForSearchComponent = useMemo(() => ({
         code: searchCode || undefined,
@@ -182,12 +126,12 @@ function CatalogPage() {
         machine: searchMachine || undefined,
     }), [searchCode, searchShape, searchDimensions, searchMachine]);
 
-    const currentFiltersForSearchComponent = useMemo(() => {
-        const filters: Record<string, string[]> = {};
-        if (nameBond && nameBond.length > 0) filters["Bond"] = nameBond;
-        if (gridSize && gridSize.length > 0) filters["Grid Size"] = gridSize;
+    const currentFiltersState = useMemo(() => {
+        const filters: Record<string, Set<number>> = {};
+        if (bondIds && bondIds.length > 0) filters["bonds"] = new Set(bondIds);
+        if (gridIds && gridIds.length > 0) filters["grids"] = new Set(gridIds);
         return filters;
-    }, [nameBond, gridSize]);
+    }, [bondIds, gridIds]);
 
     return (
         <>
@@ -200,10 +144,9 @@ function CatalogPage() {
             }}>
                 {filtersLoading ? <SidebarSkeleton/> : !isMobile &&
                     <FiltersPanel
-                        filters={localFiltersState}
+                        filters={currentFiltersState}
                         onFilterToggle={handleDesktopFilterToggle}
                         onClearAllFilters={handleDesktopClearAllFilters}
-                        onApplyFilters={handleDesktopApplyFilters}
                         isMobileDrawer={false}
                     />
                 }
@@ -226,7 +169,9 @@ function CatalogPage() {
                         <Search
                             onSearch={handleCombinedSearchSubmit}
                             currentSearchFields={currentSearchFieldsForSearchComponent}
-                            currentFilters={currentFiltersForSearchComponent}
+                            currentFilters={currentFiltersState}
+                            onFilterToggle={handleDesktopFilterToggle}
+                            onClearAllFilters={handleDesktopClearAllFilters}
                         />
                     </Box>
 
@@ -245,12 +190,12 @@ function CatalogPage() {
                                 <CircularProgress/>
                             </Box>
                         )}
-                        {!isLoading && products.length === 0 && (isSearchActive || nameBond || gridSize) && (
+                        {!isLoading && products.length === 0 && (isSearchActive || bondIds || gridIds) && (
                             <Box sx={{textAlign: "center", my: {xs: 2, md: 3}, color: 'text.secondary'}}>
                                 No items found for the current filters.
                             </Box>
                         )}
-                        {!isLoading && products.length === 0 && !isSearchActive && !nameBond && !gridSize && (
+                        {!isLoading && products.length === 0 && !isSearchActive && !bondIds && !gridIds && (
                             <Box sx={{textAlign: "center", my: {xs: 2, md: 3}, color: 'text.secondary'}}>
                                 Start typing or select a filter to find items.
                             </Box>

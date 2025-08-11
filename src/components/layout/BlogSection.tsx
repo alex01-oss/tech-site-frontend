@@ -90,8 +90,7 @@ export default function BlogSection({ posts, baseApiUrl }: BlogSectionProps) {
                         onClick={() => router.push("/blog")}
                         sx={{
                             px: 4,
-                            py: 1.5,
-                            borderRadius: 2,
+                            borderRadius: 1,
                             fontWeight: 'bold',
                             textTransform: 'none',
                         }}

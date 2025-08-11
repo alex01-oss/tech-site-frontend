@@ -10,11 +10,12 @@ import FiltersPanel from "@/components/layout/FiltersPanel";
 
 interface Props {
     onSearch: (
-        searchFields: { code?: string; shape?: string; dimensions?: string; machine?: string },
-        filters: Record<string, Set<string>>
+        searchFields: { code?: string; shape?: string; dimensions?: string; machine?: string }
     ) => void;
     currentSearchFields: { code?: string; shape?: string; dimensions?: string; machine?: string };
-    currentFilters: Record<string, string[]>;
+    currentFilters: Record<string, Set<number>>;
+    onFilterToggle: (categoryTitle: string, itemValue: number, checked: boolean) => void;
+    onClearAllFilters: () => void;
 }
 
 type SearchFieldKey = "code" | "shape" | "dimensions" | "machine";
@@ -26,7 +27,13 @@ const FIXED_SEARCH_FIELDS_CONFIG: { type: SearchFieldKey; label: string; minLeng
     {type: "machine", label: "Machine", minLength: 1},
 ];
 
-const Search: React.FC<Props> = memo(({onSearch, currentSearchFields, currentFilters}) => {
+const Search: React.FC<Props> = memo(({
+    onSearch,
+    currentSearchFields,
+    currentFilters,
+    onFilterToggle,
+    onClearAllFilters
+}) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -42,12 +49,6 @@ const Search: React.FC<Props> = memo(({onSearch, currentSearchFields, currentFil
         machine: "",
     });
 
-    const [filters, setFilters] = useState<Record<string, Set<string>>>({});
-
-    useEffect(() => {
-        fetchFilters().catch(console.error);
-    }, [fetchFilters]);
-
     useEffect(() => {
         setFields({
             code: currentSearchFields.code || "",
@@ -55,53 +56,24 @@ const Search: React.FC<Props> = memo(({onSearch, currentSearchFields, currentFil
             dimensions: currentSearchFields.dimensions || "",
             machine: currentSearchFields.machine || "",
         });
+    }, [currentSearchFields]);
 
-        const newFiltersState: Record<string, Set<string>> = {};
-        for (const category in currentFilters) {
-            if (currentFilters.hasOwnProperty(category)) {
-                newFiltersState[category] = new Set(currentFilters[category]);
-            }
-        }
-        setFilters(newFiltersState);
-    }, [currentSearchFields, currentFilters]);
-
+    useEffect(() => {
+        fetchFilters().catch(console.error);
+    }, [fetchFilters]);
 
     const handleChange = useCallback((key: keyof typeof fields, value: string) => {
         setFields((prev) => ({...prev, [key]: value}));
     }, []);
 
-    const handleFilterToggle = useCallback((categoryTitle: string, itemValue: string, checked: boolean) => {
-        setFilters((prevFilters) => {
-            const currentCategoryFilters = prevFilters[categoryTitle] || new Set();
-            const newCategoryFilters = new Set(currentCategoryFilters);
-
-            if (checked) newCategoryFilters.add(itemValue)
-            else newCategoryFilters.delete(itemValue)
-
-            if (newCategoryFilters.size === 0) {
-                const {[categoryTitle]: _, ...rest} = prevFilters;
-                return rest;
-            }
-
-            return {
-                ...prevFilters,
-                [categoryTitle]: newCategoryFilters,
-            };
-        });
-    }, []);
-
-    const handleClearAllFilters = useCallback(() => {
-        setFilters({});
-    }, []);
-
     const handleSearch = useCallback(() => {
-        onSearch(fields, filters);
+        onSearch(fields);
         setOpenSearchDrawer(false);
         setOpenFiltersDrawer(false);
-    }, [fields, filters, onSearch]);
+    }, [fields, onSearch]);
 
     const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
-        if (e.key === 'Enter') handleSearch()
+        if (e.key === 'Enter') handleSearch();
     }, [handleSearch]);
 
     const drawerStyles = {
@@ -123,7 +95,7 @@ const Search: React.FC<Props> = memo(({onSearch, currentSearchFields, currentFil
         <React.Fragment key={f.type}>
             <AutocompleteSearchField
                 {...f}
-                value={fields[f.type]}
+                value={currentSearchFields[f.type] || ""}
                 onChange={handleChange}
                 onKeyPress={handleKeyPress}
                 isMobile={isMobile}
@@ -192,7 +164,20 @@ const Search: React.FC<Props> = memo(({onSearch, currentSearchFields, currentFil
                         </IconButton>
                     </Box>
                     {renderSearchFields()}
-                    <Button variant="contained" fullWidth onClick={handleSearch} startIcon={<SearchIcon />} sx={{ ...buttonStyle, height: 50 }}>
+                    <Button
+                        variant="contained"
+                        fullWidth
+                        onClick={() => {
+                            setFields({
+                                code: "",
+                                shape: "",
+                                dimensions: "",
+                                machine: "",
+                            });
+                            handleSearch();
+                        }}
+                        startIcon={<SearchIcon />}
+                        sx={{ ...buttonStyle, height: 50 }}>
                         Apply Search
                     </Button>
                     <Button
@@ -217,11 +202,9 @@ const Search: React.FC<Props> = memo(({onSearch, currentSearchFields, currentFil
 
             {mobileDrawer(openFiltersDrawer, setOpenFiltersDrawer, (
                 <FiltersPanel
-                    filters={filters}
-                    onFilterToggle={handleFilterToggle}
-                    onClearAllFilters={handleClearAllFilters}
-                    onApplyFilters={handleSearch}
-                    onClose={() => setOpenFiltersDrawer(false)}
+                    filters={currentFilters}
+                    onFilterToggle={onFilterToggle}
+                    onClearAllFilters={onClearAllFilters}
                     isMobileDrawer
                 />
             ))}

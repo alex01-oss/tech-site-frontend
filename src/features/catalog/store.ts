@@ -13,8 +13,8 @@ interface CatalogState {
     searchShape: string | null;
     searchDimensions: string | null;
     searchMachine: string | null;
-    nameBond: string[] | null;
-    gridSize: string[] | null;
+    bondIds: number[] | null;
+    gridIds: number[] | null;
     isLoading: boolean;
     error: string | null;
     loadedPages: Set<number>;
@@ -25,13 +25,13 @@ interface CatalogState {
     setSearchDimensions: (dimensions: string | null) => void;
     setSearchMachine: (machine: string | null) => void;
     setPage: (page: number) => void;
-    setNameBond: (bond: string[] | null) => void;
-    setGridSize: (size: string[] | null) => void;
+    setNameBond: (bond: number[] | null) => void;
+    setGridSize: (size: number[] | null) => void;
     resetFilters: () => void;
     resetSearch: () => void;
 
     setSearchAndResetPage(searchFields: { code?: string; shape?: string; dimensions?: string; machine?: string }): void;
-    setFiltersAndResetPage(newNameBond: string[] | null, newGridSize: string[] | null): void;
+    setFiltersAndResetPage(newBondIds: number[] | null, newGridIds: number[] | null): void;
     setItemsPerPage: (count: number, resetPage: boolean) => void;
 }
 
@@ -45,8 +45,8 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
     searchShape: null,
     searchDimensions: null,
     searchMachine: null,
-    nameBond: null,
-    gridSize: null,
+    bondIds: null,
+    gridIds: null,
     isLoading: false,
     error: null,
     loadedPages: new Set(),
@@ -58,8 +58,8 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
             searchDimensions,
             searchMachine,
             currentPage,
-            nameBond,
-            gridSize,
+            bondIds,
+            gridIds,
             isLoading,
             itemsPerPage,
             loadedPages
@@ -77,8 +77,8 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
                 search_machine: searchMachine || undefined,
                 page: currentPage,
                 items_per_page: itemsPerPage,
-                name_bond: nameBond && nameBond.length > 0 ? nameBond : undefined,
-                grid_size: gridSize && gridSize.length > 0 ? gridSize : undefined,
+                bond_ids: bondIds && bondIds.length > 0 ? bondIds : undefined,
+                grid_size_ids: gridIds && gridIds.length > 0 ? gridIds : undefined,
             });
 
             set((state) => ({
@@ -147,9 +147,9 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
         set({ currentPage: page, error: null });
     },
 
-    setNameBond: (bond: string[] | null) => {
+    setNameBond: (bondIds: number[] | null) => {
         set({
-            nameBond: bond,
+            bondIds: bondIds,
             currentPage: 1,
             loadedPages: new Set(),
             items: [],
@@ -157,9 +157,9 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
         });
     },
 
-    setGridSize: (size: string[] | null) => {
+    setGridSize: (gridIds: number[] | null) => {
         set({
-            gridSize: size,
+            gridIds: gridIds,
             currentPage: 1,
             loadedPages: new Set(),
             items: [],
@@ -182,8 +182,8 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
 
     resetFilters: () => {
         set({
-            nameBond: null,
-            gridSize: null,
+            bondIds: null,
+            gridIds: null,
             currentPage: 1,
             loadedPages: new Set(),
             items: [],
@@ -224,10 +224,10 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
         });
     },
 
-    setFiltersAndResetPage: (newNameBond: string[] | null, newGridSize: string[] | null) => {
+    setFiltersAndResetPage: (newBondIds: number[] | null, newGridIds: number[] | null) => {
         set(state => {
-            const bondEqual = shallow(state.nameBond, newNameBond);
-            const gridEqual = shallow(state.gridSize, newGridSize);
+            const bondEqual = shallow(state.bondIds, newBondIds);
+            const gridEqual = shallow(state.gridIds, newGridIds);
 
             if (bondEqual && gridEqual) {
                 return state;
@@ -235,8 +235,8 @@ export const useCatalogStore = create<CatalogState>((set, get) => ({
 
             return {
                 ...state,
-                nameBond: newNameBond,
-                gridSize: newGridSize,
+                bondIds: newBondIds,
+                gridIds: newGridIds,
                 currentPage: 1,
                 loadedPages: new Set(),
                 items: [],

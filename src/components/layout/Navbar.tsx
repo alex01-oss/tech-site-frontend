@@ -5,6 +5,7 @@ import {
     Avatar,
     Badge,
     Box,
+    Button,
     CircularProgress,
     Container,
     IconButton,
@@ -127,6 +128,15 @@ export default function Navbar() {
                                         ? router.push("/cart")
                                         : enqueueSnackbar("You must be authorized", {
                                             variant: "error",
+                                            action: (
+                                                <Button
+                                                    color="inherit"
+                                                    size="small"
+                                                    onClick={() => router.push("/login")}
+                                                >
+                                                    Login
+                                                </Button>
+                                            )
                                         });
                                 }}
                                 color="inherit"
@@ -145,7 +155,7 @@ export default function Navbar() {
                             <Avatar
                                 onClick={() => isAuthenticated
                                     ? router.push("/profile")
-                                    : router.push("/auth/login")
+                                    : router.push("/login")
                                 }
                                 sx={{
                                     width: theme.spacing(5),

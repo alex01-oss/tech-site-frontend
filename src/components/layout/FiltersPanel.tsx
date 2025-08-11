@@ -1,8 +1,9 @@
-import React, {memo, useCallback, useEffect} from "react"; // Added useCallback
+import React, {memo, useEffect} from "react"; // Added useCallback
 import {
     Box,
     Button,
-    Checkbox, CircularProgress,
+    Checkbox,
+    CircularProgress,
     Divider,
     FormControlLabel,
     FormGroup,
@@ -13,16 +14,16 @@ import {
     Typography,
     useTheme,
 } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
 import {useDataStore} from "@/features/data/store";
 import CloseIcon from "@mui/icons-material/Close";
 import {FilterItem} from "@/features/data/types";
+import DoneIcon from '@mui/icons-material/Done';
+
 
 interface FiltersPanelProps {
-    filters: Record<string, Set<string>>;
-    onFilterToggle: (categoryTitle: string, itemValue: string, checked: boolean) => void;
+    filters: Record<string, Set<number>>;
+    onFilterToggle: (categoryTitle: string, itemValue: number, checked: boolean) => void;
     onClearAllFilters: () => void;
-    onApplyFilters: () => void;
     onClose?: () => void;
     isMobileDrawer?: boolean;
 }
@@ -30,8 +31,6 @@ interface FiltersPanelProps {
 const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
     filters,
     onFilterToggle,
-    onClearAllFilters,
-    onApplyFilters,
     onClose,
     isMobileDrawer = false,
 }) => {
@@ -41,17 +40,6 @@ const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
     useEffect(() => {
         fetchFilters().catch(console.error);
     }, [fetchFilters]);
-
-    const handleApplyAndClose = useCallback(() => {
-        onApplyFilters();
-        if (onClose) onClose();
-    }, [onApplyFilters, onClose]);
-
-    const handleClearAllAndApplyAndClose = useCallback(() => {
-        onClearAllFilters();
-        onApplyFilters();
-        if (onClose) onClose();
-    }, [onClearAllFilters, onApplyFilters, onClose]);
 
     return (
         <Box
@@ -103,8 +91,6 @@ const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
             {filterData && Object.keys(filterData).map((categoryTitle: string) => {
                 const categoryItems = filterData[categoryTitle];
 
-                const isChecked = (item: FilterItem) => filters[categoryTitle]?.has(item.name) || false;
-
                 return (
                     <React.Fragment key={categoryTitle}>
                         <Box sx={isMobileDrawer ? {mb: 2} : {}}>
@@ -132,27 +118,33 @@ const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
                                 </List>
                             )}
                             <FormGroup sx={{pl: isMobileDrawer ? 0 : 2}}>
-                                {categoryItems.map((item: FilterItem) => (
-                                    <FormControlLabel
-                                        key={item.name}
-                                        control={
-                                            <Checkbox
-                                                checked={isChecked(item)}
-                                                onChange={(e) =>
-                                                    onFilterToggle(categoryTitle, item.name, e.target.checked)
-                                                }
-                                                size="small"
-                                                sx={isMobileDrawer ? {p: 0.5} : {}}
-                                            />
-                                        }
-                                        label={isMobileDrawer ? (
-                                            <Typography variant="body2">{item.name}</Typography>
-                                        ) : (
-                                            item.name
-                                        )}
-                                        sx={{width: '100%', m: 0, py: isMobileDrawer ? 0 : 0.5}}
-                                    />
-                                ))}
+                                {categoryItems.map((item: FilterItem) => {
+                                    const nameKey = Object.keys(item).find(key => key !== 'id');
+                                    const labelText = nameKey ? item[nameKey] : '';
+                                    const isChecked = filters[categoryTitle]?.has(item.id) || false;
+
+                                    return (
+                                        <FormControlLabel
+                                            key={item.id}
+                                            control={
+                                                <Checkbox
+                                                    checked={isChecked}
+                                                    onChange={(e) =>
+                                                        onFilterToggle(categoryTitle, item.id, e.target.checked)
+                                                    }
+                                                    size="small"
+                                                    sx={isMobileDrawer ? {p: 0.5} : {}}
+                                                />
+                                            }
+                                            label={isMobileDrawer ? (
+                                                <Typography variant="body2">{labelText}</Typography>
+                                            ) : (
+                                                labelText
+                                            )}
+                                            sx={{width: '100%', m: 0, py: isMobileDrawer ? 0 : 0.5}}
+                                        />
+                                    );
+                                })}
                             </FormGroup>
                         </Box>
                     </React.Fragment>
@@ -160,41 +152,16 @@ const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
             })}
 
             {isMobileDrawer && (
-                <>
+                <Box sx={{mt: 2, display: 'flex', gap: 1}}>
                     <Button
                         variant="contained"
                         fullWidth
-                        sx={{
-                            mt: 3,
-                            borderRadius: 1,
-                            height: 50,
-                            boxShadow: 'none',
-                            fontWeight: 'bold',
-                        }}
-                        onClick={handleApplyAndClose}
-                        startIcon={<SearchIcon/>}
+                        onClick={onClose}
+                        startIcon={<DoneIcon/>}
                     >
-                        Apply Filters
+                        Apply
                     </Button>
-                    <Button
-                        variant="outlined"
-                        fullWidth
-                        onClick={handleClearAllAndApplyAndClose}
-                        sx={{
-                            borderRadius: 1,
-                            height: 50,
-                            fontWeight: 'bold',
-                            borderColor: 'grey.300',
-                            color: 'text.primary',
-                            '&:hover': {
-                                backgroundColor: 'grey.100',
-                                borderColor: 'grey.400',
-                            }
-                        }}
-                    >
-                        Clear All Filters
-                    </Button>
-                </>
+                </Box>
             )}
         </Box>
     );

@@ -5,7 +5,7 @@ export interface Category {
 
 export interface FilterItem {
     id: number;
-    name: string;
+    [key: string]: any;
 }
 
 export interface FilterResponse {

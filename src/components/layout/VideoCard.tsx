@@ -25,7 +25,7 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onClick }) => {
                 justifyContent: 'center',
                 cursor: 'pointer',
                 overflow: 'hidden',
-                borderRadius: 2,
+                borderRadius: 1,
             }}
             onClick={() => onClick(video.snippet.resourceId.videoId)}
         >

@@ -26,10 +26,10 @@ import Image from "next/image";
 
 interface ProductDetailPageProps {
     initialProductData?: ProductDetailData;
-    productCode: string;
+    productId: number;
 }
 
-function ProductDetailPage({ initialProductData, productCode }: ProductDetailPageProps) {
+function ProductDetailPage({ initialProductData, productId }: ProductDetailPageProps) {
     const [productData, setProductData] = useState<ProductDetailData | null>(initialProductData || null);
     const [isLoading, setIsLoading] = useState<boolean>(!initialProductData);
     const [error, setError] = useState<string | null>(null);
@@ -43,9 +43,9 @@ function ProductDetailPage({ initialProductData, productCode }: ProductDetailPag
     const { handleToggleCart, isInCart } = useToggleCart();
 
     useEffect(() => {
-        if (!productData && productCode) {
+        if (!productData && productId) {
             setIsLoading(true);
-            catalogApi.fetchCatalogItem(productCode)
+            catalogApi.fetchCatalogItem(productId)
                 .then(fetchedData => {
                     if (!fetchedData) {
                         setError("Product not found.");
@@ -61,7 +61,7 @@ function ProductDetailPage({ initialProductData, productCode }: ProductDetailPag
                     setIsLoading(false);
                 });
         }
-    }, [productData, productCode, router]);
+    }, [productData, productId, router]);
 
     if (isLoading) {
         return (

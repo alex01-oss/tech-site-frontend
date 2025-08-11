@@ -10,8 +10,8 @@ export const catalogApi = {
             search_machine: string | undefined;
             page: number;
             items_per_page: number;
-            name_bond: string[] | undefined;
-            grid_size: string[] | undefined
+            bond_ids: number[] | undefined;
+            grid_size_ids: number[] | undefined
         }
     ): Promise<CatalogResponse> => {
         const res = await api.get('catalog', {
