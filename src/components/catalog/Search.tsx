@@ -4,8 +4,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import TuneIcon from '@mui/icons-material/Tune';
 import CloseIcon from '@mui/icons-material/Close';
 import {useDataStore} from "@/features/data/store";
-import AutocompleteSearchField from "@/components/common/SearchField";
-import FiltersPanel from "@/components/layout/FiltersPanel";
+import AutocompleteSearchField from "@/components/catalog/SearchField";
+import FiltersPanel from "@/components/catalog/FiltersPanel";
 import {useCatalogStore} from "@/features/catalog/store";
 import {SearchFields} from "@/types/searchFields";
 

@@ -2,7 +2,7 @@
 import {Box, Container} from '@mui/material';
 import { useLayout } from '@/contexts/LayoutContext';
 import React from "react";
-import ErrorBoundary from "@/components/common/Error";
+import ErrorBoundary from "@/components/ui/ErrorBoundary";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 

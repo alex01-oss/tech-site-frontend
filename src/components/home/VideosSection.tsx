@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import {useTheme} from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -12,7 +11,7 @@ import {Navigation, Pagination} from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
-import VideoCard from "@/components/layout/VideoCard";
+import VideoCard from "@/components/home/VideoCard";
 import {Video} from "@/features/youtube/types";
 import {Box} from "@mui/material";
 

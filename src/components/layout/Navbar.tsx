@@ -113,7 +113,7 @@ export default function Navbar() {
                     height: '100%',
                     display: "flex",
                     justifyContent: "space-between",
-                    px: {xs: 2, md: 3}
+                    px: {xs: 2, sm: 3}
                 }}>
                     <Box sx={{display: "flex", alignItems: "center"}}>
                         {pathname === "/" ? (

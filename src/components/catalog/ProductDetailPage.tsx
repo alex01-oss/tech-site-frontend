@@ -109,7 +109,7 @@ function ProductDetailPage({initialProductData, initialError}: ProductDetailPage
                             >
                                 <Image
                                     src={imageUrl}
-                                    alt={`${item.shape} ${item.code}`}
+                                    alt={item.shape}
                                     height={300}
                                     width={300}
                                     style={{

@@ -9,7 +9,7 @@ import {Swiper, SwiperSlide} from 'swiper/react';
 import {Pagination} from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
-import PostCard from "@/components/layout/PostCard";
+import PostCard from "@/components/blog/PostCard";
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 import BlogSkeleton from "@/components/skeletons/BlogSkeleton";
 

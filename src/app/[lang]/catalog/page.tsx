@@ -3,12 +3,12 @@
 import React, {useCallback, useEffect, useMemo, useRef} from "react";
 import {Box, CircularProgress, Typography, useMediaQuery, useTheme} from "@mui/material";
 import ProductSkeleton from "@/components/skeletons/TableSkeleton";
-import ProductsTable from "@/components/common/ProductsTable";
+import ProductsTable from "@/components/catalog/ProductsTable";
 import {useCatalogStore} from "@/features/catalog/store";
-import Search from "@/components/common/Search";
+import Search from "@/components/catalog/Search";
 import {useGridItemsPerPage} from "@/hooks/useGridItemsPerPage";
-import FiltersPanel from "@/components/layout/FiltersPanel";
-import ScrollToTopFab from "@/components/common/ScrollToTopFab";
+import FiltersPanel from "@/components/catalog/FiltersPanel";
+import ScrollToTop from "@/components/ui/ScrollToTop";
 import {useLayout} from "@/contexts/LayoutContext";
 import { SearchFields } from "@/types/searchFields";
 
@@ -192,7 +192,7 @@ function CatalogPage() {
                     <Box ref={ref} sx={{
                         visibility: isLoading && products.length > 0 ? 'hidden' : 'visible'
                     }}/>
-                    <ScrollToTopFab/>
+                    <ScrollToTop/>
                 </Box>
             </Box>
         </Box>

@@ -1,5 +1,5 @@
 import {CartListResponse, CartResponse} from "@/features/cart/types";
-import api from "@/shared/lib/api";
+import api from "@/lib/api";
 
 
 export const cartApi = {

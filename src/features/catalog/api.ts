@@ -1,5 +1,5 @@
 import {CatalogResponse, ProductDetailData} from "./types";
-import api from "@/shared/lib/api";
+import api from "@/lib/api";
 
 export const catalogApi = {
     fetchCatalog: async (

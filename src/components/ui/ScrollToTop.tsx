@@ -5,7 +5,7 @@ import {darken, Fab, useScrollTrigger, useTheme, Zoom} from '@mui/material';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import {SxProps} from '@mui/system';
 
-const ScrollToTopFab = () => {
+const ScrollToTop = () => {
     const theme = useTheme();
 
     const fabStyle: SxProps = {
@@ -13,7 +13,7 @@ const ScrollToTopFab = () => {
         bottom: 16,
         right: 16,
         zIndex: 1000,
-        color: 'common.white',
+        color: 'catalog.white',
         bgcolor: 'primary.main',
         '&:hover': {
             bgcolor: darken(theme.palette.primary.main, 0.2),
@@ -44,4 +44,4 @@ const ScrollToTopFab = () => {
     );
 };
 
-export default ScrollToTopFab;
+export default ScrollToTop;

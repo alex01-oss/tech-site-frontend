@@ -25,7 +25,7 @@ import {
 import {KeyboardArrowLeft, KeyboardArrowRight} from "@mui/icons-material";
 import {useSnackbar} from "notistack";
 import {Field, Form, Formik} from "formik";
-import ProductsTable from "@/components/common/ProductsTable";
+import ProductsTable from "@/components/catalog/ProductsTable";
 import {useCartStore} from "@/features/cart/store";
 import {OrderFormData, OrderFormSchema} from "@/types/order";
 import {useAuthStore} from "@/features/auth/store";

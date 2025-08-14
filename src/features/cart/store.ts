@@ -1,6 +1,6 @@
 import {cartApi} from "@/features/cart/api";
-import {CartItem} from "@/types/cartItem";
 import {create} from "zustand";
+import {CartItem} from "@/features/cart/types";
 
 interface CartState {
     cart: CartItem[];

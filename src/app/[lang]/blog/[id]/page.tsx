@@ -1,7 +1,7 @@
 import {Post} from "@/features/blog/types";
 import {notFound} from "next/navigation";
 import {blogApi} from "@/features/blog/api";
-import PostDetailPage from "@/components/layout/PostDetailPage";
+import PostDetailPage from "@/components/blog/PostDetailPage";
 import {Toolbar} from "@mui/material";
 import React from "react";
 

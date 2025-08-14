@@ -1,6 +1,6 @@
 import {blogApi} from '@/features/blog/api';
 import {Post} from '@/features/blog/types';
-import BlogGrid from "@/components/layout/BlogGrid";
+import BlogGrid from "@/components/blog/BlogGrid";
 import {Toolbar} from "@mui/material";
 import React from "react";
 

@@ -1,6 +1,6 @@
 import React from 'react'
 import {notFound} from "next/navigation";
-import PostEditor from "@/components/layout/PostEditor";
+import PostEditor from "@/components/blog/PostEditor";
 
 export default function EditPostPage({params}: { params: { id: string }}) {
     const postId = parseInt(params.id, 10);

@@ -1,5 +1,5 @@
 import {AuthResponse, LoginRequest, RefreshResponse, RegisterRequest} from "@/features/auth/types";
-import api from "@/shared/lib/api";
+import api from "@/lib/api";
 
 export const authApi = {
     login: async (data: LoginRequest): Promise<AuthResponse> => {

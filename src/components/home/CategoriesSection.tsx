@@ -23,7 +23,7 @@ export const CategoriesSection: React.FC = () => {
         return (
             <Box>
                 <Typography variant="h3" component="h2" sx={{mb: {xs: 2, sm: 3}, color: 'text.primary'}}>
-                    Product Categories
+                    Categories
                 </Typography>
 
                 <Grid container spacing={{xs: 2, sm: 3}} justifyContent="center">

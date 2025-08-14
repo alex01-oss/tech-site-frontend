@@ -1,4 +1,4 @@
-import api from "@/shared/lib/api";
+import api from "@/lib/api";
 import {UpdateUserRequest, User} from "@/features/auth/types";
 
 export const usersApi = {

@@ -1,4 +1,4 @@
-import api from "@/shared/lib/api";
+import api from "@/lib/api";
 import {ImageUploadResponse} from "@/features/media/types";
 
 export const mediaApi = {

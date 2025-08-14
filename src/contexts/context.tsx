@@ -10,7 +10,7 @@ import React, {
 } from "react";
 import {ThemeProvider as MuiThemeProvider} from "@mui/material/styles";
 import {PaletteMode} from "@mui/material";
-import createAppTheme from "../app/themes/theme";
+import createAppTheme from "@/themes/theme";
 
 type ThemeContextType = {
     mode: PaletteMode;

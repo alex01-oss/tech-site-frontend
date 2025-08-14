@@ -1,5 +1,5 @@
 import {Category, FilterResponse} from "@/features/data/types";
-import api from "@/shared/lib/api";
+import api from "@/lib/api";
 
 
 export const menuApi = {

@@ -36,13 +36,13 @@ interface PostCardProps {
 }
 
 const PostCard: React.FC<PostCardProps> = ({
-    post,
-    baseApiUrl,
-    height = 300,
-    showAdminControls = false,
-    elevation = 4,
-    showDescription = true,
-}) => {
+                                               post,
+                                               baseApiUrl,
+                                               height = 300,
+                                               showAdminControls = false,
+                                               elevation = 4,
+                                               showDescription = true,
+                                           }) => {
     const router = useNavigatingRouter();
     const {user} = useAuthStore();
     const theme = useTheme();

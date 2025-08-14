@@ -5,7 +5,7 @@ import {SnackbarProvider} from "notistack";
 import ThemeProviderWrapper from "@/contexts/context";
 import {Box, CssBaseline, LinearProgress} from "@mui/material";
 import {AuthInitializer} from "@/providers/initializer";
-import {useNavigationStore} from "@/app/store/navigationStore";
+import {useNavigationStore} from "@/store/navigationStore";
 
 export default function ClientProvider({children}: { children: ReactNode }) {
     const [mounted, setMounted] = useState(false);

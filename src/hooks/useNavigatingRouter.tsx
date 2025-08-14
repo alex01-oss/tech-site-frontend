@@ -3,7 +3,7 @@
 import { useRouter as useNextRouter } from 'next/navigation';
 import { useEffect, useCallback } from 'react';
 import { useTransition } from 'react';
-import {useNavigationStore} from "@/app/store/navigationStore";
+import {useNavigationStore} from "@/store/navigationStore";
 
 export function useNavigatingRouter() {
     const router = useNextRouter();

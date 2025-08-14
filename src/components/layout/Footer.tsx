@@ -44,7 +44,7 @@ export default function Footer() {
         <Paper
             component="footer"
             sx={{
-                p: {xs: 2, md: 3}, // Адаптивний padding
+                p: {xs: 2, sm: 3},
                 borderTop: "1px solid rgba(142, 32, 65, 0.1)",
                 boxShadow: theme.shadows[2],
                 backgroundColor: theme.palette.mode === "dark" ? "#1E1E1E" : "#383E45",

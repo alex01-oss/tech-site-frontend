@@ -1,7 +1,7 @@
 import {Grid} from "@mui/material";
 import React, {memo} from "react";
 import {CatalogItem} from "@/features/catalog/types";
-import {ProductCard} from "@/components/common/ProductCard";
+import {ProductCard} from "@/components/catalog/ProductCard";
 import {useToggleCart} from "@/hooks/useToggleCart";
 
 interface ProductTableProps {

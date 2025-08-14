@@ -5,7 +5,7 @@ import {Box, Container, Fab, Grid, IconButton, InputAdornment, TextField, Typogr
 import {Post} from '@/features/blog/types';
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
-import PostCard from "@/components/layout/PostCard";
+import PostCard from "@/components/blog/PostCard";
 import AddIcon from '@mui/icons-material/Add';
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 import {useAuthStore} from "@/features/auth/store";

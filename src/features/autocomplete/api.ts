@@ -1,4 +1,4 @@
-import api from "@/shared/lib/api";
+import api from "@/lib/api";
 
 const createAutocompleteFunction = (endpoint: string) => {
     return async (q: string, categoryId: number | null): Promise<string[]> => {
