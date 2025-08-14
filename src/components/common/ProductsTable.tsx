@@ -3,7 +3,6 @@ import React, {memo} from "react";
 import {CatalogItem} from "@/features/catalog/types";
 import {ProductCard} from "@/components/common/ProductCard";
 import {useToggleCart} from "@/hooks/useToggleCart";
-import ScrollToTopFab from "@/components/common/ScrollToTopFab";
 
 interface ProductTableProps {
     products: CatalogItem[];
@@ -14,13 +13,13 @@ const ProductsTable: React.FC<ProductTableProps> = memo(({ products, isCartView 
     const { handleToggleCart, isInCart } = useToggleCart()
 
     return (
-        <Grid container spacing={3}>
+        <Grid container spacing={{xs: 2, sm: 3}}>
             {products.map((product, index) => (
                 <Grid item xs={6} sm={6} md={4} lg={3} xl={3} key={`product-${index}`}>
                 <ProductCard
-                        product={{ ...product, is_in_cart: isInCart(product.code) }}
+                        product={{ ...product, is_in_cart: isInCart(product.id) }}
                         isCartView={isCartView}
-                        onToggleCart={() => handleToggleCart(product)}
+                        onToggleCart={() => handleToggleCart(product.id)}
                     />
                 </Grid>
             ))}

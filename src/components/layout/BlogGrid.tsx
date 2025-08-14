@@ -41,15 +41,12 @@ export default function BlogGrid({posts, baseApiUrl}: BlogGridProps) {
 
     return (
         <>
-            <Container maxWidth="lg" sx={{
-                minHeight: 'calc(100vh - 120px)',
-                position: 'relative'
-            }}>
+            <Box>
                 <Typography variant="h2" component="h1" align="center" sx={{ color: 'text.primary', fontWeight: 700}}>
                     Our Blog
                 </Typography>
 
-                <Box sx={{display: 'flex', justifyContent: 'center', my: 4}}>
+                <Box sx={{display: 'flex', justifyContent: 'center', my: {xs: 2, sm: 3}}}>
                     <TextField
                         variant="outlined"
                         placeholder={"Search posts..."}
@@ -75,7 +72,7 @@ export default function BlogGrid({posts, baseApiUrl}: BlogGridProps) {
                     />
                 </Box>
 
-                <Grid container spacing={4}>
+                <Grid container spacing={{xs: 2, sm: 3}}>
                     {filteredPosts.length > 0 ? (
                         filteredPosts.map((post: Post) => (
                             <Grid item xs={12} sm={6} md={4} key={post.id}>
@@ -97,7 +94,7 @@ export default function BlogGrid({posts, baseApiUrl}: BlogGridProps) {
                         </Grid>
                     )}
                 </Grid>
-            </Container>
+            </Box>
 
             {user && user.role === 'admin' && (
                 <Fab
@@ -105,8 +102,9 @@ export default function BlogGrid({posts, baseApiUrl}: BlogGridProps) {
                     aria-label="add"
                     sx={{
                         position: 'fixed',
-                        bottom: 24,
-                        right: 24,
+                        borderRadius: 1,
+                        bottom: {xs: 16, sm: 24, lg: 52},
+                        right: {xs: 16, sm: 24, lg: 52},
                     }}
                     onClick={() => {router.push('/blog/create')}}
                 >

@@ -1,12 +1,15 @@
-import {Box, Grid, Skeleton} from "@mui/material";
+import React from "react";
+import {Box, Grid, Skeleton, useTheme} from "@mui/material";
 
 interface ProductSkeletonProps {
     count?: number;
 }
 
-const ProductSkeleton = ({ count = 8 }: ProductSkeletonProps) => {
+const ProductSkeleton = ({ count = 12 }: ProductSkeletonProps) => {
+    const theme = useTheme();
+
     return (
-        <Grid container spacing={3}>
+        <Grid container spacing={2}>
             {Array(count)
                 .fill(0)
                 .map((_, index) => (
@@ -15,96 +18,86 @@ const ProductSkeleton = ({ count = 8 }: ProductSkeletonProps) => {
                             sx={(theme) => ({
                                 display: "flex",
                                 flexDirection: "column",
-                                borderRadius: 2,
+                                borderRadius: 1,
                                 bgcolor: theme.palette.background.paper,
-                                boxShadow: theme.shadows[1],
+                                border: `1px solid ${theme.palette.divider}`,
                                 overflow: "hidden",
                                 height: "100%",
-                                border: `2px solid ${theme.palette.divider}`,
                                 position: "relative",
                             })}
                         >
-                            {/* CODE CHIP SKELETON */}
                             <Box
                                 sx={{
-                                    position: "absolute",
-                                    top: 8,
-                                    left: 8,
-                                    zIndex: 1,
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    alignItems: "center",
+                                    px: 2,
+                                    py: 1,
+                                    borderBottom: `1px solid ${theme.palette.divider}`,
                                 }}
                             >
                                 <Skeleton
                                     variant="rounded"
-                                    width={60}
-                                    height={24}
-                                    sx={{ borderRadius: "12px" }}
+                                    width={70}
+                                    height={20}
+                                    sx={{ borderRadius: 1 }}
                                 />
                             </Box>
 
-                            {/* IMAGE SKELETON */}
                             <Box
                                 sx={{
                                     display: "flex",
                                     justifyContent: "center",
                                     alignItems: "center",
-                                    padding: 3,
-                                    paddingTop: 5,
-                                    height: 120,
-                                    borderBottom: "1px solid",
-                                    borderColor: "divider",
+                                    height: 140,
+                                    padding: 2,
+                                    bgcolor: "grey.25",
                                 }}
                             >
                                 <Skeleton
                                     variant="rectangular"
-                                    width={80}
-                                    height={80}
+                                    width={120}
+                                    height={120}
                                     sx={{ borderRadius: 1 }}
                                 />
                             </Box>
 
-                            {/* CONTENT SKELETON */}
                             <Box
                                 sx={{
-                                    padding: 2.5,
+                                    padding: 2,
                                     display: "flex",
                                     flexDirection: "column",
                                     flexGrow: 1,
-                                    gap: 1,
                                 }}
                             >
-                                {/* MAIN TITLE SKELETON */}
                                 <Skeleton
                                     variant="text"
-                                    width="80%"
-                                    height={28}
-                                    sx={{ fontSize: "1.1rem" }}
+                                    width="90%"
+                                    height={22}
+                                    sx={{ mb: 1.5 }}
                                 />
 
-                                {/* INFO GRID SKELETON */}
-                                <Box sx={{ mt: 1 }}>
-                                    <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
+                                <Box sx={{mb: 2}}>
+                                    <Box sx={{ display: "flex", mb: 1, gap: 1 }}>
+                                        <Skeleton variant="text" width={60} height={16} />
+                                        <Skeleton variant="text" width="60%" height={16} />
+                                    </Box>
+                                    <Box sx={{ display: "flex", mb: 1, gap: 1 }}>
+                                        <Skeleton variant="text" width={60} height={16} />
+                                        <Skeleton variant="text" width="50%" height={16} />
+                                    </Box>
+                                    <Box sx={{ display: "flex", gap: 1 }}>
+                                        <Skeleton variant="text" width={60} height={16} />
                                         <Skeleton variant="text" width="40%" height={16} />
-                                        <Skeleton variant="text" width="35%" height={16} />
-                                    </Box>
-
-                                    <Box sx={{ display: "flex", justifyContent: "space-between", mb: 0.5 }}>
-                                        <Skeleton variant="text" width="30%" height={16} />
-                                        <Skeleton variant="text" width="45%" height={16} />
-                                    </Box>
-
-                                    <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                                        <Skeleton variant="text" width="25%" height={16} />
-                                        <Skeleton variant="text" width="30%" height={16} />
                                     </Box>
                                 </Box>
 
-                                {/* ACTION BUTTON SKELETON */}
-                                <Box sx={{ mt: "auto", pt: 2 }}>
+                                <Box sx={{ mt: "auto" }}>
                                     <Skeleton
                                         variant="rounded"
-                                        width="100%"
-                                        height={42}
-                                        sx={{ borderRadius: 1.5 }}
+                                        width={100}
+                                        height={36}
+                                        sx={{ borderRadius: 1 }}
                                     />
                                 </Box>
                             </Box>

@@ -1,10 +1,12 @@
 export interface CatalogItem {
+    id: number;
     code: string;
     shape: string;
     dimensions: string;
     images: string;
     name_bonds: string[];
     grid_size: string;
+    mounting?: MountingDetail
     is_in_cart: boolean;
 }
 
@@ -14,6 +16,7 @@ export interface CatalogResponse {
     total_pages: number;
     current_page: number;
     items_per_page: number;
+    category_name: string;
 }
 
 export interface BondDetail {
@@ -41,6 +44,7 @@ export interface ProductDetailData {
         images: string;
         name_bonds: string[];
         grid_size: string;
+        mounting?: MountingDetail
         is_in_cart: boolean;
     };
     bonds: BondDetail[];

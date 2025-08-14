@@ -2,13 +2,15 @@
 
 import React, {useEffect} from 'react';
 import {useNavigatingRouter} from '@/hooks/useNavigatingRouter';
-import {Box, CircularProgress, Container, Grid, Typography} from '@mui/material';
+import {Box, Grid, Typography} from '@mui/material';
 import {useDataStore} from "@/features/data/store";
+import {useCatalogStore} from "@/features/catalog/store";
 
-const CategoriesSection: React.FC = () => {
+export const CategoriesSection: React.FC = () => {
     const router = useNavigatingRouter();
 
-    const { categories, categoriesLoading, categoriesError, fetchCategories } = useDataStore();
+    const {categories, categoriesLoading, categoriesError, fetchCategories} = useDataStore();
+    const {setCategory} = useCatalogStore();
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:8080/api";
 
@@ -17,35 +19,55 @@ const CategoriesSection: React.FC = () => {
     }, [fetchCategories]);
 
     if (categoriesLoading) {
+        const placeholders = Array.from({length: 4});
         return (
-            <Container maxWidth="lg" sx={{ mt: 6 }}>
-                <CircularProgress />
-            </Container>
+            <Box>
+                <Typography variant="h3" component="h2" sx={{mb: {xs: 2, sm: 3}, color: 'text.primary'}}>
+                    Product Categories
+                </Typography>
+
+                <Grid container spacing={{xs: 2, sm: 3}} justifyContent="center">
+                    {placeholders.map((_, i) => (
+                        <Grid item xs={12} md={6} key={i}>
+                            <Box
+                                sx={{
+                                    width: '100%',
+                                    height: 220,
+                                    borderRadius: 1,
+                                    backgroundColor: 'action.hover',
+                                    overflow: 'hidden',
+                                }}
+                            />
+                        </Grid>
+                    ))}
+                </Grid>
+            </Box>
         );
     }
 
     if (categoriesError) {
         return (
-            <Container maxWidth="lg" sx={{ mt: 6 }}>
-                <Typography color="error">Failed to load categories: {categoriesError}</Typography>
-            </Container>
+            <Typography color="error">Failed to load categories: {categoriesError}</Typography>
         );
     }
 
     return (
-        <Container maxWidth="lg" sx={{ mt: 6 }}>
-            <Typography variant="h3" component="h2" sx={{ mb: 4, color: 'text.primary' }}>
-                Product Categories
+        <Box>
+            <Typography variant="h3" component="h2" sx={{mb: {xs: 1, sm: 2}, color: 'text.primary'}}>
+                Categories
             </Typography>
-            <Grid container spacing={3} justifyContent="center">
+            <Grid container spacing={{xs: 2, sm: 3}} justifyContent="center">
                 {categories.map((category) => (
                     <Grid
                         item
                         xs={12}
                         md={6}
-                        key={category.name}
-                        onClick={() => router.push(`/catalog?category=${category.name}`)}
-                        sx={{ cursor: 'pointer' }}
+                        key={category.id}
+                        onClick={() => {
+                            setCategory(category.id, category.name);
+                            router.push(`/catalog`);
+                        }}
+                        sx={{cursor: 'pointer'}}
                     >
                         <Box
                             sx={{
@@ -68,14 +90,13 @@ const CategoriesSection: React.FC = () => {
                                     height: '100%',
                                     objectFit: 'cover',
                                     transition: 'transform .3s ease-in-out',
+                                    display: 'block',
                                 }}
                             />
                         </Box>
                     </Grid>
                 ))}
             </Grid>
-        </Container>
+        </Box>
     );
 };
-
-export default CategoriesSection;

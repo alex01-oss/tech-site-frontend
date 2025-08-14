@@ -3,14 +3,15 @@ import {Autocomplete, CircularProgress, InputAdornment, TextField,} from '@mui/m
 import SearchIcon from '@mui/icons-material/Search';
 import debounce from 'lodash.debounce';
 import {autoCompleteApi} from "@/features/autocomplete/api";
-
+import {useCatalogStore} from "@/features/catalog/store";
+import {SearchFields} from "@/types/searchFields";
 
 interface AutocompleteSearchFieldProps {
-    type: "code" | "shape" | "dimensions" | "machine";
+    type: keyof SearchFields;
     label: string;
     minLength: number;
     value: string;
-    onChange: (type: "code" | "shape" | "dimensions" | "machine", value: string) => void;
+    onChange: (type: keyof SearchFields, value: string) => void;
     onKeyPress: (e: React.KeyboardEvent) => void;
     isMobile?: boolean;
 }
@@ -23,20 +24,17 @@ const apiMap = {
 };
 
 const AutocompleteSearchField: React.FC<AutocompleteSearchFieldProps> = memo(
-    ({ type, label, minLength, value, onChange, onKeyPress, isMobile }) => {
+    ({type, label, minLength, value, onChange, onKeyPress, isMobile}) => {
         const [options, setOptions] = useState<string[]>([]);
         const [loading, setLoading] = useState(false);
+
+        const {categoryId} = useCatalogStore();
 
         const getPlaceholderText = (lbl: string): string => `Enter ${lbl}...`;
 
         const fetchOptionsDebounced = useCallback(
             debounce(async (query: string) => {
-                if (query.length === 0) {
-                    setOptions([]);
-                    return;
-                }
-
-                if (query.length < minLength) {
+                if (query.length === 0 || query.length < minLength || !categoryId) {
                     setOptions([]);
                     return;
                 }
@@ -44,7 +42,7 @@ const AutocompleteSearchField: React.FC<AutocompleteSearchFieldProps> = memo(
                 setLoading(true);
                 try {
                     const apiCall = apiMap[type];
-                    const res = await apiCall(query);
+                    const res = await apiCall(query, categoryId);
                     setOptions(res);
                 } catch (error) {
                     console.error(`Error fetching autocomplete for ${type}:`, error);
@@ -53,7 +51,7 @@ const AutocompleteSearchField: React.FC<AutocompleteSearchFieldProps> = memo(
                     setLoading(false);
                 }
             }, 300),
-            [type, minLength]
+            [type, minLength, categoryId]
         );
 
         useEffect(() => {
@@ -67,7 +65,7 @@ const AutocompleteSearchField: React.FC<AutocompleteSearchFieldProps> = memo(
                 if (reason === 'input') void fetchOptionsDebounced(newInputValue);
                 else if (reason === 'clear') {
                     setOptions([]);
-                    fetchOptionsDebounced.cancel()
+                    fetchOptionsDebounced.cancel();
                 }
             },
             [onChange, type, fetchOptionsDebounced]
@@ -107,7 +105,7 @@ const AutocompleteSearchField: React.FC<AutocompleteSearchFieldProps> = memo(
         };
 
         const textFieldSx = isMobile ? {
-            '& .MuiOutlinedInput-root': { borderRadius: 1 },
+            '& .MuiOutlinedInput-root': {borderRadius: 1},
             mb: 0
         } : {
             flexGrow: 1,
@@ -115,7 +113,7 @@ const AutocompleteSearchField: React.FC<AutocompleteSearchFieldProps> = memo(
                 height: '48px',
                 borderRadius: 0,
                 backgroundColor: 'transparent',
-                '& fieldset': { border: 'none' },
+                '& fieldset': {border: 'none'},
             },
             '& .MuiInputBase-input': {
                 py: 1.25,
@@ -131,7 +129,7 @@ const AutocompleteSearchField: React.FC<AutocompleteSearchFieldProps> = memo(
                 value={value}
                 onInputChange={handleInputChange}
                 onChange={handleSelectChange}
-                sx={{ flexGrow: 1, minWidth: isMobile ? undefined : 120 }}
+                sx={{flexGrow: 1, minWidth: isMobile ? undefined : 120}}
                 renderInput={(params) => (
                     <TextField
                         {...params}
@@ -145,12 +143,12 @@ const AutocompleteSearchField: React.FC<AutocompleteSearchFieldProps> = memo(
                             ...params.InputProps,
                             startAdornment: isMobile && (
                                 <InputAdornment position="start">
-                                    <SearchIcon color="action" />
+                                    <SearchIcon color="action"/>
                                 </InputAdornment>
                             ),
                             endAdornment: (
                                 <>
-                                    {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                                    {loading ? <CircularProgress color="inherit" size={20}/> : null}
                                     {params.InputProps.endAdornment}
                                 </>
                             ),

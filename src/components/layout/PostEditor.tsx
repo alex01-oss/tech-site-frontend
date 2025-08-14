@@ -45,9 +45,9 @@ interface PostEditorProps {
     postId?: number;
 }
 
-const PostEditor: React.FC<PostEditorProps> = ({ mode, postId }) => {
+const PostEditor: React.FC<PostEditorProps> = ({mode, postId}) => {
     const router = useNavigatingRouter();
-    const { enqueueSnackbar } = useSnackbar();
+    const {enqueueSnackbar} = useSnackbar();
 
     const theme = useTheme();
     const isDarkMode = theme.palette.mode === 'dark';
@@ -70,7 +70,6 @@ const PostEditor: React.FC<PostEditorProps> = ({ mode, postId }) => {
         : `${BASE_API_URL}/${formState.imageUrl}`;
 
     const editorRef = React.useRef<TinyMCEEditor | null>(null)
-
     const [editorKey, setEditorKey] = useState(0);
 
     useEffect(() => {
@@ -92,7 +91,7 @@ const PostEditor: React.FC<PostEditorProps> = ({ mode, postId }) => {
                 .catch(err => {
                     console.error('Failed to fetch post for editing:', err);
                     setError(err.message || 'Failed to load post data.');
-                    enqueueSnackbar('Failed to load post data.', { variant: 'error' });
+                    enqueueSnackbar('Failed to load post data.', {variant: 'error'});
                 })
                 .finally(() => {
                     setIsLoading(false);
@@ -108,13 +107,13 @@ const PostEditor: React.FC<PostEditorProps> = ({ mode, postId }) => {
     }, [mode, postId, enqueueSnackbar]);
 
     const handleTitleChange = (e: ChangeEvent<HTMLInputElement>) => {
-        setFormState(prev => ({ ...prev, title: e.target.value }));
+        setFormState(prev => ({...prev, title: e.target.value}));
     };
 
     const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
-            setFormState(prev => ({ ...prev, imageFile: file, imageUrl: null }));
+            setFormState(prev => ({...prev, imageFile: file, imageUrl: null}));
         }
     };
 
@@ -122,21 +121,21 @@ const PostEditor: React.FC<PostEditorProps> = ({ mode, postId }) => {
         if (formState.imageFile) {
             URL.revokeObjectURL(formState.imageFile.name);
         }
-        setFormState(prev => ({ ...prev, imageFile: null, imageUrl: null }));
+        setFormState(prev => ({...prev, imageFile: null, imageUrl: null}));
     };
 
     const handleSavePost = useCallback(async () => {
         setError(null);
 
         if (!formState.title.trim()) {
-            enqueueSnackbar('Post title cannot be empty.', { variant: 'error' });
+            enqueueSnackbar('Post title cannot be empty.', {variant: 'error'});
             return;
         }
 
         const htmlContent = editorRef.current ? editorRef.current.getContent() : '';
 
         if (!htmlContent.trim()) {
-            enqueueSnackbar('Post content cannot be empty.', { variant: 'error' });
+            enqueueSnackbar('Post content cannot be empty.', {variant: 'error'});
             return;
         }
 
@@ -151,7 +150,6 @@ const PostEditor: React.FC<PostEditorProps> = ({ mode, postId }) => {
                 finalImageUrl = null;
             }
 
-
             const postData: PostRequest = {
                 title: formState.title,
                 content: htmlContent,
@@ -160,10 +158,10 @@ const PostEditor: React.FC<PostEditorProps> = ({ mode, postId }) => {
 
             if (isNewPost) {
                 await blogApi.createPost(postData);
-                enqueueSnackbar('Post created successfully!', { variant: 'success' });
+                enqueueSnackbar('Post created successfully!', {variant: 'success'});
             } else if (postId) {
                 await blogApi.editPost(postId, postData);
-                enqueueSnackbar('Post updated successfully!', { variant: 'success' });
+                enqueueSnackbar('Post updated successfully!', {variant: 'success'});
             }
 
             await revalidateBlogPosts();
@@ -171,7 +169,7 @@ const PostEditor: React.FC<PostEditorProps> = ({ mode, postId }) => {
         } catch (err: any) {
             console.error('Failed to save post:', err);
             setError(err.message || 'Failed to save post.');
-            enqueueSnackbar(`Failed to save post: ${err.message || 'Unknown error'}`, { variant: 'error' });
+            enqueueSnackbar(`Failed to save post: ${err.message || 'Unknown error'}`, {variant: 'error'});
         } finally {
             setIsSaving(false);
         }
@@ -180,8 +178,8 @@ const PostEditor: React.FC<PostEditorProps> = ({ mode, postId }) => {
     if (isLoading) {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-                <CircularProgress />
-                <Typography variant="h6" sx={{ ml: 2 }}>Loading post...</Typography>
+                <CircularProgress/>
+                <Typography variant="h6" sx={{ml: 2}}>Loading post...</Typography>
             </Box>
         );
     }
@@ -190,124 +188,117 @@ const PostEditor: React.FC<PostEditorProps> = ({ mode, postId }) => {
         return (
             <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="100vh">
                 <Typography color="error" variant="h6">{error}</Typography>
-                <Button onClick={() => router.back()} sx={{ mt: 2 }}>Go Back</Button>
+                <Button onClick={() => router.back()} sx={{mt: 2}}>Go Back</Button>
             </Box>
         );
     }
 
     return (
-        <Box sx={{ flexGrow: 1, pt: 1 }}>
-            <Toolbar />
-            <Container maxWidth="md" sx={{ mt: 2, pb: 4 }}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                    <TextField
-                        label="Title"
-                        variant="outlined"
-                        fullWidth
-                        value={formState.title}
-                        onChange={handleTitleChange}
-                        required
+        <Box sx={{display: 'flex', flexDirection: 'column', gap: {xs: 2, sm: 3}}}>
+            <TextField
+                label="Title"
+                variant="outlined"
+                fullWidth
+                value={formState.title}
+                onChange={handleTitleChange}
+                required
+            />
+
+            <Card variant="outlined" sx={{borderRadius: 1}}>
+                <CardContent>
+                    <Typography variant="h6" gutterBottom>Image</Typography>
+                    <input
+                        accept="image/*"
+                        style={{display: 'none'}}
+                        id="upload-image-button"
+                        type="file"
+                        onChange={handleImageChange}
                     />
+                    <label htmlFor="upload-image-button">
+                        <Button
+                            variant="contained"
+                            component="span"
+                            startIcon={<AddPhotoAlternateIcon/>}
+                        >
+                            {hasImage ? 'Change Image' : 'Pick Image'}
+                        </Button>
+                    </label>
 
-                    <Card variant="outlined">
-                        <CardContent>
-                            <Typography variant="h6" gutterBottom>Image</Typography>
-                            <input
-                                accept="image/*"
-                                style={{ display: 'none' }}
-                                id="upload-image-button"
-                                type="file"
-                                onChange={handleImageChange}
+                    {hasImage && previewImage && (
+                        <Box sx={{mt: 2, position: 'relative', width: '100%', height: 200}}>
+                            <Image
+                                src={previewImage}
+                                alt="Post Preview"
+                                fill
+                                style={{objectFit: 'cover', borderRadius: '4px'}}
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             />
-                            <label htmlFor="upload-image-button">
-                                <Button
-                                    variant="contained"
-                                    component="span"
-                                    startIcon={<AddPhotoAlternateIcon />}
-                                    fullWidth
-                                >
-                                    {hasImage ? 'Change Image' : 'Pick Image'}
-                                </Button>
-                            </label>
-
-                            {hasImage && previewImage && (
-                                <Box sx={{ mt: 2, position: 'relative', width: '100%', height: 200 }}>
-                                    <Image
-                                        src={previewImage}
-                                        alt="Post Preview"
-                                        fill
-                                        style={{ objectFit: 'cover', borderRadius: '4px' }}
-                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                                    />
-                                    <IconButton
-                                        onClick={handleClearImage}
-                                        sx={{
-                                            position: 'absolute',
-                                            top: 8,
-                                            right: 8,
-                                            backgroundColor: 'rgba(255,255,255,0.7)',
-                                            '&:hover': { backgroundColor: 'rgba(255,255,255,0.9)' }
-                                        }}
-                                    >
-                                        <DeleteIcon color="error" />
-                                    </IconButton>
-                                </Box>
-                            )}
-                        </CardContent>
-                    </Card>
-
-                    <Card variant="outlined">
-                        <CardContent>
-                            <Typography variant="h6" gutterBottom>Content Editor</Typography>
-                            <Editor
-                                key={editorKey}
-                                onInit={(_, editor) => editorRef.current = editor}
-                                value={formState.content || ''}
-                                onEditorChange={(newValue) => {
-                                    setFormState(prev => ({ ...prev, content: newValue }));
+                            <IconButton
+                                onClick={handleClearImage}
+                                sx={{
+                                    position: 'absolute',
+                                    top: 8,
+                                    right: 8,
+                                    backgroundColor: 'rgba(255,255,255,0.7)',
+                                    '&:hover': {backgroundColor: 'rgba(255,255,255,0.9)'}
                                 }}
-                                apiKey={TINYMCE_API_KEY}
-                                init={{
-                                    directionality: 'ltr',
-                                    height: 500,
-                                    menubar: false,
-                                    plugins: [
-                                        'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-                                        'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                                        'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
-                                    ],
-                                    toolbar: 'undo redo | blocks | ' +
-                                        'bold italic forecolor | alignleft aligncenter ' +
-                                        'alignright alignjustify | bullist numlist outdent indent | ' +
-                                        'removeformat | help',
-                                    skin: isDarkMode ? 'oxide-dark' : 'oxide',
-                                    content_style: isDarkMode
-                                        ? `
-                                            body { font-family: Helvetica,Arial,sans-serif; font-size: 14px; background-color: #1e1e1e; color: #ffffff; }
-                                            h1, h2, h3, h4, h5, h6, p, a { color: #ffffff; }
-                                        `
-                                                        : `
-                                            body { font-family: Helvetica,Arial,sans-serif; font-size: 14px; background-color: #ffffff; color: #000000; }
-                                            h1, h2, h3, h4, h5, h6, p, a { color: #000000; }
-                                        `,
-                                }}
-                            />
-                        </CardContent>
-                    </Card>
+                            >
+                                <DeleteIcon color="error"/>
+                            </IconButton>
+                        </Box>
+                    )}
+                </CardContent>
+            </Card>
 
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={handleSavePost}
-                        disabled={isSaving}
-                        fullWidth
-                        sx={{ mt: 1 }}
-                        startIcon={<SaveIcon />}
-                    >
-                        {isSaving ? <CircularProgress size={24} /> : (isNewPost ? 'Create Post' : 'Update Post')}
-                    </Button>
-                </Box>
-            </Container>
+            <Card variant="outlined" sx={{borderRadius: 1}}>
+                <CardContent>
+                    <Typography variant="h6" gutterBottom>Content Editor</Typography>
+                    <Editor
+                        key={editorKey}
+                        onInit={(_, editor) => editorRef.current = editor}
+                        value={formState.content || ''}
+                        onEditorChange={(newValue) => {
+                            setFormState(prev => ({...prev, content: newValue}));
+                        }}
+                        apiKey={TINYMCE_API_KEY}
+                        init={{
+                            directionality: 'ltr',
+                            height: 500,
+                            menubar: false,
+                            plugins: [
+                                'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                                'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                                'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
+                            ],
+                            toolbar: 'undo redo | blocks | ' +
+                                'bold italic forecolor | alignleft aligncenter ' +
+                                'alignright alignjustify | bullist numlist outdent indent | ' +
+                                'removeformat | help',
+                            skin: isDarkMode ? 'oxide-dark' : 'oxide',
+                            content_style: isDarkMode
+                                ? `
+                                    body { font-family: Helvetica,Arial,sans-serif; font-size: 14px; background-color: #1e1e1e; color: #ffffff; }
+                                    h1, h2, h3, h4, h5, h6, p, a { color: #ffffff; }
+                                `
+                                : `
+                                    body { font-family: Helvetica,Arial,sans-serif; font-size: 14px; background-color: #ffffff; color: #000000; }
+                                    h1, h2, h3, h4, h5, h6, p, a { color: #000000; }
+                                `,
+                        }}
+                    />
+                </CardContent>
+            </Card>
+
+            <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSavePost}
+                disabled={isSaving}
+                fullWidth
+                startIcon={<SaveIcon/>}
+            >
+                {isSaving ? <CircularProgress size={24}/> : (isNewPost ? 'Create Post' : 'Update Post')}
+            </Button>
         </Box>
     );
 };

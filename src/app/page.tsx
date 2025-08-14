@@ -1,6 +1,6 @@
-import {Box, Toolbar} from "@mui/material";
+import {Stack} from "@mui/material";
 import AboutUsSection from "@/components/layout/AboutUsSection";
-import CategoriesSection from "@/components/layout/CategoriesSection";
+import {CategoriesSection} from "@/components/layout/CategoriesSection";
 import BlogSection from "@/components/layout/BlogSection";
 import VideosSection from "@/components/layout/VideosSection";
 import {Post} from "@/features/blog/types";
@@ -37,12 +37,11 @@ export default async function Page() {
     }
 
     return (
-        <Box sx={{ bgcolor: 'background.default', minHeight: '100vh' }}>
-            <Toolbar sx={{ mt: 4 }}/>
+        <Stack spacing={4}>
             <AboutUsSection />
             <CategoriesSection />
-            <BlogSection posts={posts} baseApiUrl={BASE_API_URL} />
+            <BlogSection posts={posts} baseApiUrl={BASE_API_URL} isLoading={false} />
             <VideosSection videos={youtubeVideos} />
-        </Box>
+        </Stack>
     );
 }

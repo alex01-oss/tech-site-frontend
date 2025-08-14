@@ -76,7 +76,7 @@ const AuthCardLayout: React.FC<AuthCardLayoutProps> = ({
     const router = useRouter();
 
     return (
-        <Stack height="100vh" p={2} justifyContent="center">
+        <Stack height="90vh" p={2} justifyContent="center">
             <Card
                 variant="outlined"
                 sx={{
@@ -85,17 +85,18 @@ const AuthCardLayout: React.FC<AuthCardLayoutProps> = ({
                     alignSelf: "center",
                     width: '100%',
                     maxWidth: 450,
-                    p: 4,
-                    gap: 2,
+                    p: {xs: 2, sm: 3},
+                    gap: {xs: 2, sm: 3},
                     m: "auto",
                     boxShadow: theme.shadows[3],
+                    borderRadius: 1
                 }}
             >
-                <Typography variant="h4" textAlign="center" fontWeight={600} mb={2}>
+                <Typography variant="h4" textAlign="center" fontWeight={600} sx={{mt: 2}}>
                     {title}
                 </Typography>
                 {children}
-                <Typography textAlign="center" mt={2}>
+                <Typography textAlign="center">
                     {isLogin ? (
                         <>
                             Don't have an account?{" "}

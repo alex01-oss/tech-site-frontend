@@ -3,8 +3,9 @@ import api from "@/shared/lib/api";
 
 
 export const menuApi = {
-    getFilters: async (): Promise<FilterResponse> => {
-        const res = await api.get("filters");
+    getFilters: async (categoryId: number | null = null): Promise<FilterResponse> => {
+        const params = categoryId !== null ? {category_id: categoryId} : {};
+        const res = await api.get("filters", {params});
         return res.data;
     },
 

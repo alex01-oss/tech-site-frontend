@@ -4,29 +4,25 @@ export function useGridItemsPerPage(): number | null {
     const [itemsPerPage, setItemsPerPage] = useState<number | null>(null);
 
     useEffect(() => {
+        const breakpoints = [
+            { width: 1536, value: 12 }, // xl
+            { width: 1200, value: 12 }, // lg
+            { width: 900, value: 9 },   // md
+            { width: 600, value: 6 },   // sm
+            { width: 0, value: 6 },     // xs
+        ];
+
         function updateItemsPerPage() {
             const width = window.innerWidth;
-            let value: number
-
-            if (width >= 1536) {                // xl
-                value = 12;
-            } else if (width >= 1200) {         // lg
-                value = 12;
-            } else if (width >= 900) {          // md
-                value = 9;
-            } else if (width >= 600) {          // sm
-                value = 6;
-            } else {                            // xs
-                value = 6;
-            }
-
+            const { value } = breakpoints.find(bp => width >= bp.width) || { value: 6 };
             setItemsPerPage(value);
         }
 
         updateItemsPerPage();
         window.addEventListener('resize', updateItemsPerPage);
+
         return () => window.removeEventListener('resize', updateItemsPerPage);
-    }, [])
+    }, []);
 
     return itemsPerPage;
 }

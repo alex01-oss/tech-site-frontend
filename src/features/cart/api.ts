@@ -1,4 +1,4 @@
-import {CartListResponse, CartRequest, CartResponse} from "@/features/cart/types";
+import {CartListResponse, CartResponse} from "@/features/cart/types";
 import api from "@/shared/lib/api";
 
 
@@ -8,13 +8,13 @@ export const cartApi = {
         return res.data;
     },
 
-    addToCart: async (data: CartRequest): Promise<CartResponse> => {
-        const res =  await api.post("cart/items", data);
+    addToCart: async (id: number): Promise<CartResponse> => {
+        const res =  await api.post("cart/items", { product_id: id });
         return res.data;
     },
 
-    removeFromCart: async (code: string): Promise<CartResponse> => {
-        const res = await api.delete(`cart/items/${code}`);
+    removeFromCart: async (id: number): Promise<CartResponse> => {
+        const res = await api.delete(`cart/items/${id}`);
         return res.data;
     },
 

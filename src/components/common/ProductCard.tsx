@@ -10,7 +10,7 @@ import Image from "next/image";
 interface ProductCardProps {
     product: CatalogItem;
     isCartView?: boolean;
-    onToggleCart: (product: CatalogItem) => void;
+    onToggleCart: (id: number) => void;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = memo(({
@@ -24,7 +24,7 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
 
     return (
         <Box
-            onClick={() => router.push(`/catalog/${product.code}`)}
+            onClick={() => router.push(`/catalog/${product.id}`)}
             sx={(theme) => ({
                 display: "flex",
                 flexDirection: "column",
@@ -33,9 +33,7 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                 border: `1px solid ${theme.palette.divider}`,
                 transition: theme.transitions.create(
                     ["border-color", "box-shadow"],
-                    {
-                        duration: theme.transitions.duration.short,
-                    }
+                    {duration: theme.transitions.duration.short}
                 ),
                 overflow: "hidden",
                 height: "100%",
@@ -83,9 +81,11 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                     bgcolor: "grey.25",
                 }}
             >
-                <img
+                <Image
                     src={`${apiUrl}/${product.images}`}
                     alt={product.shape}
+                    height={300}
+                    width={300}
                     style={{
                         maxWidth: "100%",
                         maxHeight: "100%",
@@ -115,8 +115,8 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                     {product.shape}
                 </Typography>
 
-                <Box sx={{ mb: 2 }}>
-                    <Box sx={{ display: "flex", mb: 1 }}>
+                <Box sx={{mb: 2}}>
+                    <Box sx={{display: "flex", mb: 1}}>
                         <Typography
                             variant="caption"
                             sx={{
@@ -149,7 +149,7 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                     </Box>
 
                     {product.name_bonds && product.name_bonds.length > 0 && (
-                        <Box sx={{ display: "flex", mb: 1 }}>
+                        <Box sx={{display: "flex", mb: 1}}>
                             <Typography
                                 variant="caption"
                                 sx={{
@@ -173,8 +173,9 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                         </Box>
                     )}
 
+
                     {product.grid_size && (
-                        <Box sx={{ display: "flex" }}>
+                        <Box sx={{display: "flex"}}>
                             <Typography
                                 variant="caption"
                                 sx={{
@@ -197,23 +198,49 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                             </Typography>
                         </Box>
                     )}
+
+                    {product.mounting && (
+                        <Box sx={{display: "flex"}}>
+                            <Typography
+                                variant="caption"
+                                sx={{
+                                    minWidth: 60,
+                                    color: "text.secondary",
+                                    textTransform: "uppercase",
+                                    letterSpacing: 0.5,
+                                }}
+                            >
+                                FIT
+                            </Typography>
+                            <Typography
+                                variant="caption"
+                                sx={{
+                                    color: "text.primary",
+                                    fontWeight: 500,
+                                }}
+                            >
+                                {`${product.mounting.mm} mm / ${product.mounting.inch} ″`}
+                            </Typography>
+                        </Box>
+                    )}
+
                 </Box>
 
-                <Box sx={{ mt: "auto" }}>
+                <Box sx={{mt: "auto"}}>
                     <Button
                         variant="contained"
                         color={isCartView ? "error" : product.is_in_cart ? "success" : "primary"}
                         onClick={(e) => {
                             e.stopPropagation();
-                            onToggleCart(product);
+                            onToggleCart(product.id);
                         }}
                         startIcon={
                             isCartView ? (
-                                <Delete sx={{ fontSize: 20 }} />
+                                <Delete sx={{fontSize: 20}}/>
                             ) : product.is_in_cart ? (
-                                <Star sx={{ fontSize: 20 }} />
+                                <Star sx={{fontSize: 20}}/>
                             ) : (
-                                <StarBorder sx={{ fontSize: 20 }} />
+                                <StarBorder sx={{fontSize: 20}}/>
                             )
                         }
                         sx={{

@@ -14,6 +14,7 @@ import 'swiper/css/pagination';
 import 'swiper/css/navigation';
 import VideoCard from "@/components/layout/VideoCard";
 import {Video} from "@/features/youtube/types";
+import {Box} from "@mui/material";
 
 interface VideosSectionProps {
     videos: Video[];
@@ -28,8 +29,8 @@ const VideosSection: React.FC<VideosSectionProps> = ({ videos }) => {
     };
 
     return (
-        <Container maxWidth="lg" sx={{ mt: 6 }}>
-            <Typography variant="h3" component="h2" sx={{ mb: 4, color: 'text.primary' }}>
+        <Box>
+            <Typography variant="h3" component="h2" sx={{ mb: {xs: 1, sm: 2}, color: 'text.primary' }}>
                 Our videos
             </Typography>
 
@@ -45,7 +46,7 @@ const VideosSection: React.FC<VideosSectionProps> = ({ videos }) => {
                             breakpoints={{
                                 600: {
                                     slidesPerView: 2.1,
-                                    spaceBetween: 30,
+                                    spaceBetween: 20,
                                 },
                             }}
                             style={{ paddingBottom: '40px' }}
@@ -84,7 +85,7 @@ const VideosSection: React.FC<VideosSectionProps> = ({ videos }) => {
                     </Grid>
                 </Grid>
             )}
-        </Container>
+        </Box>
     );
 };
 

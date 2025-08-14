@@ -13,72 +13,59 @@ export interface DataState {
     filtersError: string | null;
     categoriesError: string | null;
 
-    filtersFetched: boolean;
     categoriesFetched: boolean;
 
-    fetchFilters: () => Promise<void>;
+    fetchFilters: (categoryId: number | null) => Promise<void>;
     fetchCategories: () => Promise<void>;
 }
 
 export const useDataStore = create<DataState>()(
-    persist(
-        (set, get) => ({
-            filters: null,
-            categories: [],
+    (set, get) => ({
+        filters: null,
+        categories: [],
 
-            filtersLoading: false,
-            categoriesLoading: false,
+        filtersLoading: false,
+        categoriesLoading: false,
 
-            filtersError: null,
-            categoriesError: null,
+        filtersError: null,
+        categoriesError: null,
 
-            filtersFetched: false,
-            categoriesFetched: false,
+        filtersFetched: false,
+        categoriesFetched: false,
 
-            fetchFilters: async () => {
-                if (get().filtersFetched) {
-                    return;
-                }
-                try {
-                    set({ filtersLoading: true, filtersError: null });
-                    const response = await menuApi.getFilters();
-                    set({
-                        filters: response,
-                        filtersFetched: true,
-                    });
-                } catch (e) {
-                    console.error("Fetch filters failed", e);
-                    set({ filtersError: e instanceof Error ? e.message : "Failed to fetch filters" });
-                } finally {
-                    set({ filtersLoading: false });
-                }
-            },
+        fetchFilters: async (categoryId: number | null) => {
+            if (get().filtersLoading) {
+                return;
+            }
+            try {
+                set({filtersLoading: true, filtersError: null});
+                const response = await menuApi.getFilters(categoryId);
+                set({filters: response});
+            } catch (e) {
+                console.error("Fetch filters failed", e);
+                set({filtersError: e instanceof Error ? e.message : "Failed to fetch filters"});
+            } finally {
+                set({filtersLoading: false});
+            }
+        },
 
-            fetchCategories: async () => {
-                if (get().categoriesFetched) {
-                    return;
-                }
-                try {
-                    set({ categoriesLoading: true, categoriesError: null });
-                    const response = await menuApi.getCategories();
-                    set({
-                        categories: response,
-                        categoriesFetched: true,
-                    });
-                } catch (e) {
-                    console.error("Fetch categories failed", e);
-                    set({ categoriesError: e instanceof Error ? e.message : "Failed to fetch categories" });
-                } finally {
-                    set({ categoriesLoading: false });
-                }
-            },
-        }),
-        {
-            name: "data-store",
-            partialize: (state) => ({
-                filters: state.filters,
-                categories: state.categories,
-            }),
-        }
-    )
+        fetchCategories: async () => {
+            if (get().categoriesFetched) {
+                return;
+            }
+            try {
+                set({categoriesLoading: true, categoriesError: null});
+                const response = await menuApi.getCategories();
+                set({
+                    categories: response,
+                    categoriesFetched: true,
+                });
+            } catch (e) {
+                console.error("Fetch categories failed", e);
+                set({categoriesError: e instanceof Error ? e.message : "Failed to fetch categories"});
+            } finally {
+                set({categoriesLoading: false});
+            }
+        },
+    }),
 );

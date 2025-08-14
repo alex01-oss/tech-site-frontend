@@ -21,7 +21,6 @@ export default async function PostPage({params}: {params: { id: string }} ) {
 
     return (
         <>
-            <Toolbar sx={{ mt: 4 }}/>
             <PostDetailPage
                 initialPost={post}
                 postId={postId}

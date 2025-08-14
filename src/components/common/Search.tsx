@@ -6,28 +6,26 @@ import CloseIcon from '@mui/icons-material/Close';
 import {useDataStore} from "@/features/data/store";
 import AutocompleteSearchField from "@/components/common/SearchField";
 import FiltersPanel from "@/components/layout/FiltersPanel";
+import {useCatalogStore} from "@/features/catalog/store";
+import {SearchFields} from "@/types/searchFields";
 
 
-interface Props {
-    onSearch: (
-        searchFields: { code?: string; shape?: string; dimensions?: string; machine?: string }
-    ) => void;
-    currentSearchFields: { code?: string; shape?: string; dimensions?: string; machine?: string };
+interface SearchProps {
+    onSearch: (searchFields: Partial<SearchFields>) => void;
+    currentSearchFields: SearchFields;
     currentFilters: Record<string, Set<number>>;
     onFilterToggle: (categoryTitle: string, itemValue: number, checked: boolean) => void;
     onClearAllFilters: () => void;
 }
 
-type SearchFieldKey = "code" | "shape" | "dimensions" | "machine";
-
-const FIXED_SEARCH_FIELDS_CONFIG: { type: SearchFieldKey; label: string; minLength: number }[] = [
-    {type: "code", label: "Code", minLength: 1},
-    {type: "shape", label: "Shape", minLength: 1},
-    {type: "dimensions", label: "Dimensions", minLength: 1},
-    {type: "machine", label: "Machine", minLength: 1},
+const FIXED_SEARCH_FIELDS_CONFIG: { type: keyof SearchFields; label: string; minLength: number }[] = [
+    { type: "code", label: "Code", minLength: 1 },
+    { type: "shape", label: "Shape", minLength: 1 },
+    { type: "dimensions", label: "Dimensions", minLength: 1 },
+    { type: "machine", label: "Machine", minLength: 1 },
 ];
 
-const Search: React.FC<Props> = memo(({
+const Search: React.FC<SearchProps> = memo(({
     onSearch,
     currentSearchFields,
     currentFilters,
@@ -38,32 +36,33 @@ const Search: React.FC<Props> = memo(({
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
     const { fetchFilters } = useDataStore();
+    const { categoryId } = useCatalogStore();
 
     const [openSearchDrawer, setOpenSearchDrawer] = useState(false);
     const [openFiltersDrawer, setOpenFiltersDrawer] = useState(false);
 
-    const [fields, setFields] = useState({
-        code: "",
-        shape: "",
-        dimensions: "",
-        machine: "",
+    const [fields, setFields] = useState<SearchFields>({
+        code: currentSearchFields.code || null,
+        shape: currentSearchFields.shape || null,
+        dimensions: currentSearchFields.dimensions || null,
+        machine: currentSearchFields.machine || null,
     });
 
     useEffect(() => {
         setFields({
-            code: currentSearchFields.code || "",
-            shape: currentSearchFields.shape || "",
-            dimensions: currentSearchFields.dimensions || "",
-            machine: currentSearchFields.machine || "",
+            code: currentSearchFields.code || null,
+            shape: currentSearchFields.shape || null,
+            dimensions: currentSearchFields.dimensions || null,
+            machine: currentSearchFields.machine || null,
         });
     }, [currentSearchFields]);
 
     useEffect(() => {
-        fetchFilters().catch(console.error);
-    }, [fetchFilters]);
+        fetchFilters(categoryId).catch(console.error);
+    }, [fetchFilters, categoryId]);
 
-    const handleChange = useCallback((key: keyof typeof fields, value: string) => {
-        setFields((prev) => ({...prev, [key]: value}));
+    const handleChange = useCallback((key: keyof SearchFields, value: string) => {
+        setFields((prev) => ({ ...prev, [key]: value }));
     }, []);
 
     const handleSearch = useCallback(() => {
@@ -95,7 +94,7 @@ const Search: React.FC<Props> = memo(({
         <React.Fragment key={f.type}>
             <AutocompleteSearchField
                 {...f}
-                value={currentSearchFields[f.type] || ""}
+                value={fields[f.type] || ""}
                 onChange={handleChange}
                 onKeyPress={handleKeyPress}
                 isMobile={isMobile}

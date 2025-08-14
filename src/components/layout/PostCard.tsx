@@ -128,12 +128,12 @@ const PostCard: React.FC<PostCardProps> = ({
                         right: 16,
                         zIndex: 3,
                         display: 'flex',
-                        gap: 1,
+                        gap: 2,
                     }}>
                         <IconButton
                             aria-label="edit post"
                             sx={{
-                                borderRadius: 10,
+                                borderRadius: 1,
                                 color: 'white',
                                 bgcolor: 'primary.main',
                                 '&:hover': {
@@ -151,7 +151,7 @@ const PostCard: React.FC<PostCardProps> = ({
                         <IconButton
                             aria-label="delete post"
                             sx={{
-                                borderRadius: 10,
+                                borderRadius: 1,
                                 color: 'white',
                                 bgcolor: 'secondary.main',
                                 '&:hover': {

@@ -11,20 +11,33 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import PostCard from "@/components/layout/PostCard";
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
+import BlogSkeleton from "@/components/skeletons/BlogSkeleton";
 
 interface BlogSectionProps {
     posts: Post[];
     baseApiUrl: string;
+    isLoading: boolean;
 }
 
-export default function BlogSection({ posts, baseApiUrl }: BlogSectionProps) {
+export default function BlogSection({posts, baseApiUrl, isLoading}: BlogSectionProps) {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const router = useNavigatingRouter();
 
+    if (isLoading) {
+        return (
+            <Box>
+                <Typography variant="h3" component="h2" sx={{mb: {xs: 2, sm: 3}, color: 'text.primary'}}>
+                    Our blog
+                </Typography>
+                <BlogSkeleton/>
+            </Box>
+        );
+    }
+
     return (
-        <Container maxWidth="lg" sx={{ mt: 6 }}>
-            <Typography variant="h3" component="h2" sx={{ mb: 4, color: 'text.primary' }}>
+        <Box>
+            <Typography variant="h3" component="h2" sx={{mb: {xs: 1, sm: 2}, color: 'text.primary'}}>
                 Our blog
             </Typography>
 
@@ -35,14 +48,14 @@ export default function BlogSection({ posts, baseApiUrl }: BlogSectionProps) {
                         spaceBetween={20}
                         slidesPerView={1.1}
                         centeredSlides={true}
-                        pagination={{ clickable: true }}
+                        pagination={{clickable: true}}
                         breakpoints={{
                             600: {
                                 slidesPerView: 2.1,
-                                spaceBetween: 30,
+                                spaceBetween: 20,
                             },
                         }}
-                        style={{ paddingBottom: '40px' }}
+                        style={{paddingBottom: '40px'}}
                     >
                         {posts.map((post: Post) => (
                             <SwiperSlide key={post.id}>
@@ -82,7 +95,7 @@ export default function BlogSection({ posts, baseApiUrl }: BlogSectionProps) {
             )}
 
             {posts.length > 0 && (
-                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                <Box sx={{display: 'flex', justifyContent: 'center', mt: {xs: 2, sm: 3}}}>
                     <Button
                         variant="contained"
                         color="primary"
@@ -99,6 +112,6 @@ export default function BlogSection({ posts, baseApiUrl }: BlogSectionProps) {
                     </Button>
                 </Box>
             )}
-        </Container>
+        </Box>
     );
 }

@@ -1,12 +1,10 @@
 import {Geist, Geist_Mono} from "next/font/google";
 import "../styles/globals.css";
-import ErrorBoundary from "@/components/common/Error";
 import {Metadata} from "next";
-import ClientProviders from "@/provider/clientsProvider";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
+import ClientProvider from "@/providers/clientsProvider";
 import React from "react";
-import {Box} from "@mui/material";
+import {LayoutProvider} from "@/contexts/LayoutContext";
+import LayoutContent from "@/components/layout/LayoutContent";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -61,20 +59,14 @@ export const metadata: Metadata = {
 export default function RootLayout({children}: Readonly<{ children: React.ReactNode }>) {
     return (
         <html lang="en">
-        <body
-            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-        <ClientProviders>
-            <ErrorBoundary>
-                <Navbar/>
-                <Box>
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <ClientProvider>
+            <LayoutProvider>
+                <LayoutContent>
                     {children}
-                </Box>
-                <Box sx={{ mt: 4 }}>
-                    <Footer/>
-                </Box>
-            </ErrorBoundary>
-        </ClientProviders>
+                </LayoutContent>
+            </LayoutProvider>
+        </ClientProvider>
         </body>
         </html>
     );

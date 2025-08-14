@@ -1,43 +1,24 @@
 import api from "@/shared/lib/api";
 
+const createAutocompleteFunction = (endpoint: string) => {
+    return async (q: string, categoryId: number | null): Promise<string[]> => {
+        try {
+            const params = {
+                q: q,
+                ...(categoryId && { category_id: categoryId })
+            };
+            const res = await api.get<string[]>(`autocomplete/${endpoint}`, { params });
+            return res.data;
+        } catch (e) {
+            console.error(`Error fetching autocomplete ${endpoint}:`, e);
+            return [];
+        }
+    };
+};
+
 export const autoCompleteApi = {
-    autocompleteCode: async (q: string): Promise<string[]> => {
-        try {
-            const res = await api.get<string[]>(`autocomplete/code`, { params: { q } })
-            return res.data
-        } catch (e) {
-            console.error("Error fetching autocomplete code:", e);
-            return []
-        }
-    },
-
-    autocompleteShape: async (q: string): Promise<string[]> => {
-        try {
-            const res = await api.get<string[]>(`autocomplete/shape`, { params: { q } })
-            return res.data
-        } catch (e) {
-            console.error("Error fetching autocomplete shape:", e);
-            return []
-        }
-    },
-
-    autocompleteDimensions: async (q: string): Promise<string[]> => {
-        try {
-            const res = await api.get<string[]>(`autocomplete/dimensions`, { params: { q } })
-            return res.data
-        } catch (e) {
-            console.error("Error fetching autocomplete dimensions:", e);
-            return []
-        }
-    },
-
-    autocompleteMachine: async (q: string): Promise<string[]> => {
-        try {
-            const res = await api.get<string[]>(`autocomplete/machine`, { params: { q } })
-            return res.data
-        } catch (e) {
-            console.error("Error fetching autocomplete machine:", e);
-            return []
-        }
-    },
-}
+    autocompleteCode: createAutocompleteFunction('code'),
+    autocompleteShape: createAutocompleteFunction('shape'),
+    autocompleteDimensions: createAutocompleteFunction('dimensions'),
+    autocompleteMachine: createAutocompleteFunction('machine'),
+};

@@ -7,7 +7,3 @@ export interface CartListResponse {
 export interface CartResponse {
     message: string;
 }
-
-export interface CartRequest {
-    id: string;
-}

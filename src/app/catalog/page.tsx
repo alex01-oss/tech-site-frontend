@@ -1,64 +1,54 @@
 "use client";
 
 import React, {useCallback, useEffect, useMemo, useRef} from "react";
-import {Box, CircularProgress, Container, Toolbar, useMediaQuery, useTheme} from "@mui/material";
-import SidebarSkeleton from "@/components/skeletons/SidebarSkeleton";
+import {Box, CircularProgress, Typography, useMediaQuery, useTheme} from "@mui/material";
 import ProductSkeleton from "@/components/skeletons/TableSkeleton";
 import ProductsTable from "@/components/common/ProductsTable";
 import {useCatalogStore} from "@/features/catalog/store";
 import Search from "@/components/common/Search";
-import {useDataStore} from "@/features/data/store";
 import {useGridItemsPerPage} from "@/hooks/useGridItemsPerPage";
 import FiltersPanel from "@/components/layout/FiltersPanel";
 import ScrollToTopFab from "@/components/common/ScrollToTopFab";
+import {useLayout} from "@/contexts/LayoutContext";
+import { SearchFields } from "@/types/searchFields";
 
 function CatalogPage() {
     const theme = useTheme();
+    const { setHasTopMargin } = useLayout();
+    const itemsPerPage = useGridItemsPerPage();
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+    const ref = useRef<HTMLDivElement>(null);
+    const observer = useRef<IntersectionObserver | null>(null);
 
     const {
         items: products,
-        searchCode,
-        searchShape,
-        searchDimensions,
-        searchMachine,
-        bondIds,
-        gridIds,
+        search,
+        filters,
         isLoading,
         currentPage,
         totalPages,
+        categoryName,
         setPage,
         fetchCatalog,
         itemsPerPage: storeItemsPerPage,
         setItemsPerPage: setStoreItemsPerPage,
-        setFiltersAndResetPage
+        setSearch,
+        setFilters
     } = useCatalogStore();
 
-    const filtersLoading = useDataStore(state => state.filtersLoading);
-
-    const observer = useRef<IntersectionObserver | null>(null);
-    const ref = useRef<HTMLDivElement>(null);
-
-    const itemsPerPage = useGridItemsPerPage()
-
-    const isSearchActive = useMemo(() => {
-        return searchCode || searchShape || searchDimensions || searchMachine;
-    }, [searchCode, searchShape, searchDimensions, searchMachine]);
-
-    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
     useEffect(() => {
-        if (observer.current) observer.current.disconnect()
+        if (observer.current) observer.current.disconnect();
 
         observer.current = new IntersectionObserver(entries => {
             if (entries[0].isIntersecting && !isLoading && currentPage < totalPages) {
                 setPage(currentPage + 1);
             }
-        }, {threshold: 0.1});
+        }, { threshold: 0.1 });
 
-        if (ref.current) observer.current.observe(ref.current)
+        if (ref.current) observer.current.observe(ref.current);
 
         return () => {
-            if (observer.current) observer.current.disconnect()
+            if (observer.current) observer.current.disconnect();
         };
     }, [isLoading, currentPage, totalPages, setPage]);
 
@@ -69,146 +59,143 @@ function CatalogPage() {
     }, [itemsPerPage, storeItemsPerPage, setStoreItemsPerPage]);
 
     useEffect(() => {
-        fetchCatalog().then()
-    }, [
-        fetchCatalog,
-        currentPage,
-        storeItemsPerPage,
-        bondIds,
-        gridIds,
-        searchCode,
-        searchShape,
-        searchDimensions,
-        searchMachine,
-    ]);
+        fetchCatalog().then();
+    }, [fetchCatalog, currentPage, storeItemsPerPage, search, filters]);
+
+    useEffect(() => {
+        setHasTopMargin(false);
+
+        return () => {
+            setHasTopMargin(true);
+        };
+    }, [setHasTopMargin]);
 
     const handleCombinedSearchSubmit = useCallback((
-        searchFields: { code?: string; shape?: string; dimensions?: string; machine?: string },
+        searchFields: Partial<SearchFields>,
     ) => {
-        useCatalogStore.getState().setSearchAndResetPage(searchFields);
-    }, []);
+        setSearch(searchFields);
+    }, [setSearch]);
 
-    const handleDesktopFilterToggle = useCallback(
+    const handleFilterToggle = useCallback(
         (categoryTitle: string, itemValue: number, checked: boolean) => {
-            const currentBondIds = new Set(bondIds || []);
-            const currentGridIds = new Set(gridIds || []);
+            const getUpdatedIds = (currentIds: number[] | null | undefined, isTarget: boolean) => {
+                if (!isTarget) return currentIds;
 
-            let newBondIds = bondIds;
-            let newGridIds = gridIds;
+                const current = currentIds || [];
+                const updated = checked
+                    ? [...current, itemValue]
+                    : current.filter((id: number) => id !== itemValue);
 
-            if (categoryTitle === "bonds") {
-                if (checked) {
-                    currentBondIds.add(itemValue);
-                } else {
-                    currentBondIds.delete(itemValue);
-                }
-                newBondIds = Array.from(currentBondIds).length > 0 ? Array.from(currentBondIds) : null;
-            } else if (categoryTitle === "grids") {
-                if (checked) {
-                    currentGridIds.add(itemValue);
-                } else {
-                    currentGridIds.delete(itemValue);
-                }
-                newGridIds = Array.from(currentGridIds).length > 0 ? Array.from(currentGridIds) : null;
-            }
+                return updated.length > 0 ? updated : null;
+            };
 
-            setFiltersAndResetPage(newBondIds, newGridIds);
-        }, [bondIds, gridIds, setFiltersAndResetPage]);
+            setFilters({
+                bondIds: getUpdatedIds(filters.bondIds, categoryTitle === "bonds"),
+                gridIds: getUpdatedIds(filters.gridIds, categoryTitle === "grids"),
+                mountingIds: getUpdatedIds(filters.mountingIds, categoryTitle === "mountings"),
+            });
+        }, [filters, setFilters]
+    );
 
-    const handleDesktopClearAllFilters = useCallback(() => {
-        setFiltersAndResetPage(null, null);
-    }, [setFiltersAndResetPage]);
 
-    const currentSearchFieldsForSearchComponent = useMemo(() => ({
-        code: searchCode || undefined,
-        shape: searchShape || undefined,
-        dimensions: searchDimensions || undefined,
-        machine: searchMachine || undefined,
-    }), [searchCode, searchShape, searchDimensions, searchMachine]);
+    const handleClearAllFilters = useCallback(() => {
+        setFilters({ bondIds: null, gridIds: null, mountingIds: null });
+    }, [setFilters]);
+
+    const currentSearchFieldsForSearchComponent = useMemo(() => search, [search]);
 
     const currentFiltersState = useMemo(() => {
-        const filters: Record<string, Set<number>> = {};
-        if (bondIds && bondIds.length > 0) filters["bonds"] = new Set(bondIds);
-        if (gridIds && gridIds.length > 0) filters["grids"] = new Set(gridIds);
-        return filters;
-    }, [bondIds, gridIds]);
+        const currentFilters: Record<string, Set<number>> = {};
+        if (filters.bondIds && filters.bondIds.length > 0) currentFilters["bonds"] = new Set(filters.bondIds);
+        if (filters.gridIds && filters.gridIds.length > 0) currentFilters["grids"] = new Set(filters.gridIds);
+        if (filters.mountingIds && filters.mountingIds.length > 0) currentFilters["mountings"] = new Set(filters.mountingIds);
+        return currentFilters;
+    }, [filters]);
+
+    const isSearchActive = useMemo(() => {
+        return !!search.code || !!search.shape || !!search.dimensions || !!search.machine;
+    }, [search]);
+
+    const areFiltersActive = useMemo(() => {
+        return (filters.bondIds && filters.bondIds.length > 0) ||
+            (filters.gridIds && filters.gridIds.length > 0) ||
+            (filters.mountingIds && filters.mountingIds.length > 0);
+    }, [filters]);
 
     return (
-        <>
-            <Toolbar/>
+        <Box sx={{
+            flex: 1,
+            display: 'flex',
+            gap: { xs: 2, sm: 3 },
+            mt: { xs: 6, sm: 7 },
+        }}>
+            {!isMobile &&
+                <FiltersPanel
+                    filters={currentFiltersState}
+                    onFilterToggle={handleFilterToggle}
+                    onClearAllFilters={handleClearAllFilters}
+                    isMobileDrawer={false}
+                />
+            }
 
-            <Container maxWidth="lg" sx={{
-                flex: 1,
-                display: 'flex',
-                gap: 2,
-            }}>
-                {filtersLoading ? <SidebarSkeleton/> : !isMobile &&
-                    <FiltersPanel
-                        filters={currentFiltersState}
-                        onFilterToggle={handleDesktopFilterToggle}
-                        onClearAllFilters={handleDesktopClearAllFilters}
-                        isMobileDrawer={false}
+            <Box
+                component="main"
+                sx={{
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    overflowX: 'hidden',
+                    minWidth: 0,
+                }}
+            >
+                <Box sx={{ pb: 2, mt: 4 }}>
+                    <Search
+                        onSearch={handleCombinedSearchSubmit}
+                        currentSearchFields={currentSearchFieldsForSearchComponent}
+                        currentFilters={currentFiltersState}
+                        onFilterToggle={handleFilterToggle}
+                        onClearAllFilters={handleClearAllFilters}
                     />
-                }
-
-                <Box
-                    component="main"
-                    sx={{
-                        flex: 1,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        transition: theme.transitions.create('margin', {
-                            easing: theme.transitions.easing.sharp,
-                            duration: theme.transitions.duration.enteringScreen,
-                        }),
-                        overflowX: 'hidden',
-                        minWidth: 0,
-                    }}
-                >
-                    <Box sx={{px: 3, pb: 2, mt: 4}}>
-                        <Search
-                            onSearch={handleCombinedSearchSubmit}
-                            currentSearchFields={currentSearchFieldsForSearchComponent}
-                            currentFilters={currentFiltersState}
-                            onFilterToggle={handleDesktopFilterToggle}
-                            onClearAllFilters={handleDesktopClearAllFilters}
-                        />
-                    </Box>
-
-                    <Box sx={{
-                        position: "relative",
-                        mx: {xs: 2, md: 3},
-                        flexGrow: 1,
-                        maxWidth: '100%',
-                    }}>
-                        {isLoading && products.length === 0
-                            ? <ProductSkeleton/>
-                            : <ProductsTable products={products}/>
-                        }
-                        {isLoading && products.length > 0 && (
-                            <Box sx={{textAlign: "center", my: {xs: 2, md: 3}}}>
-                                <CircularProgress/>
-                            </Box>
-                        )}
-                        {!isLoading && products.length === 0 && (isSearchActive || bondIds || gridIds) && (
-                            <Box sx={{textAlign: "center", my: {xs: 2, md: 3}, color: 'text.secondary'}}>
-                                No items found for the current filters.
-                            </Box>
-                        )}
-                        {!isLoading && products.length === 0 && !isSearchActive && !bondIds && !gridIds && (
-                            <Box sx={{textAlign: "center", my: {xs: 2, md: 3}, color: 'text.secondary'}}>
-                                Start typing or select a filter to find items.
-                            </Box>
-                        )}
-                        <Box ref={ref} sx={{
-                            height: theme.spacing(3),
-                            visibility: isLoading && products.length > 0 ? 'hidden' : 'visible'
-                        }}/>
-                        <ScrollToTopFab/>
-                    </Box>
                 </Box>
-            </Container>
-        </>
+
+                <Box sx={{
+                    position: "relative",
+                    flexGrow: 1,
+                    maxWidth: '100%',
+                }}>
+
+                    {categoryName && (
+                        <Typography variant="h3" component="h1" sx={{mb: 1}}>
+                            {categoryName}
+                        </Typography>
+                    )}
+
+                    {isLoading && products.length === 0
+                        ? <ProductSkeleton/>
+                        : <ProductsTable products={products}/>
+                    }
+                    {isLoading && products.length > 0 && (
+                        <Box sx={{textAlign: "center", my: {xs: 2, md: 3}}}>
+                            <CircularProgress/>
+                        </Box>
+                    )}
+                    {!isLoading && products.length === 0 && (isSearchActive || areFiltersActive) && (
+                        <Box sx={{ textAlign: "center", my: { xs: 2, md: 3 }, color: 'text.secondary' }}>
+                            No items found for the current filters.
+                        </Box>
+                    )}
+                    {!isLoading && products.length === 0 && !isSearchActive && !areFiltersActive && (
+                        <Box sx={{ textAlign: "center", my: { xs: 2, md: 3 }, color: 'text.secondary' }}>
+                            Start typing or select a filter to find items.
+                        </Box>
+                    )}
+                    <Box ref={ref} sx={{
+                        visibility: isLoading && products.length > 0 ? 'hidden' : 'visible'
+                    }}/>
+                    <ScrollToTopFab/>
+                </Box>
+            </Box>
+        </Box>
     );
 }
 

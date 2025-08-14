@@ -93,20 +93,13 @@ const OrderForm: React.FC = () => {
     )
 
     return (
-        <Box
-            sx={{
-                minHeight: "calc(100vh - 60px)",
-                mt: "60px",
-                bgcolor: "background.default",
-                padding: 2,
-            }}
-        >
+        <Box>
             <MobileStepper
                 variant="progress"
                 steps={4}
                 position="static"
                 activeStep={activeStep}
-                sx={{maxWidth: 400, flexGrow: 1, margin: "auto", mb: 1}}
+                sx={{maxWidth: 400, flexGrow: 1, margin: "auto", mb: {xs: 1, sm: 2}}}
                 nextButton={
                     <Button size="small" onClick={handleNext} disabled={activeStep === 3}>
                         Next
@@ -129,7 +122,7 @@ const OrderForm: React.FC = () => {
                 }
             />
 
-            <Box sx={{maxWidth: 800, mx: "auto"}}>
+            <Box>
                 {activeStep === 1 &&
                     (cart.length === 0 ? (
                         <Typography

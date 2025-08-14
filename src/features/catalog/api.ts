@@ -11,7 +11,9 @@ export const catalogApi = {
             page: number;
             items_per_page: number;
             bond_ids: number[] | undefined;
-            grid_size_ids: number[] | undefined
+            grid_size_ids: number[] | undefined;
+            mounting_ids: number[] | undefined;
+            category_id: number | null;
         }
     ): Promise<CatalogResponse> => {
         const res = await api.get('catalog', {
@@ -24,9 +26,9 @@ export const catalogApi = {
     },
 
     fetchCatalogItem: async (
-        code: string
+        id: number
     ): Promise<ProductDetailData> => {
-        const res = await api.get(`catalog/${code}`);
+        const res = await api.get(`catalog/${id}`);
         return res.data;
     }
 }

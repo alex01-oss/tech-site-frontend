@@ -1,4 +1,3 @@
-// src/app/profile/page.tsx
 'use client';
 
 import React from 'react';
@@ -65,62 +64,56 @@ export default function ProfilePage() {
     );
 
     return (
-        <Box minHeight="calc(100vh - 64px)">
-            <Toolbar sx={{mt: 4}}/>
-            <Container maxWidth="lg">
-                <Paper elevation={3} sx={{p: {xs: 2, md: 4}}}>
-                    <Box sx={{display: 'flex', alignItems: 'center', mb: 4, flexDirection: {xs: 'column', md: 'row'}}}>
-                        {renderUserAvatar()}
-                        <Box sx={{ml: {xs: 0, md: 4}, mt: {xs: 2, md: 0}, textAlign: {xs: 'center', md: 'left'}}}>
-                            <Typography variant="h4" component="h1" fontWeight="bold">{user.full_name}</Typography>
-                            <Typography variant="subtitle1" color="text.secondary">{user.role}</Typography>
-                        </Box>
-                        <Box sx={{ml: 'auto', mt: {xs: 2, md: 0}}}>
-                            <Button
-                                variant="contained"
-                                onClick={() => router.push("/profile/edit")}
-                                startIcon={<EditIcon/>}
-                            >
-                                Edit Profile
-                            </Button>
-                        </Box>
-                    </Box>
+        <Paper elevation={3} sx={{p: {xs: 2, sm: 3}, borderRadius: 1}}>
+            <Box sx={{display: 'flex', alignItems: 'center', mb: {xs: 2, sm: 3}, flexDirection: {xs: 'column', md: 'row'}}}>
+                {renderUserAvatar()}
+                <Box sx={{ml: {xs: 0, md: 4}, mt: {xs: 2, md: 0}, textAlign: {xs: 'center', md: 'left'}}}>
+                    <Typography variant="h4" component="h1" fontWeight="bold">{user.full_name}</Typography>
+                    <Typography variant="subtitle1" color="text.secondary">{user.role}</Typography>
+                </Box>
+                <Box sx={{ml: 'auto', mt: {xs: 2, md: 0}}}>
+                    <Button
+                        variant="contained"
+                        onClick={() => router.push("/profile/edit")}
+                        startIcon={<EditIcon/>}
+                    >
+                        Edit Profile
+                    </Button>
+                </Box>
+            </Box>
 
-                    <Divider sx={{my: 2}}/>
+            <Divider sx={{my: {xs: 2, sm: 3}}}/>
 
-                    <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
-                        <Typography variant="h6">Contact Information</Typography>
-                        <List disablePadding>
-                            <ListItem disablePadding>
-                                <ListItemText primary="Email" secondary={user.email}/>
-                            </ListItem>
-                            <ListItem disablePadding>
-                                <ListItemText primary="Phone" secondary={user.phone || 'N/A'}/>
-                            </ListItem>
-                        </List>
-                    </Box>
+            <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
+                <Typography variant="h6">Contact Information</Typography>
+                <List disablePadding>
+                    <ListItem disablePadding>
+                        <ListItemText primary="Email" secondary={user.email}/>
+                    </ListItem>
+                    <ListItem disablePadding>
+                        <ListItemText primary="Phone" secondary={user.phone || 'N/A'}/>
+                    </ListItem>
+                </List>
+            </Box>
 
-                    <Divider sx={{my: 2}}/>
+            <Divider sx={{my: {xs: 2, sm: 3}}}/>
 
-                    <Box>
-                        <Typography variant="h6">Your Activity</Typography>
-                        <List>
-                            <ListItem>
-                                <ListItemText primary="Items in Cart" secondary={cartCount}/>
-                            </ListItem>
-                        </List>
-                    </Box>
+            <Box>
+                <Typography variant="h6">Your Activity</Typography>
+                <List>
+                    <ListItem>
+                        <ListItemText primary="Items in Cart" secondary={cartCount}/>
+                    </ListItem>
+                </List>
+            </Box>
 
-                    <Divider sx={{my: 2}}/>
+            <Divider sx={{my: {xs: 2, sm: 3}}}/>
 
-
-                    <Box>
-                        <Button variant="contained" color="primary" onClick={handleLogout}>
-                            Logout
-                        </Button>
-                    </Box>
-                </Paper>
-            </Container>
-        </Box>
+            <Box>
+                <Button variant="contained" color="primary" onClick={handleLogout}>
+                    Logout
+                </Button>
+            </Box>
+        </Paper>
     );
 }

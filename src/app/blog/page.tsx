@@ -1,5 +1,5 @@
-import { blogApi } from '@/features/blog/api';
-import { Post } from '@/features/blog/types';
+import {blogApi} from '@/features/blog/api';
+import {Post} from '@/features/blog/types';
 import BlogGrid from "@/components/layout/BlogGrid";
 import {Toolbar} from "@mui/material";
 import React from "react";
@@ -21,9 +21,6 @@ export default async function BlogPage() {
     }
 
     return (
-        <>
-            <Toolbar sx={{ mt: 4 }}/>
-            <BlogGrid posts={posts} baseApiUrl={BASE_API_URL} />
-        </>
+        <BlogGrid posts={posts} baseApiUrl={BASE_API_URL}/>
     );
 }

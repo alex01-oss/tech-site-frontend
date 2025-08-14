@@ -1,28 +1,27 @@
-import { cartApi } from "@/features/cart/api";
-import { CatalogItem } from "@/features/catalog/types";
-import { CartItem } from "@/types/cartItem";
-import { create } from "zustand";
+import {cartApi} from "@/features/cart/api";
+import {CartItem} from "@/types/cartItem";
+import {create} from "zustand";
 
 interface CartState {
     cart: CartItem[];
-    cartCodes: Set<string>;
+    cartIds: Set<number>;
     cartCount: number;
     loading: boolean;
     countLoading: boolean;
     error: string | null;
 
     fetchCart: () => Promise<void>;
-    addToCart: (code: string) => Promise<boolean>;
-    removeFromCart: (code: string) => Promise<boolean>;
-    toggleCartItem: (item: CatalogItem) => Promise<void>;
+    addToCart: (id: number) => Promise<boolean>;
+    removeFromCart: (id: number) => Promise<boolean>;
+    toggleCartItem: (id: number) => Promise<void>;
     fetchCartCount: () => Promise<void>;
     clearCart: () => void;
-    isInCart: (code: string) => boolean;
+    isInCart: (id: number) => boolean;
 }
 
 export const useCartStore = create<CartState>()((set, get) => ({
     cart: [],
-    cartCodes: new Set(),
+    cartIds: new Set(),
     cartCount: 0,
     loading: false,
     countLoading: false,
@@ -34,12 +33,12 @@ export const useCartStore = create<CartState>()((set, get) => ({
         set({ loading: true, error: null });
         try {
             const response = await cartApi.getCart();
-            const codes = new Set(response.cart.map(item => item.product.code));
+            const ids = new Set(response.cart.map(item => item.product.id));
 
             set({
                 cart: response.cart,
-                cartCodes: codes,
                 cartCount: response.cart.length,
+                cartIds: ids,
                 error: null,
             });
         } catch (e: any) {
@@ -51,33 +50,31 @@ export const useCartStore = create<CartState>()((set, get) => ({
     },
 
     addToCart: async (id) => {
-        const { cartCodes } = get();
+        const { cartIds } = get();
 
-        if (cartCodes.has(id)) {
-            return true;
-        }
+        if (cartIds.has(id)) return true
 
         set((state) => {
-            const newCartCodes = new Set(state.cartCodes);
-            newCartCodes.add(id);
+            const newCartIds = new Set(state.cartIds);
+            newCartIds.add(id);
             return {
-                cartCodes: newCartCodes,
+                cartIds: newCartIds,
                 cartCount: state.cartCount + 1,
                 error: null,
             };
         });
 
         try {
-            await cartApi.addToCart({ id });
+            await cartApi.addToCart(id);
             await get().fetchCartCount();
             return true;
         } catch (e: any) {
             console.error("Add to cart failed", e);
             set((state) => {
-                const revertedCodes = new Set(state.cartCodes);
-                revertedCodes.delete(id);
+                const revertedIds = new Set(state.cartIds);
+                revertedIds.delete(id);
                 return {
-                    cartCodes: revertedCodes,
+                    cartIds: revertedIds,
                     cartCount: Math.max(0, state.cartCount - 1),
                     error: e.message || "Failed to add to cart",
                 };
@@ -86,37 +83,35 @@ export const useCartStore = create<CartState>()((set, get) => ({
         }
     },
 
-    removeFromCart: async (code) => {
-        const { cartCodes } = get();
+    removeFromCart: async (id) => {
+        const { cartIds } = get();
 
-        if (!cartCodes.has(code)) {
-            return true;
-        }
+        if (!cartIds.has(id)) return true
 
         set((state) => {
-            const newCartCodes = new Set(state.cartCodes);
-            newCartCodes.delete(code);
+            const newCartIds = new Set(state.cartIds);
+            newCartIds.delete(id);
             return {
-                cartCodes: newCartCodes,
+                cartIds: newCartIds,
                 cartCount: Math.max(0, state.cartCount - 1),
                 error: null,
             };
         });
 
         try {
-            await cartApi.removeFromCart(code);
+            await cartApi.removeFromCart(id);
             await get().fetchCartCount();
             set((state) => ({
-                cart: state.cart.filter(item => item.product.code !== code),
+                cart: state.cart.filter(item => item.product.id !== id),
             }));
             return true;
         } catch (e: any) {
             console.error("Remove from cart failed", e);
             set((state) => {
-                const revertedCodes = new Set(state.cartCodes);
-                revertedCodes.add(code);
+                const revertedCodes = new Set(state.cartIds);
+                revertedCodes.add(id);
                 return {
-                    cartCodes: revertedCodes,
+                    cartIds: revertedCodes,
                     cartCount: state.cartCount + 1,
                     error: e.message || "Failed to remove from cart",
                 };
@@ -140,24 +135,22 @@ export const useCartStore = create<CartState>()((set, get) => ({
         }
     },
 
-    toggleCartItem: async (item) => {
-        if (get().isInCart(item.code)) {
-            await get().removeFromCart(item.code);
+    toggleCartItem: async (id) => {
+        if (get().isInCart(id)) {
+            await get().removeFromCart(id);
         } else {
-            await get().addToCart(item.code);
+            await get().addToCart(id);
         }
     },
 
     clearCart: () => {
         set({
             cart: [],
-            cartCodes: new Set(),
+            cartIds: new Set(),
             cartCount: 0,
             error: null
         });
     },
 
-    isInCart: (code) => {
-        return get().cartCodes.has(code);
-    }
+    isInCart: (id) => get().cartIds.has(id)
 }));

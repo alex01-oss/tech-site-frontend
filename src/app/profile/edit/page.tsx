@@ -116,8 +116,8 @@ export default function EditProfilePage() {
     }
 
     return (
-        <Container maxWidth="lg" sx={{mt: 4}}>
-            <Typography variant="h4" component="h1" fontWeight="bold" sx={{mb: 4}}>
+        <>
+            <Typography variant="h4" component="h1" fontWeight="bold" sx={{mb: {xs: 2, sm: 3}}}>
                 Edit Profile
             </Typography>
 
@@ -157,7 +157,7 @@ export default function EditProfilePage() {
             >
                 {({isSubmitting, handleChange, handleBlur, values}) => (
                     <Form>
-                        <Paper elevation={3} sx={{p: {xs: 2, md: 4}, mb: 4}}>
+                        <Paper elevation={3} sx={{p: {xs: 2, sm: 3}, mb: {xs: 2, sm: 3}, borderRadius: 1}}>
                             <Typography variant="h6" gutterBottom>
                                 Personal Information
                             </Typography>
@@ -172,7 +172,7 @@ export default function EditProfilePage() {
                             />
                         </Paper>
 
-                        <Paper elevation={3} sx={{p: {xs: 2, md: 4}, mb: 4}}>
+                        <Paper elevation={3} sx={{p: {xs: 2, sm: 3}, mb: {xs: 2, sm: 3}, borderRadius: 1}}>
                             <Typography variant="h6" gutterBottom>
                                 Change Password
                             </Typography>
@@ -211,11 +211,16 @@ export default function EditProfilePage() {
                 )}
             </Formik>
 
-            <Paper elevation={3} sx={{p: {xs: 2, md: 4}, mb: 4}}>
+            <Paper elevation={3} sx={{p: {xs: 2, sm: 3}, borderRadius: 1}}>
                 <Typography variant="h6" gutterBottom>
                     Account Management
                 </Typography>
-                <Box sx={{display: 'flex', flexDirection: {xs: 'column', md: 'row'}, gap: 2, mt: 2}}>
+                <Box sx={{
+                    display: 'flex',
+                    flexDirection: {xs: 'column', md: 'row'},
+                    gap: {xs: 2, sm: 3},
+                    mt: {xs: 2, sm: 3}
+                }}>
                     <Button variant="outlined" color="primary" onClick={handleLogoutAllDevices}>
                         Logout Other Devices
                     </Button>
@@ -225,7 +230,11 @@ export default function EditProfilePage() {
                 </Box>
             </Paper>
 
-            <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
+            <Dialog
+                open={openDeleteDialog}
+                onClose={() => setOpenDeleteDialog(false)}
+                sx={{'& .MuiDialog-paper': {borderRadius: 1}}}
+            >
                 <DialogTitle>Confirm Account Deletion</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
@@ -241,6 +250,6 @@ export default function EditProfilePage() {
                     </Button>
                 </DialogActions>
             </Dialog>
-        </Container>
+        </>
     );
 }

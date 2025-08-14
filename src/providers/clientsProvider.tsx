@@ -2,12 +2,12 @@
 
 import React, {ReactNode, useEffect, useState} from "react";
 import {SnackbarProvider} from "notistack";
-import ThemeProviderWrapper from "@/context/context";
+import ThemeProviderWrapper from "@/contexts/context";
 import {Box, CssBaseline, LinearProgress} from "@mui/material";
-import {AuthInitializer} from "@/provider/initializer";
+import {AuthInitializer} from "@/providers/initializer";
 import {useNavigationStore} from "@/app/store/navigationStore";
 
-export default function ClientProviders({children}: { children: ReactNode }) {
+export default function ClientProvider({children}: { children: ReactNode }) {
     const [mounted, setMounted] = useState(false);
     const { isNavigating } = useNavigationStore();
 

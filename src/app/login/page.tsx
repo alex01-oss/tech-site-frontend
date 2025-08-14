@@ -89,6 +89,7 @@ export default function SignIn() {
                                 fullWidth
                                 variant="contained"
                                 disabled={loading}
+                                sx={{ mt: 2, height: 40 }}
                             >
                                 {loading ? "Loading..." : "Sign in"}
                             </Button>
