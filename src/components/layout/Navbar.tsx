@@ -26,15 +26,11 @@ import {Brightness4, Brightness7, Settings as SettingsIcon} from "@mui/icons-mat
 import {useThemeContext} from "@/contexts/context";
 import React, {useEffect, useState} from "react";
 import {useSnackbar} from "notistack";
-import {usePathname} from "next/navigation";
 import {useAuthStore} from "@/features/auth/store";
 import {useCartStore} from "@/features/cart/store";
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
+import {LANGS} from "@/lib/i18n";
 
-const LANGS = {
-    uk: {flag: "/ua_flag.svg", name: "Українська"},
-    en: {flag: "/uk_flag.svg", name: "English"}
-};
 
 const useMenu = () => {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -68,39 +64,55 @@ const LangMenuItem = ({lang, onClick}: { lang: keyof typeof LANGS, onClick: (l: 
     </MenuItem>
 );
 
-export default function Navbar() {
+interface Props {
+    dict: {
+        authRequired: string,
+        login: string,
+        lightMode: string,
+        darkMode: string,
+        language: string,
+        settings: string,
+        cart: string,
+        profile: string,
+        logo: string,
+        goBack: string,
+    }
+}
+
+export const Navbar: React.FC<Props> = ({dict}) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const {mode, toggleColorMode} = useThemeContext();
     const isDark = mode === "dark";
-    const router = useNavigatingRouter();
-    const pathname = usePathname();
+    const {push, replaceLanguage, back, currentLang, pathname} = useNavigatingRouter();
     const {enqueueSnackbar} = useSnackbar();
     const {isAuthenticated, user} = useAuthStore();
     const {cartCount, fetchCartCount, countLoading} = useCartStore();
 
     const settingsMenu = useMenu();
     const langMenu = useMenu();
-    const [currentLanguage, setCurrentLanguage] = useState<keyof typeof LANGS>('uk');
 
     useEffect(() => {
         if (isAuthenticated) void fetchCartCount();
     }, [isAuthenticated, fetchCartCount]);
 
     const handleLanguageChange = (lang: string) => {
-        setCurrentLanguage(lang as keyof typeof LANGS);
-        console.log(`Language switched to: ${lang}`);
+        replaceLanguage(lang);
         settingsMenu.close();
         langMenu.close();
     };
 
     const handleCartClick = () => {
         if (isAuthenticated) {
-            router.push("/cart");
+            push("/cart");
         } else {
-            enqueueSnackbar("You must be authorized", {
+            enqueueSnackbar(dict.authRequired, {
                 variant: "error",
-                action: <Button color="inherit" size="small" onClick={() => router.push("/login")}>Login</Button>
+                action:
+                    <Button
+                        color="inherit" size="small" onClick={() => push("/login")}>
+                        {dict.login}
+                    </Button>
             });
         }
     };
@@ -116,18 +128,18 @@ export default function Navbar() {
                     px: {xs: 2, sm: 3}
                 }}>
                     <Box sx={{display: "flex", alignItems: "center"}}>
-                        {pathname === "/" ? (
-                            <Box component="a" onClick={() => router.push("/")} sx={{
+                        {pathname === `/${currentLang}` ? (
+                            <Box component="a" onClick={() => replaceLanguage(currentLang)} sx={{
                                 display: "flex",
                                 justifyContent: "center",
                                 alignItems: "center",
                                 position: "relative",
                                 cursor: 'pointer'
                             }}>
-                                <Image src="/logo_white.svg" alt="logo" width={125} height={50}/>
+                                <Image src="/logo_white.svg" alt={dict.logo} width={125} height={50}/>
                             </Box>
                         ) : (
-                            <IconButton color="inherit" onClick={() => router.back()}>
+                            <IconButton color="inherit" onClick={() => back()} aria-label={dict.goBack}>
                                 <ArrowBackIcon/>
                             </IconButton>
                         )}
@@ -136,45 +148,50 @@ export default function Navbar() {
                     <Box sx={{display: "flex", alignItems: "center"}}>
                         {isMobile ? (
                             <>
-                                <Tooltip title="Settings">
-                                    <IconButton onClick={settingsMenu.open} color="inherit">
+                                <Tooltip title={dict.settings}>
+                                    <IconButton onClick={settingsMenu.open} color="inherit" aria-label={dict.settings}>
                                         <SettingsIcon/>
                                     </IconButton>
                                 </Tooltip>
                                 <MenuWithItems {...settingsMenu}>
-                                    <LangMenuItem lang="uk" onClick={handleLanguageChange}/>
-                                    <LangMenuItem lang="en" onClick={handleLanguageChange}/>
+                                    {Object.keys(LANGS).map((lang: string) => (
+                                        <LangMenuItem key={lang} lang={lang as keyof typeof LANGS}
+                                                      onClick={handleLanguageChange}/>
+                                    ))}
                                     <Divider sx={{my: 0.5}}/>
                                     <MenuItem onClick={() => {
                                         toggleColorMode();
                                         settingsMenu.close();
                                     }}>
                                         <ListItemIcon>{isDark ? <Brightness7/> : <Brightness4/>}</ListItemIcon>
-                                        <ListItemText>{isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}</ListItemText>
+                                        <ListItemText>{isDark ? dict.lightMode : dict.darkMode}</ListItemText>
                                     </MenuItem>
                                 </MenuWithItems>
                             </>
                         ) : (
                             <>
-                                <Tooltip title="Language">
-                                    <IconButton onClick={langMenu.open} color="inherit">
-                                        <Image src={LANGS[currentLanguage].flag} alt="Language" width={24} height={24}/>
+                                <Tooltip title={dict.language}>
+                                    <IconButton onClick={langMenu.open} color="inherit" aria-label={dict.language}>
+                                        <Image src={LANGS[currentLang as keyof typeof LANGS].flag} alt={LANGS[currentLang as keyof typeof LANGS].name}
+                                               width={24} height={24}/>
                                     </IconButton>
                                 </Tooltip>
                                 <MenuWithItems {...langMenu}>
-                                    <LangMenuItem lang="uk" onClick={handleLanguageChange}/>
-                                    <LangMenuItem lang="en" onClick={handleLanguageChange}/>
+                                    {Object.keys(LANGS).map((lang: string) => (
+                                        <LangMenuItem key={lang} lang={lang as keyof typeof LANGS}
+                                                      onClick={handleLanguageChange}/>
+                                    ))}
                                 </MenuWithItems>
-                                <Tooltip title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}>
-                                    <IconButton onClick={toggleColorMode} color="inherit">
+                                <Tooltip title={isDark ? dict.lightMode : dict.darkMode}>
+                                    <IconButton onClick={toggleColorMode} color="inherit" aria-label={isDark ? dict.lightMode : dict.darkMode}>
                                         {isDark ? <Brightness7/> : <Brightness4/>}
                                     </IconButton>
                                 </Tooltip>
                             </>
                         )}
 
-                        <Tooltip title="Shopping Cart">
-                            <IconButton onClick={handleCartClick} color="inherit">
+                        <Tooltip title={dict.cart}>
+                            <IconButton onClick={handleCartClick} color="inherit" aria-label={dict.cart}>
                                 {countLoading ? (
                                     <CircularProgress size={24} color="inherit"/>
                                 ) : (
@@ -185,13 +202,18 @@ export default function Navbar() {
                             </IconButton>
                         </Tooltip>
 
-                        <Tooltip title="Profile">
+                        <Tooltip title={dict.profile}>
                             <Avatar
-                                onClick={() => router.push(isAuthenticated ? "/profile" : "/login")}
+                                onClick={() => push(isAuthenticated ? `/profile` : `/login`)}
                                 sx={{width: theme.spacing(5), height: theme.spacing(5), cursor: 'pointer', ml: 1}}
                             >
                                 {isAuthenticated && user?.full_name?.trim()
-                                    ? user.full_name.split(" ").filter(Boolean).slice(0, 2).map((word: string) => word[0]?.toUpperCase()).join("")
+                                    ? user.full_name
+                                        .split(" ")
+                                        .filter(Boolean)
+                                        .slice(0, 2)
+                                        .map((word: string) => word[0]?.toUpperCase())
+                                        .join("")
                                     : ""}
                             </Avatar>
                         </Tooltip>

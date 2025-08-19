@@ -7,9 +7,10 @@ import {useToggleCart} from "@/hooks/useToggleCart";
 interface ProductTableProps {
     products: CatalogItem[];
     isCartView?: boolean;
+    dict: any
 }
 
-const ProductsTable: React.FC<ProductTableProps> = memo(({ products, isCartView = false }) => {
+export const ProductsTable: React.FC<ProductTableProps> = memo(({ products, isCartView = false, dict }) => {
     const { handleToggleCart, isInCart } = useToggleCart()
 
     return (
@@ -20,11 +21,10 @@ const ProductsTable: React.FC<ProductTableProps> = memo(({ products, isCartView 
                         product={{ ...product, is_in_cart: isInCart(product.id) }}
                         isCartView={isCartView}
                         onToggleCart={() => handleToggleCart(product.id)}
+                        dict={dict}
                     />
                 </Grid>
             ))}
         </Grid>
     );
 });
-
-export default ProductsTable;

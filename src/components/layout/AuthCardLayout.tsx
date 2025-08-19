@@ -1,79 +1,29 @@
-import {
-    Card,
-    FormControl,
-    IconButton,
-    InputAdornment,
-    Link,
-    Stack,
-    TextField,
-    Typography,
-    useTheme
-} from '@mui/material';
-import {Visibility, VisibilityOff} from '@mui/icons-material';
+'use client';
+
+import {Card, Link, Stack, Typography, useTheme} from '@mui/material';
 import React from 'react';
-import {ErrorMessage, Field} from 'formik';
-import {useRouter} from "next/navigation";
+import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 
 interface AuthCardLayoutProps {
-    title: string,
-    children: React.ReactNode,
-    isLogin?: boolean,
-    loading?: boolean
+    title: string;
+    children: React.ReactNode;
+    isLogin?: boolean;
+    dict: {
+        haveAccount: string;
+        noAccount: string;
+        signUp: string;
+        signIn: string;
+    }
 }
 
-export const PasswordField: React.FC<{
-    name: string,
-    label: string,
-    value: string,
-    onChange: (e: React.ChangeEvent<any>) => void,
-    onBlur: (e: React.FocusEvent<any>) => void,
-    required?: boolean,
-    showPassword: boolean,
-    setShowPassword: React.Dispatch<React.SetStateAction<boolean>>
-}> = ({
-      showPassword,
-      setShowPassword,
-      name,
-      label,
-      value,
-      onChange,
-      onBlur,
-      required = false
-  }) => {
-    return (
-        <FormControl fullWidth margin="normal">
-            <Field
-                as={TextField}
-                label={label}
-                type={showPassword ? "text" : "password"}
-                name={name}
-                value={value}
-                onChange={onChange}
-                onBlur={onBlur}
-                required={required}
-                helperText={<ErrorMessage name={name}/>}
-                InputProps={{
-                    endAdornment: (
-                        <InputAdornment position="end">
-                            <IconButton onClick={() => setShowPassword(!showPassword)} edge="end">
-                                {showPassword ? <VisibilityOff/> : <Visibility/>}
-                            </IconButton>
-                        </InputAdornment>
-                    ),
-                }}
-            />
-        </FormControl>
-    );
-};
-
-
-const AuthCardLayout: React.FC<AuthCardLayoutProps> = ({
+export const AuthCardLayout: React.FC<AuthCardLayoutProps> = ({
     title,
     children,
     isLogin = false,
+    dict
 }) => {
     const theme = useTheme();
-    const router = useRouter();
+    const router = useNavigatingRouter();
 
     return (
         <Stack height="90vh" p={2} justifyContent="center">
@@ -85,31 +35,31 @@ const AuthCardLayout: React.FC<AuthCardLayoutProps> = ({
                     alignSelf: "center",
                     width: '100%',
                     maxWidth: 450,
-                    p: {xs: 2, sm: 3},
-                    gap: {xs: 2, sm: 3},
+                    p: { xs: 2, sm: 3 },
+                    gap: { xs: 2, sm: 3 },
                     m: "auto",
                     boxShadow: theme.shadows[3],
                     borderRadius: 1
                 }}
             >
-                <Typography variant="h4" textAlign="center" fontWeight={600} sx={{mt: 2}}>
+                <Typography variant="h4" textAlign="center" fontWeight={600} sx={{ mt: 2 }}>
                     {title}
                 </Typography>
                 {children}
                 <Typography textAlign="center">
                     {isLogin ? (
                         <>
-                            Don't have an account?{" "}
+                            {dict.noAccount}{" "}
                             <Link component="button" onClick={() => router.push("/registration")}
-                                  sx={{cursor: 'pointer'}}>
-                                Sign up
+                                  sx={{ cursor: 'pointer' }}>
+                                {dict.signUp}
                             </Link>
                         </>
                     ) : (
                         <>
-                            Already have an account?{" "}
-                            <Link component="button" onClick={() => router.push("/login")} sx={{cursor: 'pointer'}}>
-                                Sign in
+                            {dict.haveAccount}{" "}
+                            <Link component="button" onClick={() => router.push("/login")} sx={{ cursor: 'pointer' }}>
+                                {dict.signIn}
                             </Link>
                         </>
                     )}
@@ -118,5 +68,3 @@ const AuthCardLayout: React.FC<AuthCardLayoutProps> = ({
         </Stack>
     );
 };
-
-export default AuthCardLayout;

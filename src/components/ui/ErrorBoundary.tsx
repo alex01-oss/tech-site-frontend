@@ -5,6 +5,10 @@ import React from "react";
 
 interface Props {
     children: React.ReactNode;
+    dict: {
+        errorTitle: string;
+        reloadButton: string;
+    };
 }
 
 interface State {
@@ -45,14 +49,14 @@ class ErrorBoundary extends React.Component<Props, State> {
                         variant="h4"
                         sx={{marginBottom: "16px", color: "primary.main"}}
                     >
-                        Something went wrong
+                        {this.props.dict.errorTitle}
                     </Typography>
                     <Button
                         variant="contained"
                         onClick={() => window.location.reload()}
                         color="primary"
                     >
-                        Reload Page
+                        {this.props.dict.reloadButton}
                     </Button>
                 </Box>
             );

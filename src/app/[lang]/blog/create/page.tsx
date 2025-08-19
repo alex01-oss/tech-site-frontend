@@ -1,5 +1,8 @@
-import PostEditor from "@/components/blog/PostEditor";
+import PostEditorPage from "@/components/blog/PostEditorPage";
+import {getDictionary} from "@/lib/i18n";
 
-export default function CreatePostPage() {
-    return <PostEditor mode="create" />;
+export default async function CreatePostPage({params: {lang}}: { params: { lang: string } }) {
+    const dict = await getDictionary(lang);
+
+    return <PostEditorPage mode="create" dict={dict.blog.editor}/>;
 }

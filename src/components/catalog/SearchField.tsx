@@ -6,7 +6,7 @@ import {autoCompleteApi} from "@/features/autocomplete/api";
 import {useCatalogStore} from "@/features/catalog/store";
 import {SearchFields} from "@/types/searchFields";
 
-interface AutocompleteSearchFieldProps {
+interface Props {
     type: keyof SearchFields;
     label: string;
     minLength: number;
@@ -14,6 +14,7 @@ interface AutocompleteSearchFieldProps {
     onChange: (type: keyof SearchFields, value: string) => void;
     onKeyPress: (e: React.KeyboardEvent) => void;
     isMobile?: boolean;
+    dict: { enter: string }
 }
 
 const apiMap = {
@@ -23,14 +24,14 @@ const apiMap = {
     machine: autoCompleteApi.autocompleteMachine,
 };
 
-const AutocompleteSearchField: React.FC<AutocompleteSearchFieldProps> = memo(
-    ({type, label, minLength, value, onChange, onKeyPress, isMobile}) => {
+export const AutocompleteSearchField: React.FC<Props> = memo(
+    ({type, label, minLength, value, onChange, onKeyPress, isMobile, dict}) => {
         const [options, setOptions] = useState<string[]>([]);
         const [loading, setLoading] = useState(false);
 
         const {categoryId} = useCatalogStore();
 
-        const getPlaceholderText = (lbl: string): string => `Enter ${lbl}...`;
+        const getPlaceholderText = (lbl: string): string => `${dict.enter} ${lbl}...`;
 
         const fetchOptionsDebounced = useCallback(
             debounce(async (query: string) => {
@@ -160,5 +161,3 @@ const AutocompleteSearchField: React.FC<AutocompleteSearchFieldProps> = memo(
         );
     }
 );
-
-export default AutocompleteSearchField;

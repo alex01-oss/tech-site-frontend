@@ -9,10 +9,8 @@ import {
     Card,
     CardContent,
     CircularProgress,
-    Container,
     IconButton,
     TextField,
-    Toolbar,
     Typography,
     useTheme
 } from '@mui/material';
@@ -43,9 +41,27 @@ type PostEditorMode = 'create' | 'edit';
 interface PostEditorProps {
     mode: PostEditorMode;
     postId?: number;
+    dict: {
+        loadError: string;
+        titleRequired: string;
+        contentRequired: string;
+        create: string,
+        update: string,
+        error: string,
+        goBack: string,
+        unknownError: string,
+        title: string,
+        image: string,
+        changeImage: string,
+        pickImage: string,
+        previewTitle: string,
+        contentEditorTitle: string,
+        createPost: string,
+        updatePost: string,
+    }
 }
 
-const PostEditor: React.FC<PostEditorProps> = ({mode, postId}) => {
+const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) => {
     const router = useNavigatingRouter();
     const {enqueueSnackbar} = useSnackbar();
 
@@ -90,8 +106,8 @@ const PostEditor: React.FC<PostEditorProps> = ({mode, postId}) => {
                 })
                 .catch(err => {
                     console.error('Failed to fetch post for editing:', err);
-                    setError(err.message || 'Failed to load post data.');
-                    enqueueSnackbar('Failed to load post data.', {variant: 'error'});
+                    setError(err.message || dict.loadError);
+                    enqueueSnackbar(dict.loadError, {variant: 'error'});
                 })
                 .finally(() => {
                     setIsLoading(false);
@@ -118,9 +134,7 @@ const PostEditor: React.FC<PostEditorProps> = ({mode, postId}) => {
     };
 
     const handleClearImage = () => {
-        if (formState.imageFile) {
-            URL.revokeObjectURL(formState.imageFile.name);
-        }
+        if (formState.imageFile) URL.revokeObjectURL(formState.imageFile.name)
         setFormState(prev => ({...prev, imageFile: null, imageUrl: null}));
     };
 
@@ -128,14 +142,14 @@ const PostEditor: React.FC<PostEditorProps> = ({mode, postId}) => {
         setError(null);
 
         if (!formState.title.trim()) {
-            enqueueSnackbar('Post title cannot be empty.', {variant: 'error'});
+            enqueueSnackbar(dict.titleRequired, {variant: 'error'});
             return;
         }
 
         const htmlContent = editorRef.current ? editorRef.current.getContent() : '';
 
         if (!htmlContent.trim()) {
-            enqueueSnackbar('Post content cannot be empty.', {variant: 'error'});
+            enqueueSnackbar(dict.contentRequired, {variant: 'error'});
             return;
         }
 
@@ -158,18 +172,18 @@ const PostEditor: React.FC<PostEditorProps> = ({mode, postId}) => {
 
             if (isNewPost) {
                 await blogApi.createPost(postData);
-                enqueueSnackbar('Post created successfully!', {variant: 'success'});
+                enqueueSnackbar(dict.create, {variant: 'success'});
             } else if (postId) {
                 await blogApi.editPost(postId, postData);
-                enqueueSnackbar('Post updated successfully!', {variant: 'success'});
+                enqueueSnackbar(dict.update, {variant: 'success'});
             }
 
             await revalidateBlogPosts();
             router.push('/blog');
         } catch (err: any) {
             console.error('Failed to save post:', err);
-            setError(err.message || 'Failed to save post.');
-            enqueueSnackbar(`Failed to save post: ${err.message || 'Unknown error'}`, {variant: 'error'});
+            setError(err.message || dict.error);
+            enqueueSnackbar(`${dict.error}: ${err.message || dict.unknownError}`, {variant: 'error'});
         } finally {
             setIsSaving(false);
         }
@@ -179,7 +193,6 @@ const PostEditor: React.FC<PostEditorProps> = ({mode, postId}) => {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
                 <CircularProgress/>
-                <Typography variant="h6" sx={{ml: 2}}>Loading post...</Typography>
             </Box>
         );
     }
@@ -188,7 +201,7 @@ const PostEditor: React.FC<PostEditorProps> = ({mode, postId}) => {
         return (
             <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="100vh">
                 <Typography color="error" variant="h6">{error}</Typography>
-                <Button onClick={() => router.back()} sx={{mt: 2}}>Go Back</Button>
+                <Button onClick={() => router.back()} sx={{mt: 2}}>{dict.goBack}</Button>
             </Box>
         );
     }
@@ -196,7 +209,7 @@ const PostEditor: React.FC<PostEditorProps> = ({mode, postId}) => {
     return (
         <Box sx={{display: 'flex', flexDirection: 'column', gap: {xs: 2, sm: 3}}}>
             <TextField
-                label="Title"
+                label={dict.title}
                 variant="outlined"
                 fullWidth
                 value={formState.title}
@@ -206,7 +219,7 @@ const PostEditor: React.FC<PostEditorProps> = ({mode, postId}) => {
 
             <Card variant="outlined" sx={{borderRadius: 1}}>
                 <CardContent>
-                    <Typography variant="h6" gutterBottom>Image</Typography>
+                    <Typography variant="h6" gutterBottom>{dict.image}</Typography>
                     <input
                         accept="image/*"
                         style={{display: 'none'}}
@@ -220,7 +233,7 @@ const PostEditor: React.FC<PostEditorProps> = ({mode, postId}) => {
                             component="span"
                             startIcon={<AddPhotoAlternateIcon/>}
                         >
-                            {hasImage ? 'Change Image' : 'Pick Image'}
+                            {hasImage ? dict.changeImage : dict.pickImage}
                         </Button>
                     </label>
 
@@ -228,7 +241,7 @@ const PostEditor: React.FC<PostEditorProps> = ({mode, postId}) => {
                         <Box sx={{mt: 2, position: 'relative', width: '100%', height: 200}}>
                             <Image
                                 src={previewImage}
-                                alt="Post Preview"
+                                alt={dict.previewTitle}
                                 fill
                                 style={{objectFit: 'cover', borderRadius: '4px'}}
                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -252,7 +265,7 @@ const PostEditor: React.FC<PostEditorProps> = ({mode, postId}) => {
 
             <Card variant="outlined" sx={{borderRadius: 1}}>
                 <CardContent>
-                    <Typography variant="h6" gutterBottom>Content Editor</Typography>
+                    <Typography variant="h6" gutterBottom>{dict.contentEditorTitle}</Typography>
                     <Editor
                         key={editorKey}
                         onInit={(_, editor) => editorRef.current = editor}
@@ -297,10 +310,10 @@ const PostEditor: React.FC<PostEditorProps> = ({mode, postId}) => {
                 fullWidth
                 startIcon={<SaveIcon/>}
             >
-                {isSaving ? <CircularProgress size={24}/> : (isNewPost ? 'Create Post' : 'Update Post')}
+                {isSaving ? <CircularProgress size={24}/> : (isNewPost ? dict.createPost : dict.updatePost)}
             </Button>
         </Box>
     );
 };
 
-export default PostEditor;
+export default PostEditorPage;

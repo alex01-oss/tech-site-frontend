@@ -1,11 +1,11 @@
 "use client";
 
 import React, {useMemo} from 'react';
-import {Box, Container, Fab, Grid, IconButton, InputAdornment, TextField, Typography} from '@mui/material';
+import {Box, Fab, Grid, IconButton, InputAdornment, TextField, Typography} from '@mui/material';
 import {Post} from '@/features/blog/types';
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
-import PostCard from "@/components/blog/PostCard";
+import {PostCard} from "@/components/blog/PostCard";
 import AddIcon from '@mui/icons-material/Add';
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 import {useAuthStore} from "@/features/auth/store";
@@ -13,13 +13,19 @@ import {useAuthStore} from "@/features/auth/store";
 interface BlogGridProps {
     posts: Post[];
     baseApiUrl: string;
+    dict: {
+        title: string,
+        placeholder: string,
+        notFound: string,
+        empty: string,
+        add: string,
+        dialog: any,
+    }
 }
 
-export default function BlogGrid({posts, baseApiUrl}: BlogGridProps) {
+export default function BlogPage({posts, baseApiUrl, dict}: BlogGridProps) {
     const [searchTerm, setSearchTerm] = React.useState('');
-
     const router = useNavigatingRouter();
-
     const { user } = useAuthStore();
 
     const filteredPosts = useMemo(() => {
@@ -35,21 +41,19 @@ export default function BlogGrid({posts, baseApiUrl}: BlogGridProps) {
         setSearchTerm(e.target.value)
     }
 
-    const handleSearchClear = () => {
-        setSearchTerm('')
-    }
+    const handleSearchClear = () => setSearchTerm('')
 
     return (
         <>
             <Box>
                 <Typography variant="h2" component="h1" align="center" sx={{ color: 'text.primary', fontWeight: 700}}>
-                    Our Blog
+                    {dict.title}
                 </Typography>
 
                 <Box sx={{display: 'flex', justifyContent: 'center', my: {xs: 2, sm: 3}}}>
                     <TextField
                         variant="outlined"
-                        placeholder={"Search posts..."}
+                        placeholder={dict.placeholder}
                         value={searchTerm}
                         onChange={handleSearchChange}
                         sx={{width: '100%'}}
@@ -83,13 +87,14 @@ export default function BlogGrid({posts, baseApiUrl}: BlogGridProps) {
                                     showAdminControls={true}
                                     elevation={4}
                                     showDescription={true}
+                                    dict={dict.dialog}
                                 />
                             </Grid>
                         ))
                     ) : (
                         <Grid item xs={12}>
                             <Typography variant="h6" color="text.secondary" align="center" sx={{mt: 4}}>
-                                {searchTerm ? `Nothing found for "${searchTerm}".` : 'There are no blog posts yet.'}
+                                {searchTerm ? `${dict.notFound} "${searchTerm}".` : dict.empty}
                             </Typography>
                         </Grid>
                     )}
@@ -99,7 +104,7 @@ export default function BlogGrid({posts, baseApiUrl}: BlogGridProps) {
             {user && user.role === 'admin' && (
                 <Fab
                     color="secondary"
-                    aria-label="add"
+                    aria-label={dict.add}
                     sx={{
                         position: 'fixed',
                         borderRadius: 1,

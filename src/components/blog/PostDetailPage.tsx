@@ -11,9 +11,14 @@ interface PostDetailPageProps {
     initialPost?: Post;
     postId: number;
     baseApiUrl: string;
+    dict: {
+        loading: string;
+        goBack: string;
+        published: string;
+    }
 }
 
-export default function PostDetailPage({initialPost, postId, baseApiUrl}: PostDetailPageProps) {
+export function PostDetailPage({initialPost, postId, baseApiUrl, dict}: PostDetailPageProps) {
     const [post, setPost] = useState<Post | null>(initialPost || null);
     const [isLoading, setIsLoading] = useState<boolean>(!initialPost);
     const [error, setError] = useState<string | null>(null);
@@ -41,7 +46,7 @@ export default function PostDetailPage({initialPost, postId, baseApiUrl}: PostDe
         return (
             <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
                 <CircularProgress/>
-                <Typography variant="h6" sx={{ml: 2}}>Loading post...</Typography>
+                <Typography variant="h6" sx={{ml: 2}}>{dict.loading}</Typography>
             </Box>
         );
     }
@@ -50,7 +55,7 @@ export default function PostDetailPage({initialPost, postId, baseApiUrl}: PostDe
         return (
             <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="100vh">
                 <Typography color="error" variant="h6">{error}</Typography>
-                <Button onClick={() => router.back()} sx={{mt: 2}}>Go Back</Button>
+                <Button onClick={() => router.back()} sx={{mt: 2}}>{dict.goBack}</Button>
             </Box>
         );
     }
@@ -90,7 +95,7 @@ export default function PostDetailPage({initialPost, postId, baseApiUrl}: PostDe
             </Typography>
 
             <Typography variant="body2" color="text.secondary" sx={{mb: 2}}>
-                Published: {new Date(post.created_at).toLocaleDateString()}
+                {dict.published} {new Date(post.created_at).toLocaleDateString()}
             </Typography>
 
             <Box

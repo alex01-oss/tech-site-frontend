@@ -1,10 +1,7 @@
-import {Geist, Geist_Mono} from "next/font/google";
 import "../styles/globals.css";
-import {Metadata} from "next";
-import ClientProvider from "@/providers/clientsProvider";
 import React from "react";
-import {LayoutProvider} from "@/contexts/LayoutContext";
-import LayoutContent from "@/components/layout/LayoutContent";
+import {Geist, Geist_Mono} from "next/font/google";
+import {Metadata} from "next";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -56,17 +53,14 @@ export const metadata: Metadata = {
     },
 };
 
-export default function RootLayout({children}: Readonly<{ children: React.ReactNode }>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="en">
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ClientProvider>
-            <LayoutProvider>
-                <LayoutContent>
-                    {children}
-                </LayoutContent>
-            </LayoutProvider>
-        </ClientProvider>
+        <html suppressHydrationWarning>
+        <body
+            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+            suppressHydrationWarning
+        >
+        {children}
         </body>
         </html>
     );

@@ -15,11 +15,15 @@ import VideoCard from "@/components/home/VideoCard";
 import {Video} from "@/features/youtube/types";
 import {Box} from "@mui/material";
 
-interface VideosSectionProps {
+interface Props {
     videos: Video[];
+    dict: {
+        title: string,
+        empty: string,
+    }
 }
 
-const VideosSection: React.FC<VideosSectionProps> = ({ videos }) => {
+const VideosSection: React.FC<Props> = ({ videos, dict }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -30,7 +34,7 @@ const VideosSection: React.FC<VideosSectionProps> = ({ videos }) => {
     return (
         <Box>
             <Typography variant="h3" component="h2" sx={{ mb: {xs: 1, sm: 2}, color: 'text.primary' }}>
-                Our videos
+                {dict.title}
             </Typography>
 
             {videos.length > 0 ? (
@@ -79,7 +83,7 @@ const VideosSection: React.FC<VideosSectionProps> = ({ videos }) => {
                 <Grid container justifyContent="center">
                     <Grid item xs={12} key="no-videos">
                         <Typography variant="h6" color="text.secondary" align="center">
-                            No videos available yet.
+                            {dict.empty}
                         </Typography>
                     </Grid>
                 </Grid>

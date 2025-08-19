@@ -2,7 +2,7 @@ import {DeletePostResponse, Post, PostRequest} from "@/features/blog/types";
 import api from "@/lib/api";
 
 export const blogApi = {
-    fetchAllPosts: async (limit?: number): Promise<Post[]> => {
+    fetchPosts: async (limit?: number): Promise<Post[]> => {
         const url = limit ? `blog?limit=${limit}` : "blog";
         const res = await api.get<Post[]>(url);
         return res.data;

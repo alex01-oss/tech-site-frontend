@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import {Box, Button, Container, Grid, Typography} from '@mui/material';
+import {Box, Button, Grid, Typography} from '@mui/material';
 import {useTheme} from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import {Post} from "@/features/blog/types";
@@ -9,17 +9,25 @@ import {Swiper, SwiperSlide} from 'swiper/react';
 import {Pagination} from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
-import PostCard from "@/components/blog/PostCard";
+import {PostCard} from "@/components/blog/PostCard";
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 import BlogSkeleton from "@/components/skeletons/BlogSkeleton";
 
-interface BlogSectionProps {
+interface Props {
     posts: Post[];
     baseApiUrl: string;
     isLoading: boolean;
+    dict: {
+        dialog: any,
+        blogSection: {
+            title: string,
+            empty: string,
+            viewAll: string,
+        }
+    }
 }
 
-export default function BlogSection({posts, baseApiUrl, isLoading}: BlogSectionProps) {
+export default function BlogSection({posts, baseApiUrl, isLoading, dict}: Props) {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const router = useNavigatingRouter();
@@ -28,7 +36,7 @@ export default function BlogSection({posts, baseApiUrl, isLoading}: BlogSectionP
         return (
             <Box>
                 <Typography variant="h3" component="h2" sx={{mb: {xs: 2, sm: 3}, color: 'text.primary'}}>
-                    Our blog
+                    {dict.blogSection.title}
                 </Typography>
                 <BlogSkeleton/>
             </Box>
@@ -38,7 +46,7 @@ export default function BlogSection({posts, baseApiUrl, isLoading}: BlogSectionP
     return (
         <Box>
             <Typography variant="h3" component="h2" sx={{mb: {xs: 1, sm: 2}, color: 'text.primary'}}>
-                Our blog
+                {dict.blogSection.title}
             </Typography>
 
             {posts.length > 0 ? (
@@ -66,6 +74,7 @@ export default function BlogSection({posts, baseApiUrl, isLoading}: BlogSectionP
                                     elevation={0}
                                     showDescription={false}
                                     showAdminControls={false}
+                                    dict={dict.dialog}
                                 />
                             </SwiperSlide>
                         ))}
@@ -81,6 +90,7 @@ export default function BlogSection({posts, baseApiUrl, isLoading}: BlogSectionP
                                     elevation={0}
                                     showDescription={false}
                                     showAdminControls={false}
+                                    dict={dict.dialog}
                                 />
                             </Grid>
                         ))}
@@ -89,7 +99,7 @@ export default function BlogSection({posts, baseApiUrl, isLoading}: BlogSectionP
             ) : (
                 <Grid item xs={12}>
                     <Typography variant="h6" color="text.secondary" align="center">
-                        No blog posts available yet.
+                        {dict.blogSection.empty}
                     </Typography>
                 </Grid>
             )}
@@ -108,7 +118,7 @@ export default function BlogSection({posts, baseApiUrl, isLoading}: BlogSectionP
                             textTransform: 'none',
                         }}
                     >
-                        View All Posts
+                        {dict.blogSection.viewAll}
                     </Button>
                 </Box>
             )}

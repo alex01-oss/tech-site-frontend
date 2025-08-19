@@ -12,8 +12,9 @@ const ScrollToTop = () => {
         position: 'fixed',
         bottom: 16,
         right: 16,
-        zIndex: 1000,
-        color: 'catalog.white',
+        zIndex: 1,
+        borderRadius: 1,
+        color: '#fff',
         bgcolor: 'primary.main',
         '&:hover': {
             bgcolor: darken(theme.palette.primary.main, 0.2),

@@ -6,11 +6,17 @@ import {Box, Grid, Typography} from '@mui/material';
 import {useDataStore} from "@/features/data/store";
 import {useCatalogStore} from "@/features/catalog/store";
 
-export const CategoriesSection: React.FC = () => {
-    const router = useNavigatingRouter();
+interface Props {
+    dict: {
+        title: string,
+        loadError: string,
+    }
+}
 
+export const CategoriesSection: React.FC<Props> = ({ dict }) => {
     const {categories, categoriesLoading, categoriesError, fetchCategories} = useDataStore();
     const {setCategory} = useCatalogStore();
+    const router = useNavigatingRouter();
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:8080/api";
 
@@ -19,11 +25,11 @@ export const CategoriesSection: React.FC = () => {
     }, [fetchCategories]);
 
     if (categoriesLoading) {
-        const placeholders = Array.from({length: 4});
+        const placeholders = Array.from({length: 2});
         return (
             <Box>
                 <Typography variant="h3" component="h2" sx={{mb: {xs: 2, sm: 3}, color: 'text.primary'}}>
-                    Categories
+                    {dict.title}
                 </Typography>
 
                 <Grid container spacing={{xs: 2, sm: 3}} justifyContent="center">
@@ -47,14 +53,14 @@ export const CategoriesSection: React.FC = () => {
 
     if (categoriesError) {
         return (
-            <Typography color="error">Failed to load categories: {categoriesError}</Typography>
+            <Typography color="error">{dict.loadError} {categoriesError}</Typography>
         );
     }
 
     return (
         <Box>
             <Typography variant="h3" component="h2" sx={{mb: {xs: 1, sm: 2}, color: 'text.primary'}}>
-                Categories
+                {dict.title}
             </Typography>
             <Grid container spacing={{xs: 2, sm: 3}} justifyContent="center">
                 {categories.map((category) => (
@@ -65,7 +71,7 @@ export const CategoriesSection: React.FC = () => {
                         key={category.id}
                         onClick={() => {
                             setCategory(category.id, category.name);
-                            router.push(`/catalog`);
+                            router.push(`/catalog?category_id=${category.id}`);
                         }}
                         sx={{cursor: 'pointer'}}
                     >

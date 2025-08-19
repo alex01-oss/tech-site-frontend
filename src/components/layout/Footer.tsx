@@ -3,36 +3,18 @@
 import React, {useEffect, useState} from "react";
 import {Box, Container, Divider, Grid, IconButton, Link, Paper, Typography, useTheme,} from "@mui/material";
 import {Facebook, Instagram, LinkedIn, X, YouTube} from "@mui/icons-material";
+import {socialLinks} from "@/constants/socialLinks";
 
-const socialLinks = [
-    {
-        icon: Instagram,
-        url: "https://www.instagram.com/pdtools/",
-        hoverColor: "#E1306C",
-    },
-    {
-        icon: Facebook,
-        url: "https://www.facebook.com/superabrasives.tools",
-        hoverColor: "#4267B2",
-    },
-    {
-        icon: YouTube,
-        url: "https://www.youtube.com/channel/UC3tUVI8r3Bfr8hb9-KzfCvw",
-        hoverColor: "#FF0000",
-    },
-    {
-        icon: LinkedIn,
-        url: "https://www.linkedin.com/company/pdtoolssuperabrasives",
-        hoverColor: "#0077B5",
-    },
-    {
-        icon: X,
-        url: "https://x.com/PDT73640376",
-        hoverColor: "#657786",
-    },
-];
 
-export default function Footer() {
+interface Props {
+    dict: {
+        tagline: string,
+        companyName: string,
+        copyright: string,
+    }
+}
+
+export const Footer: React.FC<Props> = ({ dict } ) => {
     const [year, setYear] = useState(new Date().getFullYear());
     const theme = useTheme();
 
@@ -68,8 +50,7 @@ export default function Footer() {
                                     lineHeight: 1.5,
                                 }}
                             >
-                                High-quality industrial abrasives for metalworking, grinding, and
-                                polishing. Manufactured to international standards.
+                                {dict.tagline}
                             </Typography>
                         </Box>
                     </Grid>
@@ -78,7 +59,6 @@ export default function Footer() {
                         <Box sx={{
                             display: "flex",
                             justifyContent: "center",
-                            mb: {xs: 1, md: 1},
                             gap: theme.spacing(1)
                         }}>
                             {socialLinks.map((social, index) => {
@@ -117,9 +97,10 @@ export default function Footer() {
                                 underline="none"
                                 sx={{fontWeight: 500, color: 'inherit'}}
                             >
-                                PJSC &quot;POLTAVA DIAMOND TOOLS&quot;
+                                {dict.companyName}.
                             </Link>
-                            . © Copyright {year}.
+                            <br/>
+                            {dict.copyright} {year}.
                         </Typography>
                     </Grid>
                 </Grid>

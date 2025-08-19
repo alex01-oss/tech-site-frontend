@@ -16,7 +16,7 @@ export interface CatalogResponse {
     total_pages: number;
     current_page: number;
     items_per_page: number;
-    category_name: string;
+    category_name?: string;
 }
 
 export interface BondDetail {

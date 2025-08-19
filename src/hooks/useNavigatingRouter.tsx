@@ -1,14 +1,17 @@
 "use client";
 
-import { useRouter as useNextRouter } from 'next/navigation';
+import {usePathname, useRouter as useNextRouter} from 'next/navigation';
 import { useEffect, useCallback } from 'react';
 import { useTransition } from 'react';
 import {useNavigationStore} from "@/store/navigationStore";
 
 export function useNavigatingRouter() {
     const router = useNextRouter();
+    const pathname = usePathname();
     const { setIsNavigating } = useNavigationStore();
     const [isPending, startTransition] = useTransition();
+
+    const currentLang = pathname.split("/")[1] || "en";
 
     useEffect(() => {
         if (!isPending) {
@@ -19,23 +22,42 @@ export function useNavigatingRouter() {
         }
     }, [isPending, setIsNavigating]);
 
-    const push = useCallback((href: string) => {
+    const handleNavigate = useCallback((href: string, method: 'push' | 'replace') => {
         setIsNavigating(true);
         startTransition(() => {
-            router.push(href);
+            const finalHref = href.startsWith(`/${currentLang}/`) ? href : `/${currentLang}${href}`;
+            router[method](finalHref);
         });
-    }, [router, setIsNavigating, startTransition]);
+    }, [router, setIsNavigating, startTransition, currentLang]);
+
+    const push = useCallback((href: string) => {
+        handleNavigate(href, 'push');
+    }, [handleNavigate]);
 
     const replace = useCallback((href: string) => {
+        handleNavigate(href, 'replace');
+    }, [handleNavigate]);
+
+    const replaceLanguage = useCallback((newLang: string) => {
         setIsNavigating(true);
         startTransition(() => {
-            router.replace(href);
-        });
-    }, [router, setIsNavigating, startTransition]);
+            const pathSegments = pathname.split('/').filter(Boolean)
+            if (pathSegments.length > 0 && pathSegments[0].length === 2) {
+                pathSegments[0] = newLang;
+            } else {
+                pathSegments.unshift(newLang);
+            }
+            const newPath = '/' + pathSegments.join('/');
+            router.push(newPath);
+        })
+    }, [router, pathname, setIsNavigating, startTransition])
 
     return {
         ...router,
         push,
         replace,
+        replaceLanguage,
+        pathname,
+        currentLang
     };
 }

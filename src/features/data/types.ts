@@ -9,6 +9,6 @@ export interface FilterItem {
     [key: string]: any;
 }
 
-export interface FilterResponse {
+export interface FiltersResponse {
     [key: string]: FilterItem[];
 }

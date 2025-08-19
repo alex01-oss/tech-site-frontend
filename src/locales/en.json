@@ -1,0 +1,292 @@
+{
+  "notFound": {
+    "title": "Page Not Found",
+    "cta": "Go back home"
+  },
+  "errorBoundary": {
+    "errorTitle": "Something went wrong",
+    "reloadButton": "Reload Page"
+  },
+  "metadata": {
+    "description": "Professional diamond tools manufacturer since 1966. High-quality construction and stone processing tools.",
+    "keywords": "diamond tools, construction tools, stone processing",
+    "siteTitle": "Professional diamond tools manufacturer since 1966"
+  },
+  "auth": {
+    "register": {
+      "title": "Sign up",
+      "fullNameLabel": "Full Name",
+      "emailLabel": "Email",
+      "phoneLabel": "Phone Number",
+      "passwordLabel": "Password",
+      "privacyText": "I agree to the",
+      "privacyPolicy": "Privacy Policy",
+      "and": "and",
+      "termsOfUse": "Terms of Use",
+      "signUpButton": "Sign up",
+      "loading": "Loading...",
+      "success": "Registration successful!",
+      "registrationFailed": "Registration failed. Please try again.",
+      "error": "Registration error:",
+      "validation": {
+        "fullNameRequired": "Full name is required",
+        "emailRequired": "Email is required",
+        "emailInvalid": "Invalid email",
+        "phoneRequired": "Phone number is required",
+        "phoneInvalid": "Invalid phone number format",
+        "passwordRequired": "Password is required",
+        "passwordMin": "Password must be at least 8 characters long",
+        "privacyPolicyRequired": "You must agree to the privacy policy"
+      }
+    },
+    "login": {
+      "title": "Sign in",
+      "signInButton": "Sign in",
+      "loading": "Loading...",
+      "emailLabel": "Email",
+      "passwordLabel": "Password",
+      "success": "Login successful!",
+      "invalidCredentials": "Invalid email or password",
+      "error": "Login error:",
+      "validation": {
+        "emailRequired": "Email is required",
+        "emailInvalid": "Invalid email",
+        "passwordRequired": "Password is required"
+      }
+    },
+    "authLayout": {
+      "haveAccount": "Already have an account?",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign up",
+      "signIn": "Sign in"
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "edit": "Edit Profile",
+    "contactInfo": "Contact Information",
+    "activity": "Your Activity",
+    "cartItems": "Items in Cart",
+    "logout": "Logout",
+    "logoutSuccess": "You have been logged out successfully.",
+    "logoutError": "Failed to log out.",
+    "loginRequired": "Please log in to view your profile.",
+    "email": "Email",
+    "phone": "Phone"
+  },
+  "editProfile": {
+    "title": "Edit Profile",
+    "personalInfoTitle": "Personal Information",
+    "fullNameLabel": "Full Name",
+    "emailLabel": "Email",
+    "phoneLabel": "Phone",
+    "changePasswordTitle": "Change Password",
+    "currentPasswordLabel": "Current Password",
+    "newPasswordLabel": "New Password",
+    "confirmNewPasswordLabel": "Confirm New Password",
+    "updateProfileButton": "Update Profile",
+    "accountManagementTitle": "Account Management",
+    "logoutAllDevicesButton": "Logout Other Devices",
+    "deleteAccountButton": "Delete Account",
+    "confirmDeletionTitle": "Confirm Account Deletion",
+    "confirmDeletionText": "Are you sure you want to delete your account? This action is irreversible.",
+    "cancelButton": "Cancel",
+    "deleteButton": "Delete",
+    "loginRequired": "Please log in to edit your profile.",
+    "success": "Profile updated successfully!",
+    "noChanges": "No changes to save.",
+    "updateError": "Failed to update profile.",
+    "unexpectedError": "An unexpected error occurred.",
+    "accountDeleted": "Your account has been deleted.",
+    "deleteAccountFailed": "Failed to delete account.",
+    "logoutAllSuccess": "Logged out of all other devices.",
+    "logoutAllFailed": "Failed to log out of all devices.",
+    "validation": {
+      "currentPasswordRequired": "Current password is required",
+      "newPasswordSame": "New password cannot be the same as the current password",
+      "passwordsMatch": "Passwords must match",
+      "confirmPasswordRequired": "Confirm password is required"
+    }
+  },
+  "catalog": {
+    "emptyState": {
+      "noItemsFound": "No items found for the current filters.",
+      "startTyping": "Start typing or select a filter to find items."
+    },
+    "details": {
+      "productNotFound": "Product not found.",
+      "serverError": "Failed to fetch product data on server:",
+      "loadError": "Failed to load product data.",
+      "loading": "Loading product...",
+      "goBack": "Go Back",
+      "unavailable": "Product data not available.",
+      "code": "Code: ",
+      "keySpecs": "Key Specifications",
+      "dimensions": "Dimensions: ",
+      "bond": "Bond: ",
+      "gridSize": "Grid Size: ",
+      "mounting": "Mounting: ",
+      "bondDetails": "Bond Details",
+      "cooling": "Cooling: ",
+      "compatibleMachines": "Compatible Machines",
+      "remove": "Remove from Cart",
+      "inCart": "In Cart",
+      "add": "Add to Cart",
+      "mm": "mm",
+      "inch": "inch"
+    },
+    "controls": {
+      "filters": {
+        "filters": "Filters",
+        "apply": "Apply",
+        "error": "Error:",
+        "mm": "mm",
+        "titles": {
+          "grids": "Grid",
+          "bonds": "Bond",
+          "mountings": "Mounting"
+        }
+      },
+      "search": {
+        "search": "Search",
+        "filters": "Filters",
+        "apply": "Apply Search",
+        "clearAll": "Clear All Fields",
+        "params": "Search Parameters",
+        "code": "code",
+        "shape": "shape",
+        "dimensions": "dimensions",
+        "machine": "machine",
+        "field": {
+          "enter": "Enter"
+        }
+      }
+    }
+  },
+  "productCard": {
+    "size": "SIZE",
+    "bond": "BOND",
+    "grid": "GRID",
+    "fit": "FIT",
+    "remove": "Remove",
+    "inCart": "In Cart",
+    "add": "Add to cart",
+    "mm": "mm"
+  },
+  "cart": {
+    "next": "Next",
+    "back": "Back",
+    "emptyField": "Please fill in all the required fields",
+    "emptyMessage": "Your cart is empty. Add some products to your cart.",
+    "placing": "Placing an order",
+    "name": "Name",
+    "surname": "Surname",
+    "phone": "Phone number",
+    "email": "Email",
+    "address": "Address",
+    "deliveryMethod": "Delivery method",
+    "standard": "Standard delivery",
+    "express": "Express delivery",
+    "pickup": "Self-delivery",
+    "payment": "Payment",
+    "cashOnDelivery": "Payment upon receipt of goods",
+    "payNow": "Pay now",
+    "installments": "Credit and payment in installments",
+    "summary": "Order Summary",
+    "total": "Total: ",
+    "itemsPlural": "items",
+    "itemsSingular": "item",
+    "deliveryCost": "Delivery cost according to carrier rates",
+    "agreement": "By confirming the order, I accept the conditions",
+    "privacyPolicy": "Privacy Policy",
+    "and": "and",
+    "termsOfService": "Terms of Service",
+    "cta": "Confirm Order"
+  },
+  "blog": {
+    "main": {
+      "title": "Our Blog",
+      "placeholder": "Search posts...",
+      "notFound": "Nothing found for ",
+      "empty": "There are no blog posts yet.",
+      "add": "Add post",
+      "dialog": {
+        "deletePost": "Delete Post",
+        "editPost": "Edit post",
+        "confirm": "Confirm Deletion",
+        "text": "Are you sure you want to delete the post",
+        "irreversible": "This action cannot be undone.",
+        "cancel": "Cancel",
+        "delete": "Delete",
+        "deleteSuccess": "Post deleted successfully!",
+        "deleteError": "Failed to delete post."
+      }
+    },
+    "details": {
+      "goBack": "Go back",
+      "published": "Published: "
+    },
+    "editor": {
+      "loadError": "Failed to load post data.",
+      "titleRequired": "Post title cannot be empty.",
+      "contentRequired": "Post content cannot be empty.",
+      "create": "Post created successfully!",
+      "update": "Post updated successfully!",
+      "error": "Failed to save post",
+      "goBack": "Go back",
+      "unknownError": "Unknown error",
+      "title": "Title",
+      "image": "Image",
+      "changeImage": "Change Image",
+      "pickImage": "Pick Image",
+      "previewTitle": "Post Preview",
+      "contentEditorTitle": "Content Editor",
+      "createPost": "Create Post",
+      "updatePost": "Update Post"
+    },
+    "blogSection": {
+      "title": "Our blog",
+      "empty": "No blog posts available yet.",
+      "viewAll": "View All Posts"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "unexpectedError": "An unexpected error occurred."
+  },
+  "aboutUsSection": {
+    "title": "About us",
+    "content": "Since 1966, PJSC «Poltava Diamond Tool» has continued the tradition of quality and innovation in the production of diamond and CBN tools. Our company has evolved from developing the first diamond powders in the USSR to a modern enterprise providing complex industrial solutions worldwide. We pride ourselves on our rich history and commitment to excellence, delivering cutting-edge abrasive solutions for various industries."
+  },
+  "categoriesSection": {
+    "title": "Categories",
+    "loadError": "Failed to load categories: ",
+    "titles": {
+      "Grinding Wheels": "Grinding Wheels",
+      "Hybrid bounded wheels": "Hybrid bounded wheels"
+    }
+  },
+  "videosSection": {
+    "title": "Our videos",
+    "empty": "No videos available yet."
+  },
+  "layout": {
+    "footer": {
+      "tagline": "High-quality industrial abrasives for metalworking, grinding, and polishing. Manufactured to international standards.",
+      "companyName": "PJSC «POLTAVA DIAMOND TOOLS»",
+      "copyright": "© Copyright"
+    },
+    "navbar": {
+      "authRequired": "You must be authorized",
+      "login": "Login",
+      "lightMode": "Switch to Light Mode",
+      "darkMode": "Switch to Dark Mode",
+      "language": "Language",
+      "settings": "Settings",
+      "cart": "Shopping Cart",
+      "profile": "Profile",
+      "logo": "logo",
+      "goBack": "Go back"
+    }
+  }
+}

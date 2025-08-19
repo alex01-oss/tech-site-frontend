@@ -33,16 +33,28 @@ interface PostCardProps {
     showAdminControls?: boolean;
     elevation?: number;
     showDescription?: boolean;
+    dict: {
+        deletePost: string,
+        editPost: string,
+        confirm: string,
+        text: string,
+        irreversible: string,
+        cancel: string,
+        delete: string,
+        deleteSuccess: string,
+        deleteError: string,
+    }
 }
 
-const PostCard: React.FC<PostCardProps> = ({
-                                               post,
-                                               baseApiUrl,
-                                               height = 300,
-                                               showAdminControls = false,
-                                               elevation = 4,
-                                               showDescription = true,
-                                           }) => {
+export const PostCard: React.FC<PostCardProps> = ({
+    post,
+    baseApiUrl,
+    height = 300,
+    showAdminControls = false,
+    elevation = 4,
+    showDescription = true,
+    dict
+}) => {
     const router = useNavigatingRouter();
     const {user} = useAuthStore();
     const theme = useTheme();
@@ -63,11 +75,11 @@ const PostCard: React.FC<PostCardProps> = ({
         setIsDeleting(true);
         try {
             await blogApi.deletePost(post.id);
-            enqueueSnackbar('Post deleted successfully!', {variant: 'success'});
+            enqueueSnackbar(dict.deleteSuccess, {variant: 'success'});
             await revalidateBlogPosts();
             handleCloseDeleteDialog();
         } catch (error) {
-            enqueueSnackbar('Failed to delete post.', {variant: 'error'});
+            enqueueSnackbar(dict.deleteError, {variant: 'error'});
             console.error('Failed to delete post:', error);
         } finally {
             setIsDeleting(false);
@@ -131,7 +143,7 @@ const PostCard: React.FC<PostCardProps> = ({
                         gap: 2,
                     }}>
                         <IconButton
-                            aria-label="edit post"
+                            aria-label={dict.editPost}
                             sx={{
                                 borderRadius: 1,
                                 color: 'white',
@@ -149,7 +161,7 @@ const PostCard: React.FC<PostCardProps> = ({
                         </IconButton>
 
                         <IconButton
-                            aria-label="delete post"
+                            aria-label={dict.deletePost}
                             sx={{
                                 borderRadius: 1,
                                 color: 'white',
@@ -204,24 +216,22 @@ const PostCard: React.FC<PostCardProps> = ({
                 aria-describedby="delete-dialog-description"
             >
                 <DialogTitle id="delete-dialog-title">
-                    {"Confirm Deletion"}
+                    {dict.confirm}
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="delete-dialog-description">
-                        Are you sure you want to delete the post "{post.title}"? This action cannot be undone.
+                        {dict.text} "{post.title}"? {dict.irreversible}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDeleteDialog} color="primary" disabled={isDeleting}>
-                        Cancel
+                        {dict.cancel}
                     </Button>
                     <Button onClick={handleConfirmDelete} color="error" disabled={isDeleting} autoFocus>
-                        {isDeleting ? <CircularProgress size={24}/> : 'Delete'}
+                        {isDeleting ? <CircularProgress size={24}/> : dict.delete}
                     </Button>
                 </DialogActions>
             </Dialog>
         </>
     );
 };
-
-export default PostCard;

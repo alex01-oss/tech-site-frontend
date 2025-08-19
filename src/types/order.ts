@@ -1,13 +1,13 @@
 import * as Yup from "yup";
 
-export interface OrderFormData {
+export interface OrderFormValues {
     name: string;
     surname: string;
     phoneNumber: string;
     email: string;
     address: string;
-    deliveryMethod: string;
-    paymentMethod: string;
+    deliveryMethod: "standard" | "express" | "pickup";
+    paymentMethod: "cashOnDelivery" | "payNow" | "installments";
 }
 
 export const OrderFormSchema = Yup.object().shape({

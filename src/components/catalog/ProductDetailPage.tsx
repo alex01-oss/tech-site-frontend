@@ -23,13 +23,34 @@ import {useToggleCart} from "@/hooks/useToggleCart";
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 import Image from "next/image";
 
-interface ProductDetailPageProps {
+interface Props {
     initialProductData: ProductDetailData | null;
     initialError: string | null;
-    productId: number;
+    dict: {
+        productNotFound: string;
+        serverError: string;
+        loadError: string;
+        loading: string;
+        goBack: string;
+        unavailable: string;
+        code: string;
+        keySpecs: string;
+        dimensions: string;
+        bond: string;
+        gridSize: string;
+        mounting: string;
+        bondDetails: string;
+        cooling: string;
+        compatibleMachines: string;
+        remove: string,
+        inCart: string,
+        add: string,
+        mm: string,
+        inch: string,
+    }
 }
 
-function ProductDetailPage({initialProductData, initialError}: ProductDetailPageProps) {
+function ProductDetailPage({initialProductData, initialError, dict}: Props) {
     const [productData] = useState<ProductDetailData | null>(initialProductData);
     const [error] = useState<string | null>(initialError);
 
@@ -47,7 +68,6 @@ function ProductDetailPage({initialProductData, initialError}: ProductDetailPage
         return (
             <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
                 <CircularProgress/>
-                <Typography variant="h6" sx={{ml: 2}}>Loading product...</Typography>
             </Box>
         );
     }
@@ -56,7 +76,7 @@ function ProductDetailPage({initialProductData, initialError}: ProductDetailPage
         return (
             <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="100vh">
                 <Typography color="error" variant="h6">{error}</Typography>
-                <Button onClick={() => router.back()} sx={{mt: 2}}>Go Back</Button>
+                <Button onClick={() => router.back()} sx={{mt: 2}}>{dict.goBack}</Button>
             </Box>
         );
     }
@@ -130,13 +150,11 @@ function ProductDetailPage({initialProductData, initialError}: ProductDetailPage
                                 color={inCart ? "error" : item.is_in_cart ? "success" : "primary"}
                                 onClick={() => handleToggleCart(item.id)}
                                 startIcon={
-                                    inCart ? (
-                                        <Delete/>
-                                    ) : item.is_in_cart ? (
-                                        <CheckBox/>
-                                    ) : (
-                                        <ShoppingCart/>
-                                    )
+                                    inCart
+                                        ? <Delete/>
+                                        : item.is_in_cart
+                                            ? <CheckBox/>
+                                            : <ShoppingCart/>
                                 }
                                 sx={{
                                     py: 1.5,
@@ -146,10 +164,10 @@ function ProductDetailPage({initialProductData, initialError}: ProductDetailPage
                                 }}
                             >
                                 {inCart
-                                    ? "Remove from Cart"
+                                    ? dict.remove
                                     : item.is_in_cart
-                                        ? "In Cart"
-                                        : "Add to Cart"
+                                        ? dict.inCart
+                                        : dict.add
                                 }
                             </Button>
                         </Box>
@@ -170,7 +188,7 @@ function ProductDetailPage({initialProductData, initialError}: ProductDetailPage
                                 {item.shape}
                             </Typography>
                             <Chip
-                                label={`Code: ${item.code}`}
+                                label={`${dict.code} ${item.code}`}
                                 size="medium"
                                 sx={(theme) => ({
                                     bgcolor: theme.palette.primary.light,
@@ -189,30 +207,30 @@ function ProductDetailPage({initialProductData, initialError}: ProductDetailPage
 
                             <Box>
                                 <Typography variant="h6" sx={{fontWeight: 600, mb: 1, color: 'text.secondary'}}>
-                                    Key Specifications
+                                    {dict.keySpecs}
                                 </Typography>
                                 <Grid container spacing={1}>
                                     <Grid item xs={12}>
                                         <Typography variant="body1" sx={{fontWeight: 500}}>
-                                            Dimensions: {item.dimensions}
+                                            {dict.dimensions} {item.dimensions}
                                         </Typography>
                                     </Grid>
                                     <Grid item xs={12}>
                                         {bonds && bonds.length > 0 && (
                                             <Typography variant="body1" sx={{fontWeight: 500}}>
-                                                Bond: {bonds.map(bond => bond.name_bond).join(', ')}
+                                                {dict.bond} {bonds.map(bond => bond.name_bond).join(', ')}
                                             </Typography>
                                         )}
                                     </Grid>
                                     <Grid item xs={12}>
                                         <Typography variant="body1" sx={{fontWeight: 500}}>
-                                            Grid Size: {item.grid_size}
+                                            {dict.gridSize} {item.grid_size}
                                         </Typography>
                                     </Grid>
                                     {mounting && (
                                         <Grid item xs={12}>
                                             <Typography variant="body1" sx={{fontWeight: 500}}>
-                                                Mounting: {mounting.mm} mm / {mounting.inch} inch
+                                                {dict.mounting} {mounting.mm} {dict.mm} / {mounting.inch} {dict.inch}
                                             </Typography>
                                         </Grid>
                                     )}
@@ -226,7 +244,7 @@ function ProductDetailPage({initialProductData, initialError}: ProductDetailPage
             {bonds && bonds.length > 0 && (
                 <Paper elevation={2} sx={{borderRadius: 1, p: {xs: 2, md: 4}}}>
                     <Typography variant="h5" component="h2" sx={{fontWeight: 600, mb: 2, color: 'text.primary'}}>
-                        Bond Details
+                        {dict.bondDetails}
                     </Typography>
                     {bonds.map((bond, index) => (
                         <Box key={index} sx={{
@@ -243,7 +261,7 @@ function ProductDetailPage({initialProductData, initialError}: ProductDetailPage
                             <Box sx={{display: 'flex', alignItems: 'flex-start', gap: 1}}>
                                 <InfoOutlined color="action"/>
                                 <Typography variant="body2" color="text.secondary">
-                                    Cooling: {bond.bond_cooling}
+                                    {dict.cooling} {bond.bond_cooling}
                                 </Typography>
                             </Box>
                         </Box>
@@ -254,7 +272,7 @@ function ProductDetailPage({initialProductData, initialError}: ProductDetailPage
             {machines && machines.length > 0 && (
                 <Paper elevation={3} sx={{borderRadius: 1, p: {xs: 2, md: 4}}}>
                     <Typography variant="h5" component="h2" sx={{fontWeight: 600, mb: 2, color: 'text.primary'}}>
-                        Compatible Machines
+                        {dict.compatibleMachines}
                     </Typography>
                     <List dense>
                         {machines.map((machine, index) => (

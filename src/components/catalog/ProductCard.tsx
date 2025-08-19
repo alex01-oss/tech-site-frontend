@@ -1,22 +1,25 @@
 "use client"
 
 import {Box, Button, Chip, Tooltip, Typography, useTheme} from "@mui/material";
-import {Delete, Star, StarBorder} from "@mui/icons-material";
+import {AddShoppingCart, Delete, ShoppingCart} from "@mui/icons-material";
 import React, {memo} from "react";
 import {CatalogItem} from "@/features/catalog/types";
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 import Image from "next/image";
+import {ProductCardDict} from "@/types/dict";
 
-interface ProductCardProps {
+interface Props {
     product: CatalogItem;
     isCartView?: boolean;
     onToggleCart: (id: number) => void;
+    dict: ProductCardDict
 }
 
-export const ProductCard: React.FC<ProductCardProps> = memo(({
+export const ProductCard: React.FC<Props> = memo(({
     product,
     isCartView = false,
-    onToggleCart
+    onToggleCart,
+    dict
 }) => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:8080/api";
     const router = useNavigatingRouter();
@@ -120,13 +123,13 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                         <Typography
                             variant="caption"
                             sx={{
-                                minWidth: 60,
+                                minWidth: 67,
                                 color: "text.secondary",
                                 textTransform: "uppercase",
                                 letterSpacing: 0.5,
                             }}
                         >
-                            SIZE
+                            {dict.size}
                         </Typography>
                         <Tooltip
                             title={product.dimensions}
@@ -153,13 +156,13 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                             <Typography
                                 variant="caption"
                                 sx={{
-                                    minWidth: 60,
+                                    minWidth: 67,
                                     color: "text.secondary",
                                     textTransform: "uppercase",
                                     letterSpacing: 0.5,
                                 }}
                             >
-                                BOND
+                                {dict.bond}
                             </Typography>
                             <Typography
                                 variant="caption"
@@ -175,17 +178,17 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
 
 
                     {product.grid_size && (
-                        <Box sx={{display: "flex"}}>
+                        <Box sx={{display: "flex", mb: 1}}>
                             <Typography
                                 variant="caption"
                                 sx={{
-                                    minWidth: 60,
+                                    minWidth: 67,
                                     color: "text.secondary",
                                     textTransform: "uppercase",
                                     letterSpacing: 0.5,
                                 }}
                             >
-                                GRID
+                                {dict.grid}
                             </Typography>
                             <Typography
                                 variant="caption"
@@ -204,13 +207,13 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                             <Typography
                                 variant="caption"
                                 sx={{
-                                    minWidth: 60,
+                                    minWidth: 67,
                                     color: "text.secondary",
                                     textTransform: "uppercase",
                                     letterSpacing: 0.5,
                                 }}
                             >
-                                FIT
+                                {dict.fit}
                             </Typography>
                             <Typography
                                 variant="caption"
@@ -219,14 +222,14 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                                     fontWeight: 500,
                                 }}
                             >
-                                {`${product.mounting.mm} mm / ${product.mounting.inch} ″`}
+                                {`${product.mounting.mm} ${dict.mm} / ${product.mounting.inch} ″`}
                             </Typography>
                         </Box>
                     )}
 
                 </Box>
 
-                <Box sx={{mt: "auto"}}>
+                <Box sx={{ mt: "auto" }}>
                     <Button
                         variant="contained"
                         color={isCartView ? "error" : product.is_in_cart ? "success" : "primary"}
@@ -236,11 +239,11 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                         }}
                         startIcon={
                             isCartView ? (
-                                <Delete sx={{fontSize: 20}}/>
+                                <Delete sx={{ fontSize: 20 }} />
                             ) : product.is_in_cart ? (
-                                <Star sx={{fontSize: 20}}/>
+                                <ShoppingCart sx={{ fontSize: 20 }} />
                             ) : (
-                                <StarBorder sx={{fontSize: 20}}/>
+                                <AddShoppingCart sx={{ fontSize: 20 }} />
                             )
                         }
                         sx={{
@@ -252,15 +255,15 @@ export const ProductCard: React.FC<ProductCardProps> = memo(({
                             minHeight: 'auto',
                             alignSelf: 'flex-start',
                             "&:hover": {
-                                bgcolor: "action.hover",
+                                bgcolor: (theme) => theme.palette.primary.dark,
                             },
                         }}
                     >
                         {isCartView
-                            ? "Remove"
+                            ? dict.remove
                             : product.is_in_cart
-                                ? "Saved"
-                                : "Save"
+                                ? dict.inCart
+                                : dict.add
                         }
                     </Button>
                 </Box>

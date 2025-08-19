@@ -1,10 +1,9 @@
 import {create} from "zustand";
-import {persist} from "zustand/middleware";
-import {menuApi} from "@/features/data/api";
-import {Category, FilterResponse} from "@/features/data/types";
+import {dataApi} from "@/features/data/api";
+import {Category, FiltersResponse} from "@/features/data/types";
 
 export interface DataState {
-    filters: FilterResponse | null;
+    filters: FiltersResponse | null;
     categories: Category[];
 
     filtersLoading: boolean;
@@ -39,7 +38,7 @@ export const useDataStore = create<DataState>()(
             }
             try {
                 set({filtersLoading: true, filtersError: null});
-                const response = await menuApi.getFilters(categoryId);
+                const response = await dataApi.getFilters(categoryId);
                 set({filters: response});
             } catch (e) {
                 console.error("Fetch filters failed", e);
@@ -55,7 +54,7 @@ export const useDataStore = create<DataState>()(
             }
             try {
                 set({categoriesLoading: true, categoriesError: null});
-                const response = await menuApi.getCategories();
+                const response = await dataApi.getCategories();
                 set({
                     categories: response,
                     categoriesFetched: true,

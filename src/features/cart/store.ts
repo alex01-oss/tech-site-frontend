@@ -32,12 +32,12 @@ export const useCartStore = create<CartState>()((set, get) => ({
 
         set({ loading: true, error: null });
         try {
-            const response = await cartApi.getCart();
-            const ids = new Set(response.cart.map(item => item.product.id));
+            const res = await cartApi.getCart();
+            const ids = new Set(res.cart.map(item => item.product.id));
 
             set({
-                cart: response.cart,
-                cartCount: response.cart.length,
+                cart: res.cart,
+                cartCount: res.cart.length,
                 cartIds: ids,
                 error: null,
             });
