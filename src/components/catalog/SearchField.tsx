@@ -29,12 +29,16 @@ export const AutocompleteSearchField: React.FC<Props> = memo(
         const [options, setOptions] = useState<string[]>([]);
         const [loading, setLoading] = useState(false);
 
-        const {categoryId} = useCatalogStore();
+        const { categoryId, search, filters } = useCatalogStore();
 
         const getPlaceholderText = (lbl: string): string => `${dict.enter} ${lbl}...`;
 
         const fetchOptionsDebounced = useCallback(
-            debounce(async (query: string) => {
+            debounce(async (
+                query: string,
+                currentSearch: typeof search,
+                currentFilters: typeof filters
+            ) => {
                 if (query.length === 0 || query.length < minLength || !categoryId) {
                     setOptions([]);
                     return;
@@ -43,7 +47,20 @@ export const AutocompleteSearchField: React.FC<Props> = memo(
                 setLoading(true);
                 try {
                     const apiCall = apiMap[type];
-                    const res = await apiCall(query, categoryId);
+
+                    const params = {
+                        q: query,
+                        category_id: categoryId,
+                        ...(currentSearch.code && { search_code: currentSearch.code }),
+                        ...(currentSearch.shape && { search_shape: currentSearch.shape }),
+                        ...(currentSearch.dimensions && { search_dimensions: currentSearch.dimensions }),
+                        ...(currentSearch.machine && { search_machine: currentSearch.machine }),
+                        ...(currentFilters.bondIds && { bond_ids: currentFilters.bondIds }),
+                        ...(currentFilters.gridIds && { grid_size_ids: currentFilters.gridIds }),
+                        ...(currentFilters.mountingIds && { mounting_ids: currentFilters.mountingIds }),
+                    }
+
+                    const res = await apiCall(params);
                     setOptions(res);
                 } catch (error) {
                     console.error(`Error fetching autocomplete for ${type}:`, error);
@@ -52,7 +69,7 @@ export const AutocompleteSearchField: React.FC<Props> = memo(
                     setLoading(false);
                 }
             }, 300),
-            [type, minLength, categoryId]
+            [type, minLength, categoryId, search, filters]
         );
 
         useEffect(() => {
@@ -63,13 +80,13 @@ export const AutocompleteSearchField: React.FC<Props> = memo(
             (_: React.SyntheticEvent, newInputValue: string, reason: string) => {
                 onChange(type, newInputValue);
 
-                if (reason === 'input') void fetchOptionsDebounced(newInputValue);
+                if (reason === 'input') void fetchOptionsDebounced(newInputValue, search, filters);
                 else if (reason === 'clear') {
                     setOptions([]);
                     fetchOptionsDebounced.cancel();
                 }
             },
-            [onChange, type, fetchOptionsDebounced]
+            [onChange, type, fetchOptionsDebounced, search, filters]
         );
 
         const handleSelectChange = useCallback(

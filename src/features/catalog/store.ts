@@ -130,9 +130,8 @@ export const useCatalogStore = create<CatalogState>()(
 
                     const hasChanged = !shallow(state.search, updatedSearch);
 
-                    if (!hasChanged) {
-                        return state;
-                    }
+                    if (!hasChanged) return state
+                    if (shallow(state.search, updatedSearch)) return state
 
                     return {
                         ...state,

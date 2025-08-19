@@ -1,13 +1,26 @@
 import api from "@/lib/api";
 
+interface AutocompleteParams {
+    q: string;
+    category_id: number | null;
+    search_code?: string;
+    search_shape?: string;
+    search_dimensions?: string;
+    search_machine?: string;
+    bond_ids?: number[];
+    grid_size_ids?: number[];
+    mounting_ids?: number[];
+}
+
 const createAutocompleteFunction = (endpoint: string) => {
-    return async (q: string, categoryId: number | null): Promise<string[]> => {
+    return async (params: AutocompleteParams): Promise<string[]> => {
         try {
-            const params = {
-                q: q,
-                ...(categoryId && { category_id: categoryId })
-            };
-            const res = await api.get<string[]>(`autocomplete/${endpoint}`, { params });
+            const res = await api.get(`autocomplete/${endpoint}`, {
+                    params,
+                    paramsSerializer: {
+                        indexes: null
+                    }
+                });
             return res.data;
         } catch (e) {
             console.error(`Error fetching autocomplete ${endpoint}:`, e);
