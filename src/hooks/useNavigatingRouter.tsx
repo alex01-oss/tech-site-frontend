@@ -48,7 +48,7 @@ export function useNavigatingRouter() {
                 pathSegments.unshift(newLang);
             }
             const newPath = '/' + pathSegments.join('/');
-            router.push(newPath);
+            router.replace(newPath);
         })
     }, [router, pathname, setIsNavigating, startTransition])
 

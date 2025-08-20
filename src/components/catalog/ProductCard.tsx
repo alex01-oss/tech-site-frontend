@@ -123,7 +123,7 @@ export const ProductCard: React.FC<Props> = memo(({
                         <Typography
                             variant="caption"
                             sx={{
-                                minWidth: 67,
+                                minWidth: 65,
                                 color: "text.secondary",
                                 textTransform: "uppercase",
                                 letterSpacing: 0.5,
@@ -156,7 +156,7 @@ export const ProductCard: React.FC<Props> = memo(({
                             <Typography
                                 variant="caption"
                                 sx={{
-                                    minWidth: 67,
+                                    minWidth: 65,
                                     color: "text.secondary",
                                     textTransform: "uppercase",
                                     letterSpacing: 0.5,
@@ -182,7 +182,7 @@ export const ProductCard: React.FC<Props> = memo(({
                             <Typography
                                 variant="caption"
                                 sx={{
-                                    minWidth: 67,
+                                    minWidth: 65,
                                     color: "text.secondary",
                                     textTransform: "uppercase",
                                     letterSpacing: 0.5,
@@ -207,7 +207,7 @@ export const ProductCard: React.FC<Props> = memo(({
                             <Typography
                                 variant="caption"
                                 sx={{
-                                    minWidth: 67,
+                                    minWidth: 65,
                                     color: "text.secondary",
                                     textTransform: "uppercase",
                                     letterSpacing: 0.5,
@@ -222,7 +222,7 @@ export const ProductCard: React.FC<Props> = memo(({
                                     fontWeight: 500,
                                 }}
                             >
-                                {`${product.mounting.mm} ${dict.mm} / ${product.mounting.inch} ″`}
+                                {`${product.mounting.mm} ${dict.mm} / ${product.mounting.inch}″`}
                             </Typography>
                         </Box>
                     )}

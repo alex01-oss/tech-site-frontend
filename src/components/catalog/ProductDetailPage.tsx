@@ -109,8 +109,8 @@ function ProductDetailPage({initialProductData, initialError, dict}: Props) {
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
-                                gap: 3,
-                                pb: {xs: 2, md: 0}
+                                gap: {xs: 2, sm: 3},
+                                pb: {xs: 2, sm: 0}
                             }}
                         >
                             <Box

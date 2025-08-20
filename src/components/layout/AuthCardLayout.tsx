@@ -26,7 +26,7 @@ export const AuthCardLayout: React.FC<AuthCardLayoutProps> = ({
     const router = useNavigatingRouter();
 
     return (
-        <Stack height="90vh" p={2} justifyContent="center">
+        <Stack height="80vh" p={2} justifyContent="center">
             <Card
                 variant="outlined"
                 sx={{

@@ -90,7 +90,20 @@ export function PostDetailPage({initialPost, postId, baseApiUrl, dict}: PostDeta
                 </Box>
             )}
 
-            <Typography variant="h3" component="h1" gutterBottom sx={{mb: 3, color: 'text.primary'}}>
+            <Typography
+                variant="h3"
+                component="h1"
+                gutterBottom
+                sx={{
+                    mb: 3,
+                    color: 'text.primary',
+                    fontSize: {
+                        xs: '1.5rem',
+                        sm: '2rem',
+                        md: '3rem',
+                    },
+                }}
+            >
                 {post.title}
             </Typography>
 

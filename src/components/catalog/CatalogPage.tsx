@@ -193,7 +193,14 @@ export const CatalogPage: React.FC<Props> = ({dict}) => {
                 }}>
 
                     {categoryName && (
-                        <Typography variant="h3" component="h1" sx={{mb: {xs: 2, sm: 3}}}>
+                        <Typography
+                            variant="h3"
+                            component="h1"
+                            sx={{
+                                mb: {xs: 2, sm: 3},
+                                fontSize: { xs: '2rem', sm: '3rem' },
+                            }}
+                        >
                             {translatedCategoryName}
                         </Typography>
                     )}
