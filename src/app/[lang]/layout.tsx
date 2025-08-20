@@ -1,7 +1,6 @@
 import "../../styles/globals.css";
 import ClientProvider from "@/providers/clientsProvider";
 import React from "react";
-import {LayoutProvider} from "@/contexts/LayoutContext";
 import LayoutContent from "@/components/layout/LayoutContent";
 import {getDictionary} from "@/lib/i18n";
 import {Metadata} from "next";
@@ -11,8 +10,8 @@ interface Props {
     params: Promise<{ lang: string }>;
 }
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-    const { lang } = await params;
+export async function generateMetadata({params}: Props): Promise<Metadata> {
+    const {lang} = await params;
     const dict = await getDictionary(lang);
 
     return {
@@ -40,21 +39,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
 }
 
-const LanguageLayout = async ({ children, params }: Props) => {
-    const { lang } = await params;
+const LanguageLayout = async ({children, params}: Props) => {
+    const {lang} = await params;
     const dict = await getDictionary(lang);
 
     return (
         <div lang={lang}>
             <ClientProvider>
-                <LayoutProvider>
-                    <LayoutContent dict={{
-                        layout: dict.layout,
-                        errorBoundary: dict.errorBoundary
-                    }}>
-                        {children}
-                    </LayoutContent>
-                </LayoutProvider>
+                <LayoutContent dict={{
+                    layout: dict.layout,
+                    errorBoundary: dict.errorBoundary
+                }}>
+                    {children}
+                </LayoutContent>
             </ClientProvider>
         </div>
     );

@@ -1,7 +1,6 @@
 "use client"
 
 import {Box, CircularProgress, Typography, useMediaQuery, useTheme} from "@mui/material";
-import {useLayout} from "@/contexts/LayoutContext";
 import {useGridItemsPerPage} from "@/hooks/useGridItemsPerPage";
 import React, {useCallback, useEffect, useMemo, useRef} from "react";
 import {useCatalogStore} from "@/features/catalog/store";
@@ -34,7 +33,6 @@ interface Props {
 
 export const CatalogPage: React.FC<Props> = ({dict}) => {
     const theme = useTheme();
-    const {setHasTopMargin} = useLayout();
     const itemsPerPage = useGridItemsPerPage();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const ref = useRef<HTMLDivElement>(null);
@@ -81,14 +79,6 @@ export const CatalogPage: React.FC<Props> = ({dict}) => {
     useEffect(() => {
         void fetchCatalog()
     }, [fetchCatalog, currentPage, storeItemsPerPage, search, filters]);
-
-    useEffect(() => {
-        setHasTopMargin(false);
-
-        return () => {
-            setHasTopMargin(true);
-        };
-    }, [setHasTopMargin]);
 
     const handleCombinedSearchSubmit = useCallback((
         searchFields: Partial<SearchFields>,
