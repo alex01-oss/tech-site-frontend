@@ -1,40 +1,5 @@
-:root {
-    --app-background: #ffffff;
-    --app-foreground: #121212;
-}
-
-@media (prefers-color-scheme: dark) {
-    :root {
-        --app-background: #121212;
-        --app-foreground: #E4E5E7;
-    }
-}
-
 *,
 *::before,
 *::after {
-    margin: 0;
-    padding: 0;
     box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    padding: 0;
-    color: var(--app-foreground);
-    background: var(--app-background);
-    font-family: 'Montserrat', sans-serif;
-}
-
-.MuiPaper-root, .MuiCard-root, .MuiAppBar-root {
-    background-color: inherit;
-    color: inherit;
-}
-
-html {
-    height: 100%;
-}
-
-body {
-    min-height: 100%;
 }

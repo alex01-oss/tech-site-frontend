@@ -6,10 +6,10 @@ import React, {useCallback, useEffect, useMemo, useRef} from "react";
 import {useCatalogStore} from "@/features/catalog/store";
 import {SearchFields} from "@/types/searchFields";
 import {FiltersPanel} from "@/components/catalog/FiltersPanel";
-import Search from "@/components/catalog/Search";
-import ProductSkeleton from "@/components/skeletons/TableSkeleton";
+import {Search} from "@/components/catalog/Search";
+import {ProductSkeleton} from "@/components/skeletons/TableSkeleton";
 import {ProductsTable} from "@/components/catalog/ProductsTable";
-import ScrollToTop from "@/components/ui/ScrollToTop";
+import {ScrollToTop} from "@/components/ui/ScrollToTop";
 
 interface Props {
     dict: {
@@ -142,8 +142,8 @@ export const CatalogPage: React.FC<Props> = ({dict}) => {
         <Box sx={{
             flex: 1,
             display: 'flex',
-            gap: {xs: 2, sm: 3},
-            mt: {xs: 6, sm: 7},
+            gap: {xs: theme.spacing(2), sm: theme.spacing(3)},
+            mt: {xs: theme.spacing(6), sm: theme.spacing(7)},
         }}>
             {!isMobile &&
                 <FiltersPanel
@@ -165,7 +165,7 @@ export const CatalogPage: React.FC<Props> = ({dict}) => {
                     minWidth: 0,
                 }}
             >
-                <Box sx={{pb: 2, mt: 4}}>
+                <Box sx={{pb: theme.spacing(2), mt: theme.spacing(4)}}>
                     <Search
                         onSearch={handleCombinedSearchSubmit}
                         currentSearchFields={currentSearchFieldsForSearchComponent}
@@ -181,14 +181,13 @@ export const CatalogPage: React.FC<Props> = ({dict}) => {
                     flexGrow: 1,
                     maxWidth: '100%',
                 }}>
-
                     {categoryName && (
                         <Typography
                             variant="h3"
                             component="h1"
                             sx={{
-                                mb: {xs: 2, sm: 3},
-                                fontSize: { xs: '2rem', sm: '3rem' },
+                                mb: {xs: theme.spacing(2), sm: theme.spacing(3)},
+                                fontSize: {xs: theme.typography.h4.fontSize, sm: theme.typography.h3.fontSize},
                             }}
                         >
                             {translatedCategoryName}
@@ -200,17 +199,25 @@ export const CatalogPage: React.FC<Props> = ({dict}) => {
                         : <ProductsTable products={products} dict={dict.productCard}/>
                     }
                     {isLoading && products.length > 0 && (
-                        <Box sx={{textAlign: "center", my: {xs: 2, md: 3}}}>
+                        <Box sx={{textAlign: "center", my: {xs: theme.spacing(2), md: theme.spacing(3)}}}>
                             <CircularProgress/>
                         </Box>
                     )}
                     {!isLoading && products.length === 0 && (isSearchActive || areFiltersActive) && (
-                        <Box sx={{textAlign: "center", my: {xs: 2, md: 3}, color: 'text.secondary'}}>
+                        <Box sx={{
+                            textAlign: "center",
+                            my: {xs: theme.spacing(2), md: theme.spacing(3)},
+                            color: 'text.secondary'
+                        }}>
                             {dict.catalog.emptyState.noItemsFound}
                         </Box>
                     )}
                     {!isLoading && products.length === 0 && !isSearchActive && !areFiltersActive && (
-                        <Box sx={{textAlign: "center", my: {xs: 2, md: 3}, color: 'text.secondary'}}>
+                        <Box sx={{
+                            textAlign: "center",
+                            my: {xs: theme.spacing(2), md: theme.spacing(3)},
+                            color: 'text.secondary'
+                        }}>
                             {dict.catalog.emptyState.startTyping}
                         </Box>
                     )}

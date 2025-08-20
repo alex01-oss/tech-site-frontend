@@ -1,4 +1,6 @@
-import {Grid} from "@mui/material";
+"use client"
+
+import {Grid, useTheme} from "@mui/material";
 import React, {memo} from "react";
 import {CatalogItem} from "@/features/catalog/types";
 import {ProductCard} from "@/components/catalog/ProductCard";
@@ -11,13 +13,14 @@ interface ProductTableProps {
 }
 
 export const ProductsTable: React.FC<ProductTableProps> = memo(({ products, isCartView = false, dict }) => {
-    const { handleToggleCart, isInCart } = useToggleCart()
+    const { handleToggleCart, isInCart } = useToggleCart();
+    const theme = useTheme();
 
     return (
-        <Grid container spacing={{xs: 2, sm: 3}}>
+        <Grid container spacing={{ xs: theme.spacing(2), sm: theme.spacing(3) }}>
             {products.map((product, index) => (
                 <Grid item xs={6} sm={6} md={4} lg={3} xl={3} key={`product-${index}`}>
-                <ProductCard
+                    <ProductCard
                         product={{ ...product, is_in_cart: isInCart(product.id) }}
                         isCartView={isCartView}
                         onToggleCart={() => handleToggleCart(product.id)}

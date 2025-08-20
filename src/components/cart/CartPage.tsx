@@ -89,7 +89,7 @@ export const OrderForm: React.FC<Props> = ({dict}) => {
     if (error) {
         return (
             <Container maxWidth="lg" sx={{
-                mt: 12,
+                mt: theme.spacing(12),
                 minHeight: "80vh",
                 display: "flex",
                 justifyContent: "center",
@@ -120,8 +120,8 @@ export const OrderForm: React.FC<Props> = ({dict}) => {
                 );
             case 1:
                 return (
-                    <Paper sx={{p: 3, borderRadius: 2}}>
-                        <Typography variant="h5" sx={{mb: 2}}>
+                    <Paper sx={{p: theme.spacing(3), borderRadius: theme.shape.borderRadius * 2}}> // `borderRadius: 2`
+                        <Typography variant="h5" sx={{mb: theme.spacing(2)}}>
                             {dict.cart.placing}
                         </Typography>
                         <Formik
@@ -134,7 +134,7 @@ export const OrderForm: React.FC<Props> = ({dict}) => {
                         >
                             {({values, handleChange, errors, touched}) => (
                                 <Form>
-                                    <Grid container spacing={{xs: 2, sm: 3}}>
+                                    <Grid container spacing={{xs: theme.spacing(2), sm: theme.spacing(3)}}>
                                         {formFields.map((fieldProps) => (
                                             <Grid item xs={12} sm={fieldProps.fullWidth ? 12 : 6}
                                                   key={fieldProps.name}>
@@ -194,21 +194,22 @@ export const OrderForm: React.FC<Props> = ({dict}) => {
             case 2:
                 return (
                     <Grid item xs={12} md={4}>
-                        <Paper sx={{p: 3, borderRadius: 2}}>
+                        <Paper sx={{p: theme.spacing(3), borderRadius: theme.shape.borderRadius * 2}}> // `borderRadius:
+                            2`
                             <Typography variant="h6">{dict.cart.summary}</Typography>
-                            <Divider sx={{my: 2}}/>
+                            <Divider sx={{my: theme.spacing(2)}}/>
                             <Typography
                                 variant="body1">{dict.cart.total} {cart.length} {cart.length > 1 ? dict.cart.itemsPlural : dict.cart.itemsSingular}</Typography>
-                            <Typography variant="body2" sx={{mt: 1, color: "text.secondary"}}>
+                            <Typography variant="body2" sx={{mt: theme.spacing(1), color: "text.secondary"}}>
                                 {dict.cart.deliveryCost}
                             </Typography>
-                            <Typography variant="caption" sx={{mt: 2, display: "block"}}>
+                            <Typography variant="caption" sx={{mt: theme.spacing(2), display: "block"}}>
                                 {dict.cart.agreement}
                             </Typography>
                             <Typography variant="caption" sx={{color: "primary.main", cursor: "pointer"}}>
                                 {dict.cart.privacyPolicy} {dict.cart.and} {dict.cart.termsOfService}
                             </Typography>
-                            <Button variant="contained" color="primary" fullWidth sx={{mt: 2}}
+                            <Button variant="contained" color="primary" fullWidth sx={{mt: theme.spacing(2)}}
                                     aria-label={dict.cart.cta}>
                                 {dict.cart.cta}
                             </Button>
@@ -227,7 +228,12 @@ export const OrderForm: React.FC<Props> = ({dict}) => {
                 steps={3}
                 position="static"
                 activeStep={activeStep}
-                sx={{maxWidth: 400, flexGrow: 1, margin: "auto", mb: {xs: 1, sm: 2}}}
+                sx={{
+                    maxWidth: 400,
+                    flexGrow: 1,
+                    margin: "auto",
+                    mb: {xs: theme.spacing(1), sm: theme.spacing(2)}
+                }}
                 nextButton={
                     <Button
                         size="small"

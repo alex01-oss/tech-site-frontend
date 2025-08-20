@@ -87,21 +87,21 @@ export const PostCard: React.FC<PostCardProps> = ({
     };
 
     return (
-        <>
+        <Box>
             <Paper
                 elevation={elevation}
                 sx={{
                     position: 'relative',
                     height: height,
-                    borderRadius: 1,
+                    borderRadius: theme.shape.borderRadius,
                     overflow: 'hidden',
                     cursor: 'pointer',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'flex-end',
-                    transition: 'transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out',
+                    transition: theme.transitions.create(['transform', 'box-shadow']),
                     '&:hover': {
-                        boxShadow: '0 8px 25px rgba(0,0,0,0.25)',
+                        boxShadow: theme.shadows[8],
                     },
                 }}
                 onClick={() => router.push(`/blog/${post.id}`)}
@@ -129,23 +129,23 @@ export const PostCard: React.FC<PostCardProps> = ({
                     left: 0,
                     right: 0,
                     height: '60%',
-                    background: 'linear-gradient(to top, rgba(0,0,0,0.9), rgba(0,0,0,0))',
+                    background: `linear-gradient(to top, ${theme.palette.text.primary}cc, ${theme.palette.text.primary}00)`,
                     zIndex: 1,
                 }}/>
 
                 {showAdminControls && user?.role === 'admin' && (
                     <Box sx={{
                         position: 'absolute',
-                        top: 16,
-                        right: 16,
+                        top: theme.spacing(2),
+                        right: theme.spacing(2),
                         zIndex: 3,
                         display: 'flex',
-                        gap: 2,
+                        gap: theme.spacing(2),
                     }}>
                         <IconButton
                             aria-label={dict.editPost}
                             sx={{
-                                borderRadius: 1,
+                                borderRadius: theme.shape.borderRadius,
                                 color: 'white',
                                 bgcolor: 'primary.main',
                                 '&:hover': {
@@ -163,7 +163,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                         <IconButton
                             aria-label={dict.deletePost}
                             sx={{
-                                borderRadius: 1,
+                                borderRadius: theme.shape.borderRadius,
                                 color: 'white',
                                 bgcolor: 'secondary.main',
                                 '&:hover': {
@@ -180,17 +180,17 @@ export const PostCard: React.FC<PostCardProps> = ({
 
                 <Box sx={{
                     position: 'relative',
-                    p: 2,
-                    pt: 4,
+                    p: theme.spacing(2),
+                    pt: theme.spacing(4),
                     zIndex: 2,
-                    color: 'white',
+                    color: theme.palette.common.white,
                 }}>
                     <Typography
                         variant="h6"
                         sx={{
-                            fontWeight: 'bold',
-                            textShadow: '1px 1px 4px rgba(0,0,0,0.8)',
-                            mb: 1,
+                            fontWeight: theme.typography.fontWeightBold,
+                            textShadow: `1px 1px 4px ${theme.palette.text.primary}`,
+                            mb: theme.spacing(1),
                         }}
                     >
                         {post.title}
@@ -200,7 +200,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                             variant="body2"
                             sx={{
                                 opacity: 0.8,
-                                textShadow: '1px 1px 2px rgba(0,0,0,0.7)',
+                                textShadow: `1px 1px 2px ${theme.palette.text.primary}`,
                             }}
                         >
                             {post.content.length > 100 ? `${post.content.replace(/<[^>]*>/g, '').substring(0, 97)}...` : post.content.replace(/<[^>]*>/g, '')}
@@ -228,10 +228,10 @@ export const PostCard: React.FC<PostCardProps> = ({
                         {dict.cancel}
                     </Button>
                     <Button onClick={handleConfirmDelete} color="error" disabled={isDeleting} autoFocus>
-                        {isDeleting ? <CircularProgress size={24}/> : dict.delete}
+                        {isDeleting ? <CircularProgress size={theme.typography.fontSize * 1.5}/> : dict.delete}
                     </Button>
                 </DialogActions>
             </Dialog>
-        </>
+        </Box>
     );
 };

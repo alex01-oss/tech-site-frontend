@@ -1,10 +1,11 @@
 import React, {memo, useCallback, useEffect, useState} from 'react';
-import {Autocomplete, CircularProgress, InputAdornment, TextField,} from '@mui/material';
+import {Autocomplete, CircularProgress, InputAdornment, TextField, useTheme,} from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import debounce from 'lodash.debounce';
 import {autoCompleteApi} from "@/features/autocomplete/api";
 import {useCatalogStore} from "@/features/catalog/store";
 import {SearchFields} from "@/types/searchFields";
+import {SxProps} from "@mui/system";
 
 interface Props {
     type: keyof SearchFields;
@@ -28,6 +29,7 @@ export const AutocompleteSearchField: React.FC<Props> = memo(
     ({type, label, minLength, value, onChange, onKeyPress, isMobile, dict}) => {
         const [options, setOptions] = useState<string[]>([]);
         const [loading, setLoading] = useState(false);
+        const theme = useTheme();
 
         const { categoryId, search, filters } = useCatalogStore();
 
@@ -98,44 +100,44 @@ export const AutocompleteSearchField: React.FC<Props> = memo(
             [onChange, type, fetchOptionsDebounced]
         );
 
-        const inputPropsSx = isMobile ? {
-            borderRadius: 1,
-            height: 50,
-            backgroundColor: 'transparent',
+        const inputPropsSx: SxProps = isMobile ? {
+            borderRadius: theme.shape.borderRadius,
+            height: theme.spacing(6.25),
+            backgroundColor: theme.palette.background.paper,
             '& fieldset': {
-                borderColor: 'grey.300',
+                borderColor: theme.palette.grey[300],
             },
             '&:hover fieldset': {
-                borderColor: 'grey.400',
+                borderColor: theme.palette.grey[400],
             },
             '&.Mui-focused fieldset': {
-                borderColor: 'primary.main',
+                borderColor: theme.palette.primary.main,
             },
         } : {
             height: '100%',
             borderRadius: 0,
             '& .MuiInputBase-input': {
-                paddingTop: '12px !important',
-                paddingBottom: '12px !important',
-                paddingLeft: '14px !important',
-                paddingRight: '4px !important',
+                paddingTop: theme.spacing(1.5),
+                paddingBottom: theme.spacing(1.5),
+                paddingLeft: theme.spacing(1.75),
+                paddingRight: theme.spacing(0.5),
             },
         };
 
-        const textFieldSx = isMobile ? {
-            '& .MuiOutlinedInput-root': {borderRadius: 1},
-            mb: 0
+        const textFieldSx: SxProps = isMobile ? {
+            '& .MuiOutlinedInput-root': { borderRadius: theme.shape.borderRadius },
+            mb: theme.spacing(0),
         } : {
             flexGrow: 1,
             '& .MuiOutlinedInput-root': {
-                height: '48px',
+                height: theme.spacing(6),
                 borderRadius: 0,
                 backgroundColor: 'transparent',
-                '& fieldset': {border: 'none'},
+                '& fieldset': { border: 'none' },
             },
             '& .MuiInputBase-input': {
-                py: 1.25,
-                px: 1.5,
+                py: theme.spacing(1.25),
+                px: theme.spacing(1.5),
             },
         };
 

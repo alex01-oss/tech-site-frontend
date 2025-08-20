@@ -33,7 +33,7 @@ interface SearchProps {
     }
 }
 
-const Search: React.FC<SearchProps> = memo(({
+export const Search: React.FC<SearchProps> = memo(({
     onSearch,
     currentSearchFields,
     currentFilters,
@@ -94,15 +94,18 @@ const Search: React.FC<SearchProps> = memo(({
     const drawerStyles = {
         PaperProps: {
             sx: {
-                borderRadius: { xs: '0 0 16px 16px', sm: '0 0 8px 8px' },
+                borderRadius: {
+                    xs: `0 0 ${theme.shape.borderRadius}px ${theme.shape.borderRadius}px`,
+                    sm: `0 0 ${theme.shape.borderRadius}px ${theme.shape.borderRadius}px`,
+                },
                 overflow: 'hidden',
             },
         },
     };
 
     const buttonStyle = {
-        borderRadius: 1,
-        height: 48,
+        borderRadius: theme.shape.borderRadius,
+        height: theme.spacing(6),
         fontWeight: 'bold',
     };
 
@@ -117,7 +120,7 @@ const Search: React.FC<SearchProps> = memo(({
                 dict={dict.search.field}
             />
             {!isMobile && i < FIXED_SEARCH_FIELDS_CONFIG.length - 1 && (
-                <Divider orientation="vertical" flexItem sx={{ my: 1 }} />
+                <Divider orientation="vertical" flexItem sx={{ my: theme.spacing(1) }} />
             )}
         </React.Fragment>
     ));
@@ -125,12 +128,12 @@ const Search: React.FC<SearchProps> = memo(({
     const mobileDrawer = (open: boolean, setOpen: (v: boolean) => void, content: React.ReactNode) => (
         <Drawer anchor="bottom" open={open} onClose={() => setOpen(false)} {...drawerStyles}>
             <Box
-                p={3}
+                p={theme.spacing(3)}
                 sx={{
                     width: { xs: '100vw', sm: 350 },
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: 2,
+                    gap: theme.spacing(2),
                     alignItems: 'stretch',
                     maxHeight: '80vh',
                     overflowY: 'auto',
@@ -142,13 +145,17 @@ const Search: React.FC<SearchProps> = memo(({
     );
 
     const content = isMobile ? (
-        <Box sx={{ display: 'flex', gap: 3 }}>
+        <Box sx={{ display: 'flex', gap: theme.spacing(3) }}>
             <Button
                 variant="contained"
                 fullWidth
                 onClick={() => setOpenSearchDrawer(true)}
                 startIcon={<SearchIcon />}
-                sx={{ ...buttonStyle, boxShadow: 'none', color: 'white' }}
+                sx={{
+                    ...buttonStyle,
+                    boxShadow: 'none',
+                    color: theme.palette.common.white
+                }}
             >
                 {dict.search.search}
             </Button>
@@ -160,11 +167,11 @@ const Search: React.FC<SearchProps> = memo(({
                 startIcon={<TuneIcon />}
                 sx={{
                     ...buttonStyle,
-                    borderColor: 'grey.300',
-                    color: 'text.primary',
+                    borderColor: theme.palette.grey[300],
+                    color: theme.palette.text.primary,
                     '&:hover': {
-                        backgroundColor: 'grey.100',
-                        borderColor: 'grey.400',
+                        backgroundColor: theme.palette.grey[100],
+                        borderColor: theme.palette.grey[400],
                     },
                 }}
             >
@@ -173,7 +180,7 @@ const Search: React.FC<SearchProps> = memo(({
 
             {mobileDrawer(openSearchDrawer, setOpenSearchDrawer, (
                 <>
-                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={theme.spacing(1)}>
                         <Typography variant="h6">{dict.search.params}</Typography>
                         <IconButton onClick={() => setOpenSearchDrawer(false)}>
                             <CloseIcon />
@@ -193,7 +200,7 @@ const Search: React.FC<SearchProps> = memo(({
                             handleSearch();
                         }}
                         startIcon={<SearchIcon />}
-                        sx={{ ...buttonStyle, height: 50 }}>
+                        sx={{ ...buttonStyle, height: theme.spacing(6.25) }}>
                         {dict.search.apply}
                     </Button>
                     <Button
@@ -202,12 +209,12 @@ const Search: React.FC<SearchProps> = memo(({
                         onClick={() => FIXED_SEARCH_FIELDS_CONFIG.forEach(f => handleChange(f.type, ''))}
                         sx={{
                             ...buttonStyle,
-                            height: 50,
-                            borderColor: 'grey.300',
-                            color: 'text.primary',
+                            height: theme.spacing(6.25),
+                            borderColor: theme.palette.grey[300],
+                            color: theme.palette.text.primary,
                             '&:hover': {
-                                backgroundColor: 'grey.100',
-                                borderColor: 'grey.400',
+                                backgroundColor: theme.palette.grey[100],
+                                borderColor: theme.palette.grey[400],
                             },
                         }}
                     >
@@ -232,8 +239,8 @@ const Search: React.FC<SearchProps> = memo(({
             sx={{
                 display: 'flex',
                 alignItems: 'stretch',
-                p: 0.5,
-                borderRadius: 1,
+                p: theme.spacing(0.5),
+                borderRadius: theme.shape.borderRadius,
                 overflow: 'hidden',
             }}
         >
@@ -242,7 +249,7 @@ const Search: React.FC<SearchProps> = memo(({
                 variant="contained"
                 onClick={handleSearch}
                 startIcon={<SearchIcon />}
-                sx={{ ...buttonStyle, boxShadow: 'none', px: 3 }}
+                sx={{ ...buttonStyle, boxShadow: 'none', px: theme.spacing(3) }}
             >
                 {dict.search.search}
             </Button>
@@ -250,10 +257,8 @@ const Search: React.FC<SearchProps> = memo(({
     );
 
     return (
-        <Box sx={{ width: '100%', maxWidth: '100%', mx: 'auto', mb: 2 }}>
+        <Box sx={{ width: '100%', maxWidth: '100%', mx: 'auto', mb: theme.spacing(2) }}>
             {content}
         </Box>
     );
 });
-
-export default Search;

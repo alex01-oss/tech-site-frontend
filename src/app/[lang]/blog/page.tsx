@@ -1,6 +1,6 @@
 import {blogApi} from '@/features/blog/api';
 import {Post} from '@/features/blog/types';
-import BlogPage from "@/components/blog/BlogPage";
+import {BlogPage} from "@/components/blog/BlogPage";
 import React from "react";
 import {getDictionary} from "@/lib/i18n";
 

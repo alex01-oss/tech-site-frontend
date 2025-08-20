@@ -81,10 +81,11 @@ interface Props {
 
 export const Navbar: React.FC<Props> = ({dict}) => {
     const theme = useTheme();
-    const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const {mode, toggleColorMode} = useThemeContext();
     const isDark = mode === "dark";
-    const {push, replaceLanguage, back, currentLang, pathname} = useNavigatingRouter();
+    const {push, replaceLanguage, back, currentLang, pathname} =
+        useNavigatingRouter();
     const {enqueueSnackbar} = useSnackbar();
     const {isAuthenticated, user} = useAuthStore();
     const {cartCount, fetchCartCount, countLoading} = useCartStore();
@@ -108,35 +109,46 @@ export const Navbar: React.FC<Props> = ({dict}) => {
         } else {
             enqueueSnackbar(dict.authRequired, {
                 variant: "error",
-                action:
-                    <Button
-                        color="inherit" size="small" onClick={() => push("/login")}>
+                action: (
+                    <Button color="inherit" size="small" onClick={() => push("/login")}>
                         {dict.login}
                     </Button>
+                ),
             });
         }
     };
 
     return (
-        <AppBar position="fixed" elevation={1} color="default">
-            <Container maxWidth="lg" sx={{height: '100%'}} disableGutters>
-                <Toolbar sx={{
-                    minHeight: '64px',
-                    height: '100%',
-                    display: "flex",
-                    justifyContent: "space-between",
-                    px: {xs: 2, sm: 3}
-                }}>
+        <AppBar position="fixed" elevation={1}>
+            <Container maxWidth="lg" sx={{height: "100%"}} disableGutters>
+                <Toolbar
+                    sx={{
+                        minHeight: "64px",
+                        height: "100%",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        px: {xs: 2, sm: 3},
+                    }}
+                >
                     <Box sx={{display: "flex", alignItems: "center"}}>
                         {pathname === `/${currentLang}` ? (
-                            <Box component="a" onClick={() => replaceLanguage(currentLang)} sx={{
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                                position: "relative",
-                                cursor: 'pointer'
-                            }}>
-                                <Image src="/logo_white.svg" alt={dict.logo} width={125} height={50}/>
+                            <Box
+                                component="a"
+                                onClick={() => replaceLanguage(currentLang)}
+                                sx={{
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    position: "relative",
+                                    cursor: "pointer",
+                                }}
+                            >
+                                <Image
+                                    src={isDark ? "/logo_white.svg" : "/logo_gray.svg"}
+                                    alt={dict.logo}
+                                    width={125}
+                                    height={50}
+                                />
                             </Box>
                         ) : (
                             <IconButton color="inherit" onClick={() => back()} aria-label={dict.goBack}>
@@ -155,16 +167,25 @@ export const Navbar: React.FC<Props> = ({dict}) => {
                                 </Tooltip>
                                 <MenuWithItems {...settingsMenu}>
                                     {Object.keys(LANGS).map((lang: string) => (
-                                        <LangMenuItem key={lang} lang={lang as keyof typeof LANGS}
-                                                      onClick={handleLanguageChange}/>
+                                        <LangMenuItem
+                                            key={lang}
+                                            lang={lang as keyof typeof LANGS}
+                                            onClick={handleLanguageChange}
+                                        />
                                     ))}
                                     <Divider sx={{my: 0.5}}/>
-                                    <MenuItem onClick={() => {
-                                        toggleColorMode();
-                                        settingsMenu.close();
-                                    }}>
-                                        <ListItemIcon>{isDark ? <Brightness7/> : <Brightness4/>}</ListItemIcon>
-                                        <ListItemText>{isDark ? dict.lightMode : dict.darkMode}</ListItemText>
+                                    <MenuItem
+                                        onClick={() => {
+                                            toggleColorMode();
+                                            settingsMenu.close();
+                                        }}
+                                    >
+                                        <ListItemIcon>
+                                            {isDark ? <Brightness7/> : <Brightness4/>}
+                                        </ListItemIcon>
+                                        <ListItemText>
+                                            {isDark ? dict.lightMode : dict.darkMode}
+                                        </ListItemText>
                                     </MenuItem>
                                 </MenuWithItems>
                             </>
@@ -172,18 +193,29 @@ export const Navbar: React.FC<Props> = ({dict}) => {
                             <>
                                 <Tooltip title={dict.language}>
                                     <IconButton onClick={langMenu.open} color="inherit" aria-label={dict.language}>
-                                        <Image src={LANGS[currentLang as keyof typeof LANGS].flag} alt={LANGS[currentLang as keyof typeof LANGS].name}
-                                               width={24} height={24}/>
+                                        <Image
+                                            src={LANGS[currentLang as keyof typeof LANGS].flag}
+                                            alt={LANGS[currentLang as keyof typeof LANGS].name}
+                                            width={24}
+                                            height={24}
+                                        />
                                     </IconButton>
                                 </Tooltip>
                                 <MenuWithItems {...langMenu}>
                                     {Object.keys(LANGS).map((lang: string) => (
-                                        <LangMenuItem key={lang} lang={lang as keyof typeof LANGS}
-                                                      onClick={handleLanguageChange}/>
+                                        <LangMenuItem
+                                            key={lang}
+                                            lang={lang as keyof typeof LANGS}
+                                            onClick={handleLanguageChange}
+                                        />
                                     ))}
                                 </MenuWithItems>
                                 <Tooltip title={isDark ? dict.lightMode : dict.darkMode}>
-                                    <IconButton onClick={toggleColorMode} color="inherit" aria-label={isDark ? dict.lightMode : dict.darkMode}>
+                                    <IconButton
+                                        onClick={toggleColorMode}
+                                        color="inherit"
+                                        aria-label={isDark ? dict.lightMode : dict.darkMode}
+                                    >
                                         {isDark ? <Brightness7/> : <Brightness4/>}
                                     </IconButton>
                                 </Tooltip>
@@ -205,7 +237,7 @@ export const Navbar: React.FC<Props> = ({dict}) => {
                         <Tooltip title={dict.profile}>
                             <Avatar
                                 onClick={() => push(isAuthenticated ? `/profile` : `/login`)}
-                                sx={{width: theme.spacing(5), height: theme.spacing(5), cursor: 'pointer', ml: 1}}
+                                sx={{width: theme.spacing(5), height: theme.spacing(5), cursor: "pointer", ml: 1}}
                             >
                                 {isAuthenticated && user?.full_name?.trim()
                                     ? user.full_name
@@ -222,4 +254,4 @@ export const Navbar: React.FC<Props> = ({dict}) => {
             </Container>
         </AppBar>
     );
-}
+};

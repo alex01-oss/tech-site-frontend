@@ -55,7 +55,7 @@ export const ProfilePage: React.FC<Props> = ({dict}) => {
 
     if (!user) {
         return (
-            <Container maxWidth="lg" sx={{mt: 4}}>
+            <Container maxWidth="lg" sx={{mt: theme.spacing(4)}}>
                 <Typography variant="h6" align="center">{dict.loginRequired}</Typography>
             </Container>
         );
@@ -79,14 +79,25 @@ export const ProfilePage: React.FC<Props> = ({dict}) => {
     );
 
     return (
-        <Paper elevation={3} sx={{p: {xs: 2, sm: 3}, borderRadius: 1}}>
-            <Box sx={{display: 'flex', alignItems: 'center', mb: {xs: 2, sm: 3}, flexDirection: {xs: 'column', md: 'row'}}}>
+        <Paper elevation={3}
+               sx={{p: {xs: theme.spacing(2), sm: theme.spacing(3)}, borderRadius: theme.shape.borderRadius}}>
+            <Box sx={{
+                display: 'flex',
+                alignItems: 'center',
+                mb: {xs: theme.spacing(2), sm: theme.spacing(3)},
+                flexDirection: {xs: 'column', md: 'row'}
+            }}>
                 {renderUserAvatar()}
-                <Box sx={{ml: {xs: 0, md: 4}, mt: {xs: 2, md: 0}, textAlign: {xs: 'center', md: 'left'}}}>
-                    <Typography variant="h4" component="h1" fontWeight="bold">{user.full_name}</Typography>
+                <Box sx={{
+                    ml: {xs: 0, md: theme.spacing(4)},
+                    mt: {xs: theme.spacing(2), md: 0},
+                    textAlign: {xs: 'center', md: 'left'}
+                }}>
+                    <Typography variant="h4" component="h1"
+                                fontWeight={theme.typography.fontWeightBold}>{user.full_name}</Typography>
                     <Typography variant="subtitle1" color="text.secondary">{user.role}</Typography>
                 </Box>
-                <Box sx={{ml: 'auto', mt: {xs: 2, md: 0}}}>
+                <Box sx={{ml: 'auto', mt: {xs: theme.spacing(2), md: 0}}}>
                     <Button
                         variant="contained"
                         onClick={() => router.push("/profile/edit")}
@@ -97,9 +108,9 @@ export const ProfilePage: React.FC<Props> = ({dict}) => {
                 </Box>
             </Box>
 
-            <Divider sx={{my: {xs: 2, sm: 3}}}/>
+            <Divider sx={{my: {xs: theme.spacing(2), sm: theme.spacing(3)}}}/>
 
-            <Box sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
+            <Box sx={{display: 'flex', flexDirection: 'column', gap: theme.spacing(2)}}>
                 <Typography variant="h6">{dict.contactInfo}</Typography>
                 <List disablePadding>
                     <ListItem disablePadding>
@@ -111,7 +122,7 @@ export const ProfilePage: React.FC<Props> = ({dict}) => {
                 </List>
             </Box>
 
-            <Divider sx={{my: {xs: 2, sm: 3}}}/>
+            <Divider sx={{my: {xs: theme.spacing(2), sm: theme.spacing(3)}}}/>
 
             <Box>
                 <Typography variant="h6">{dict.activity}</Typography>
@@ -122,7 +133,7 @@ export const ProfilePage: React.FC<Props> = ({dict}) => {
                 </List>
             </Box>
 
-            <Divider sx={{my: {xs: 2, sm: 3}}}/>
+            <Divider sx={{my: {xs: theme.spacing(2), sm: theme.spacing(3)}}}/>
 
             <Box>
                 <Button variant="contained" color="primary" onClick={handleLogout}>
@@ -131,4 +142,4 @@ export const ProfilePage: React.FC<Props> = ({dict}) => {
             </Box>
         </Paper>
     );
-}
+};

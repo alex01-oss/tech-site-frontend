@@ -2,7 +2,7 @@
 
 import React from 'react';
 import {ErrorMessage, Field} from 'formik';
-import {Checkbox, CssBaseline, FormControl, FormControlLabel, Link, TextField, Typography} from '@mui/material';
+import {Checkbox, FormControl, FormControlLabel, Link, TextField, Typography, useTheme} from '@mui/material';
 import {useAuthStore} from '@/features/auth/store';
 import {useNavigatingRouter} from '@/hooks/useNavigatingRouter';
 import {RegisterRequest} from '@/features/auth/types';
@@ -43,10 +43,11 @@ interface Props {
     }
 }
 
-export const SignUp: React.FC<Props> = ( {dict}) => {
-    const { loading, startLoading, stopLoading, handleSuccess, handleError } = useFormHandler();
-    const { register } = useAuthStore();
+export const SignUp: React.FC<Props> = ({dict}) => {
+    const {loading, startLoading, stopLoading, handleSuccess, handleError} = useFormHandler();
+    const {register} = useAuthStore();
     const router = useNavigatingRouter();
+    const theme = useTheme();
 
     const handleSubmit = async (values: any) => {
         startLoading();
@@ -71,81 +72,80 @@ export const SignUp: React.FC<Props> = ( {dict}) => {
         }
     };
     return (
-        <>
-            <CssBaseline />
-            <FormWrapper
-                title={dict.register.title}
-                isLogin={false}
-                loading={loading}
-                submitText={loading ? dict.register.loading : dict.register.signUpButton}
-                initialValues={{ fullname: "", email: "", phone: "", password: "", agreeToPrivacy: false }}
-                validationSchema={getSignUpSchema(dict.register)}
-                onSubmit={handleSubmit}
-                dict={dict.authLayout}
-            >
-                <FormControl fullWidth margin="normal">
-                    <Field
-                        as={TextField}
-                        label={dict.register.fullNameLabel}
-                        type="text"
-                        name="fullname"
-                        required
-                        helperText={<ErrorMessage name="fullname" />}
-                    />
-                </FormControl>
-                <FormControl fullWidth margin="normal">
-                    <Field
-                        as={TextField}
-                        label={dict.register.emailLabel}
-                        type="email"
-                        name="email"
-                        required
-                        helperText={<ErrorMessage name="email" />}
-                    />
-                </FormControl>
-                <FormControl fullWidth margin="normal">
-                    <Field
-                        as={TextField}
-                        label={dict.register.phoneLabel}
-                        type="tel"
-                        name="phone"
-                        required
-                        helperText={<ErrorMessage name="phone" />}
-                    />
-                </FormControl>
-                <PasswordField
-                    name="password"
-                    label={dict.register.passwordLabel}
+        <FormWrapper
+            title={dict.register.title}
+            isLogin={false}
+            loading={loading}
+            submitText={loading ? dict.register.loading : dict.register.signUpButton}
+            initialValues={{fullname: "", email: "", phone: "", password: "", agreeToPrivacy: false}}
+            validationSchema={getSignUpSchema(dict.register)}
+            onSubmitAction={handleSubmit}
+            dict={dict.authLayout}
+        >
+            <FormControl fullWidth margin="normal">
+                <Field
+                    as={TextField}
+                    label={dict.register.fullNameLabel}
+                    type="text"
+                    name="fullname"
                     required
+                    helperText={<ErrorMessage name="fullname"/>}
                 />
-                <FormControl fullWidth margin="normal">
-                    <FormControlLabel
-                        control={<Field as={Checkbox} name="agreeToPrivacy" id="agreeToPrivacy" />}
-                        label={
-                            <Typography variant="body2">
-                                {dict.register.privacyText}
-                                <Link href="/privacy-policy" target="_blank" rel="noopener noreferrer" sx={{ml: 0.5}}>
-                                    {dict.register.privacyPolicy}
-                                </Link>
-                                {" "}
-                                {dict.register.and}
-                                {" "}
-                                <Link href="/terms-of-use" target="_blank" rel="noopener noreferrer">
-                                    {dict.register.termsOfUse}
-                                </Link>
-                                .
-                            </Typography>
-                        }
-                    />
-                    <ErrorMessage name="agreeToPrivacy">
-                        {(msg) => (
-                            <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: '32px' }}>
-                                {msg}
-                            </Typography>
-                        )}
-                    </ErrorMessage>
-                </FormControl>
-            </FormWrapper>
-        </>
+            </FormControl>
+            <FormControl fullWidth margin="normal">
+                <Field
+                    as={TextField}
+                    label={dict.register.emailLabel}
+                    type="email"
+                    name="email"
+                    required
+                    helperText={<ErrorMessage name="email"/>}
+                />
+            </FormControl>
+            <FormControl fullWidth margin="normal">
+                <Field
+                    as={TextField}
+                    label={dict.register.phoneLabel}
+                    type="tel"
+                    name="phone"
+                    required
+                    helperText={<ErrorMessage name="phone"/>}
+                />
+            </FormControl>
+            <PasswordField
+                name="password"
+                label={dict.register.passwordLabel}
+                required
+            />
+            <FormControl fullWidth margin="normal">
+                <FormControlLabel
+                    control={<Field as={Checkbox} name="agreeToPrivacy" id="agreeToPrivacy"/>}
+                    label={
+                        <Typography variant="body2">
+                            {dict.register.privacyText}
+                            <Link href="/privacy-policy" target="_blank" rel="noopener noreferrer"
+                                  sx={{ml: theme.spacing(0.5)}}>
+                                {dict.register.privacyPolicy}
+                            </Link>
+                            {" "}
+                            {dict.register.and}
+                            {" "}
+                            <Link href="/terms-of-use" target="_blank" rel="noopener noreferrer">
+                                {dict.register.termsOfUse}
+                            </Link>
+                            .
+                        </Typography>
+                    }
+                />
+                <ErrorMessage name="agreeToPrivacy">
+                    {(msg) => (
+                        <Typography variant="caption" color="error"
+                                    sx={{mt: theme.spacing(0.5), ml: theme.spacing(4)}}>
+                            {msg}
+                        </Typography>
+                    )}
+                </ErrorMessage>
+            </FormControl>
+        </FormWrapper>
     );
 }

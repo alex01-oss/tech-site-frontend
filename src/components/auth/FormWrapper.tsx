@@ -1,6 +1,8 @@
+"use client"
+
 import React from 'react';
-import { Button, CircularProgress } from '@mui/material';
-import { Formik, Form, FormikConfig } from 'formik';
+import {Button, CircularProgress, useTheme} from '@mui/material';
+import {Form, Formik, FormikConfig} from 'formik';
 import {AuthCardLayout} from "@/components/layout/AuthCardLayout";
 
 interface Props<T> {
@@ -8,7 +10,7 @@ interface Props<T> {
     isLogin?: boolean;
     initialValues: FormikConfig<T>['initialValues'];
     validationSchema: FormikConfig<T>['validationSchema'];
-    onSubmit: FormikConfig<T>['onSubmit'];
+    onSubmitAction: FormikConfig<T>['onSubmit'];
     loading: boolean;
     submitText: string;
     children: React.ReactNode;
@@ -20,18 +22,20 @@ export const FormWrapper = <T extends object>({
     isLogin = false,
     initialValues,
     validationSchema,
-    onSubmit,
+    onSubmitAction,
     loading,
     submitText,
     children,
     dict
 }: Props<T>) => {
+    const theme = useTheme();
+
     return (
         <AuthCardLayout title={title} isLogin={isLogin} dict={dict}>
             <Formik
                 initialValues={initialValues}
                 validationSchema={validationSchema}
-                onSubmit={onSubmit}
+                onSubmit={onSubmitAction}
             >
                 <Form>
                     {children}
@@ -40,9 +44,9 @@ export const FormWrapper = <T extends object>({
                         fullWidth
                         variant="contained"
                         disabled={loading}
-                        sx={{ mt: 2, height: 40 }}
+                        sx={{mt: theme.spacing(2), height: theme.spacing(5)}}
                     >
-                        {loading ? <CircularProgress size={24} /> : submitText}
+                        {loading ? <CircularProgress size={theme.spacing(3)}/> : submitText} // size: 24px
                     </Button>
                 </Form>
             </Formik>

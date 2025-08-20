@@ -1,3 +1,5 @@
+"use client"
+
 import React from 'react';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -5,13 +7,16 @@ import Paper from '@mui/material/Paper';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import IconButton from '@mui/material/IconButton';
 import {Video} from "@/features/youtube/types";
+import {alpha, useTheme} from "@mui/material";
 
 interface VideoCardProps {
     video: Video,
-    onClick: (videoId: string) => void;
+    onClickAction: (videoId: string) => void;
 }
 
-const VideoCard: React.FC<VideoCardProps> = ({ video, onClick }) => {
+export const VideoCard: React.FC<VideoCardProps> = ({video, onClickAction}) => {
+    const theme = useTheme();
+
     return (
         <Paper
             sx={{
@@ -25,9 +30,9 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onClick }) => {
                 justifyContent: 'center',
                 cursor: 'pointer',
                 overflow: 'hidden',
-                borderRadius: 1,
+                borderRadius: theme.shape.borderRadius,
             }}
-            onClick={() => onClick(video.snippet.resourceId.videoId)}
+            onClick={() => onClickAction(video.snippet.resourceId.videoId)}
         >
             <Box
                 sx={{
@@ -36,23 +41,26 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onClick }) => {
                     left: 0,
                     width: '100%',
                     height: '100%',
-                    bgcolor: 'rgba(0,0,0,0.5)',
+                    bgcolor: alpha(theme.palette.common.black, 0.5),
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}
             >
-                <IconButton sx={{ color: 'white', '&:hover': { color: 'primary.main' } }}>
-                    <PlayArrowIcon sx={{ fontSize: 60 }} />
+                <IconButton sx={{
+                    color: theme.palette.common.white,
+                    '&:hover': {color: theme.palette.primary.main}
+                }}>
+                    <PlayArrowIcon sx={{fontSize: 60}}/>
                 </IconButton>
             </Box>
             <Typography
                 variant="subtitle1"
                 sx={{
                     position: 'absolute',
-                    bottom: 8,
-                    left: 8,
-                    color: 'white',
+                    bottom: theme.spacing(1),
+                    left: theme.spacing(1),
+                    color: theme.palette.common.white,
                     fontWeight: 'bold',
                     zIndex: 2,
                     textShadow: '1px 1px 3px rgba(0,0,0,0.7)',
@@ -63,5 +71,3 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onClick }) => {
         </Paper>
     );
 };
-
-export default VideoCard;

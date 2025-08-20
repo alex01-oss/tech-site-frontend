@@ -11,7 +11,7 @@ import {Navigation, Pagination} from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
-import VideoCard from "@/components/home/VideoCard";
+import {VideoCard} from "@/components/home/VideoCard";
 import {Video} from "@/features/youtube/types";
 import {Box} from "@mui/material";
 
@@ -23,7 +23,7 @@ interface Props {
     }
 }
 
-const VideosSection: React.FC<Props> = ({ videos, dict }) => {
+export const VideosSection: React.FC<Props> = ({ videos, dict }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
@@ -33,7 +33,7 @@ const VideosSection: React.FC<Props> = ({ videos, dict }) => {
 
     return (
         <Box>
-            <Typography variant="h3" component="h2" sx={{ mb: {xs: 1, sm: 2}, color: 'text.primary' }}>
+            <Typography variant="h3" component="h2" sx={{ mb: { xs: theme.spacing(1), sm: theme.spacing(2) }, color: 'text.primary' }}>
                 {dict.title}
             </Typography>
 
@@ -42,39 +42,39 @@ const VideosSection: React.FC<Props> = ({ videos, dict }) => {
                     <>
                         <Swiper
                             modules={[Pagination, Navigation]}
-                            spaceBetween={20}
+                            spaceBetween={theme.spacing(2.5)} // 20px
                             slidesPerView={1.1}
                             centeredSlides={true}
                             pagination={{ clickable: true }}
                             breakpoints={{
                                 600: {
                                     slidesPerView: 2.1,
-                                    spaceBetween: 20,
+                                    spaceBetween: theme.spacing(2.5),
                                 },
                             }}
-                            style={{ paddingBottom: '40px' }}
+                            style={{ paddingBottom: theme.spacing(5) }} // 40px
                         >
                             {videos.map((video) => (
                                 <SwiperSlide key={video.snippet.resourceId.videoId}>
-                                    <VideoCard video={video} onClick={() => handleVideoClick(video.snippet.resourceId.videoId)} />
+                                    <VideoCard video={video} onClickAction={handleVideoClick} />
                                 </SwiperSlide>
                             ))}
                         </Swiper>
 
                         <style jsx global>{`
-                        .swiper-pagination-bullet {
-                            background: rgba(0, 0, 0, 0.2);
-                        }
-                        .swiper-pagination-bullet-active {
-                            background: ${theme.palette.primary.main};
-                        }
-                    `}</style>
+                            .swiper-pagination-bullet {
+                                background: ${theme.palette.action.disabled};
+                            }
+                            .swiper-pagination-bullet-active {
+                                background: ${theme.palette.primary.main};
+                            }
+                        `}</style>
                     </>
                 ) : (
-                    <Grid container spacing={3} justifyContent="center">
+                    <Grid container spacing={theme.spacing(3)} justifyContent="center">
                         {videos.map((video) => (
                             <Grid item xs={12} sm={6} md={4} key={video.snippet.resourceId.videoId}>
-                                <VideoCard video={video} onClick={() => handleVideoClick(video.snippet.resourceId.videoId)} />
+                                <VideoCard video={video} onClickAction={handleVideoClick} />
                             </Grid>
                         ))}
                     </Grid>
@@ -91,5 +91,3 @@ const VideosSection: React.FC<Props> = ({ videos, dict }) => {
         </Box>
     );
 };
-
-export default VideosSection;

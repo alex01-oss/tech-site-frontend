@@ -1,6 +1,6 @@
 import React from 'react'
 import {notFound} from "next/navigation";
-import PostEditorPage from "@/components/blog/PostEditorPage";
+import {PostEditorPage} from "@/components/blog/PostEditorPage";
 import {getDictionary} from "@/lib/i18n";
 
 interface Props {

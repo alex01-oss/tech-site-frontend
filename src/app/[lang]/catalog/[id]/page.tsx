@@ -1,5 +1,5 @@
 import React from 'react'
-import ProductDetailPage from "@/components/catalog/ProductDetailPage";
+import {ProductDetailPage} from "@/components/catalog/ProductDetailPage";
 import {catalogApi} from "@/features/catalog/api";
 import {ProductDetailData} from "@/features/catalog/types";
 import {getDictionary} from "@/lib/i18n";

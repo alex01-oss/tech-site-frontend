@@ -19,7 +19,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import {FilterItem} from "@/features/data/types";
 import DoneIcon from '@mui/icons-material/Done';
 import {useCatalogStore} from "@/features/catalog/store";
-import SidebarSkeleton from "@/components/skeletons/SidebarSkeleton";
+import {FiltersSkeleton} from "@/components/skeletons/FiltersSkeleton";
 
 interface FiltersPanelProps {
     filters: Record<string, Set<number>>;
@@ -51,22 +51,24 @@ export const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
         void fetchFilters(categoryId);
     }, [fetchFilters, categoryId]);
 
+    const toolbarHeight = theme.mixins.toolbar.minHeight as number;
+
     return filtersLoading
-        ? <SidebarSkeleton/>
+        ? <FiltersSkeleton isMobileDrawer={isMobileDrawer} />
         : (
             <Box
                 sx={{
-                    width: {xs: '100%', sm: 256},
+                    width: {xs: '100%', sm: theme.spacing(32)},
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: 2,
+                    gap: theme.spacing(2),
                     alignItems: 'stretch',
                     overflowY: 'auto',
                     ...(isMobileDrawer ? {} : {
-                        minWidth: 256,
+                        minWidth: theme.spacing(32),
                         position: 'sticky',
-                        height: `calc(100vh - ${theme.mixins.toolbar.minHeight}px)`,
-                        top: theme.mixins.toolbar.minHeight as number,
+                        height: `calc(100vh - ${toolbarHeight}px)`,
+                        top: toolbarHeight,
                         backgroundColor: theme.palette.background.default,
                         borderRight: `1px solid ${theme.palette.divider}`,
                         px: 0,
@@ -75,8 +77,13 @@ export const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
                     }),
                 }}
             >
-                <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}
-                     sx={{px: isMobileDrawer ? 0 : 3}}>
+                <Box
+                    display="flex"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    mb={theme.spacing(1)}
+                    sx={{px: isMobileDrawer ? 0 : theme.spacing(3)}}
+                >
                     {isMobileDrawer && (
                         <Typography variant="h6" component="div">
                             {dict.filters}
@@ -90,12 +97,12 @@ export const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
                 </Box>
 
                 {filtersLoading && (
-                    <Typography sx={{my: 2, textAlign: 'center'}}>
+                    <Typography sx={{my: theme.spacing(2), textAlign: 'center'}}>
                         <CircularProgress/>
                     </Typography>
                 )}
                 {filtersError && (
-                    <Typography color="error" sx={{my: 2, textAlign: 'center'}}>
+                    <Typography color="error" sx={{my: theme.spacing(2), textAlign: 'center'}}>
                         {dict.error} {filtersError}
                     </Typography>
                 )}
@@ -110,31 +117,32 @@ export const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
 
                     return (
                         <React.Fragment key={categoryTitle}>
-                            <Box sx={isMobileDrawer ? {mb: 2} : {}}>
+                            <Box sx={isMobileDrawer ? {mb: theme.spacing(2)} : {}}>
                                 {isMobileDrawer ? (
                                     <>
-                                        <Typography variant="subtitle1" sx={{fontWeight: 'bold'}}>
+                                        <Typography variant="subtitle1"
+                                                    sx={{fontWeight: theme.typography.fontWeightBold}}>
                                             {translatedTitle}
                                         </Typography>
-                                        <Divider sx={{my: 1, borderColor: 'grey.200'}}/>
+                                        <Divider sx={{my: theme.spacing(1), borderColor: theme.palette.grey[200]}}/>
                                     </>
                                 ) : (
                                     <List disablePadding>
-                                        <ListItem disablePadding sx={{py: 1}}>
+                                        <ListItem disablePadding sx={{py: theme.spacing(1)}}>
                                             <ListItemText
                                                 primary={translatedTitle}
                                                 sx={{
                                                     "& .MuiTypography-root": {
-                                                        fontWeight: "bold",
-                                                        color: "primary.main",
-                                                        ml: 2,
+                                                        fontWeight: theme.typography.fontWeightBold,
+                                                        color: theme.palette.primary.main,
+                                                        ml: theme.spacing(2),
                                                     },
                                                 }}
                                             />
                                         </ListItem>
                                     </List>
                                 )}
-                                <FormGroup sx={{pl: isMobileDrawer ? 0 : 2}}>
+                                <FormGroup sx={{pl: isMobileDrawer ? 0 : theme.spacing(2)}}>
                                     {categoryItems.map((item: FilterItem) => {
                                         const nameKey = Object.keys(item).find(key => key !== 'id');
                                         let labelText = nameKey ? item[nameKey] : '';
@@ -155,13 +163,13 @@ export const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
                                                             onFilterToggle(categoryTitle, item.id, e.target.checked)
                                                         }
                                                         size="small"
-                                                        sx={isMobileDrawer ? {p: 0.5} : {}}
+                                                        sx={isMobileDrawer ? {p: theme.spacing(0.5)} : {}}
                                                     />
                                                 }
                                                 label={isMobileDrawer
                                                     ? (<Typography variant="body2">{labelText}</Typography>)
                                                     : (labelText)}
-                                                sx={{width: '100%', m: 0, py: isMobileDrawer ? 0 : 0.5}}
+                                                sx={{width: '100%', m: 0, py: isMobileDrawer ? 0 : theme.spacing(0.5)}}
                                             />
                                         );
                                     })}
@@ -172,7 +180,7 @@ export const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
                 })}
 
                 {isMobileDrawer && (
-                    <Box sx={{mt: 2, display: 'flex', gap: 1}}>
+                    <Box sx={{mt: theme.spacing(2), display: 'flex', gap: theme.spacing(1)}}>
                         <Button
                             variant="contained"
                             fullWidth

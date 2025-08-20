@@ -1,120 +1,168 @@
 'use client';
 
-import { createTheme, ThemeOptions } from "@mui/material/styles";
-import { PaletteMode } from "@mui/material";
+import {createTheme, ThemeOptions} from "@mui/material/styles";
+import {PaletteMode} from "@mui/material";
 
 const commonPalette = {
-  light: {
-    primary: { main: "#950A3D" },
-    secondary: { main: "#AD1D1D" },
-    background: { default: "#E6E7E9", paper: "#FFFFFF" },
-    text: { primary: "#121212", secondary: "#1E1E1E" },
-  },
-  dark: {
-    primary: { main: "#AD1D1D" },
-    secondary: { main: "#950A3D" },
-    background: { default: "#121212", paper: "#1E1E1E" },
-    text: { primary: "#E6E7E9", secondary: "#FFFFFF" },
-  },
+    light: {
+        primary: {
+            main: "#950A3D",
+            contrastText: "#FFFFFF",
+        },
+        secondary: {
+            main: "#AD1D1D",
+        },
+        background: {
+            default: "#E6E7E9",
+            paper: "#FFFFFF",
+            navbar: "#D1D2D4",
+        },
+        text: {
+            primary: "#231F20",
+            secondary: "#383E45",
+        },
+        info: {
+            main: "#074A7F",
+        },
+        success: {
+            main: "#074A7F",
+        },
+        error: {
+            main: "#AD1D1D",
+        },
+    },
+    dark: {
+        primary: {
+            main: "#AD1D1D",
+            contrastText: "#FFFFFF",
+        },
+        secondary: {
+            main: "#950A3D",
+        },
+        background: {
+            default: "#121212",
+            paper: "#000002",
+            navbar: "#000002",
+        },
+        text: {
+            primary: "#E6E7E9",
+            secondary: "#D1D2D4",
+        },
+        info: {
+            main: "#074A7F",
+        },
+        success: {
+            main: "#074A7F",
+        },
+        error: {
+            main: "#AD1D1D",
+        },
+    },
 };
 
-
 export const getThemeOptions = (mode: PaletteMode): ThemeOptions => ({
-  palette: {
-    mode,
-    ...(mode === "light" ? commonPalette.light : commonPalette.dark),
-    success: { 
-      main: mode === "light" ? "#074A7F" : "#2C91D7", 
-    },
-    error: { 
-      main: mode === "light" ? "#950A3D" : "#AD1D1D",
-    },
-    info: { 
-      main: mode === "light" ? "#074A7F" : "#2C91D7", 
-    },
-    warning: { 
-      main: mode === "light" ? "#FFB74D" : "#ED6C02", 
-    },
-  },
-  typography: {
-    fontFamily: "'Montserrat', sans-serif",
-    body1: { fontSize: "16px" },
-    button: { textTransform: "none" },
-  },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          borderRadius: 4,
-          textTransform: "none",
-          color: mode === "light" ? "#121212" : "#E6E7E9",
-          "&.Mui-disabled": {
-            backgroundColor: mode === "light" ? "#E6E7E9" : "#1E1E1E",
-            color: mode === "light" ? "#950A3D" : "#AD1D1D",
-          },
+    palette: {
+        mode,
+        ...(mode === "light" ? commonPalette.light : commonPalette.dark),
+        warning: {
+            main: "#ED6C02",
         },
-        contained: {
-          color: "#FFF"
-        }
-      },
     },
-    MuiAppBar: {
-      styleOverrides: {
-        root: {
-          backgroundColor: mode === "light" ? "#383E45" : "#1E1E1E",
-          boxShadow: "none",
-          backgroundImage: "none",
-        },
-      },
+    typography: {
+        fontFamily: "'Montserrat', sans-serif",
+        body1: {fontSize: "16px"},
+        button: {textTransform: "none"},
     },
-    MuiPaper: {
-      styleOverrides: {
-        root: {
-          borderRadius: 0,
-          backgroundColor: mode === "light" ? "#FFFFFF" : "#1E1E1E",
-          color: mode === "light" ? "#121212" : "#E6E7E9",
-        },
-      },
+    shape: {
+        borderRadius: 2,
     },
-    MuiPaginationItem: {
-      styleOverrides: {
-        root: {
-          borderRadius: 4,
-          "&.Mui-selected": {
-            backgroundColor: mode === "light" ? "#950A3D" : "#AD1D1D",
-            color: "#FFFFFF",
-          },
+    components: {
+        MuiButton: {
+            styleOverrides: {
+                root: {
+                    borderRadius: 2,
+                    textTransform: "none",
+                    "&.Mui-disabled": {
+                        backgroundColor: mode === "light" ? "#E6E7E9" : "#121212",
+                        color: mode === "light" ? "#D1D2D4" : "#383E45",
+                    },
+                },
+                contained: {
+                    color: commonPalette.light.primary.contrastText,
+                    backgroundColor: commonPalette[mode].primary.main,
+                    "&:hover": {
+                        backgroundColor: commonPalette[mode].primary.main,
+                    },
+                },
+            },
         },
-      },
+        MuiAppBar: {
+            styleOverrides: {
+                root: {
+                    backgroundColor: commonPalette[mode].background.navbar,
+                    boxShadow: "none",
+                    backgroundImage: "none",
+                },
+            },
+        },
+        MuiPaper: {
+            styleOverrides: {
+                root: {
+                    borderRadius: 0,
+                    backgroundColor: commonPalette[mode].background.paper,
+                    color: commonPalette[mode].text.primary,
+                },
+            },
+            variants: [
+                {
+                    props: {component: 'footer'},
+                    style: {
+                        backgroundColor: commonPalette[mode].background.navbar,
+                        boxShadow: 'none',
+                    },
+                },
+            ],
+        },
+        MuiPaginationItem: {
+            styleOverrides: {
+                root: {
+                    borderRadius: 2,
+                    "&.Mui-selected": {
+                        backgroundColor: commonPalette[mode].primary.main,
+                        color: commonPalette.light.primary.contrastText,
+                    },
+                },
+            },
+        },
+        MuiIconButton: {
+            styleOverrides: {
+                root: {
+                    color: commonPalette[mode].text.primary,
+                    borderRadius: 2,
+                },
+            },
+        },
+        MuiOutlinedInput: {
+            styleOverrides: {
+                root: {
+                    borderRadius: 2,
+                    backgroundColor: commonPalette[mode].background.paper,
+                    color: commonPalette[mode].text.primary
+                },
+            },
+        },
+        MuiLink: {
+            styleOverrides: {
+                root: {
+                    color: "inherit",
+                    textDecoration: "none",
+                    "&:hover": {
+                        textDecoration: "underline",
+                    },
+                },
+            },
+        },
     },
-    MuiIconButton: {
-      styleOverrides: {
-        root: {
-          color: "#E6E7E9",
-          borderRadius: 4,
-        },
-      },
-    },
-    MuiOutlinedInput: {
-      styleOverrides: {
-        root: {
-          borderRadius: 4,
-          backgroundColor: mode === "light" ? "#FFFFFF" : "#1E1E1E",
-        },
-      },
-    }, 
-    MuiLink: {
-      styleOverrides: {
-        root: {
-          color: "inherit",
-          textDecoration: "none",
-          "&:hover": {
-            textDecoration: "underline",
-          },
-        },
-      },
-    },
-  },
 });
 
 const createAppTheme = (mode: PaletteMode) => createTheme(getThemeOptions(mode));

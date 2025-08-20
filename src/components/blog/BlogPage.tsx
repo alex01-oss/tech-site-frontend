@@ -1,7 +1,7 @@
 "use client";
 
 import React, {useMemo} from 'react';
-import {Box, Fab, Grid, IconButton, InputAdornment, TextField, Typography} from '@mui/material';
+import {Box, Fab, Grid, IconButton, InputAdornment, TextField, Typography, useTheme} from '@mui/material';
 import {Post} from '@/features/blog/types';
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
@@ -23,17 +23,18 @@ interface BlogGridProps {
     }
 }
 
-export default function BlogPage({posts, baseApiUrl, dict}: BlogGridProps) {
+export const BlogPage: React.FC<BlogGridProps> = ({posts, baseApiUrl, dict}) => {
     const [searchTerm, setSearchTerm] = React.useState('');
     const router = useNavigatingRouter();
-    const { user } = useAuthStore();
+    const theme = useTheme();
+    const {user} = useAuthStore();
 
     const filteredPosts = useMemo(() => {
         if (!searchTerm) return posts;
         const lowerCaseSearchTerm = searchTerm.toLowerCase();
         return posts.filter((post) =>
             post.title.toLowerCase().includes(lowerCaseSearchTerm) ||
-                post.content.toLowerCase().includes(lowerCaseSearchTerm)
+            post.content.toLowerCase().includes(lowerCaseSearchTerm)
         )
     }, [posts, searchTerm])
 
@@ -44,13 +45,14 @@ export default function BlogPage({posts, baseApiUrl, dict}: BlogGridProps) {
     const handleSearchClear = () => setSearchTerm('')
 
     return (
-        <>
+        <Box>
             <Box>
-                <Typography variant="h2" component="h1" align="center" sx={{ color: 'text.primary', fontWeight: 700}}>
+                <Typography variant="h2" component="h1" align="center"
+                            sx={{color: 'text.primary', fontWeight: theme.typography.fontWeightBold}}>
                     {dict.title}
                 </Typography>
 
-                <Box sx={{display: 'flex', justifyContent: 'center', my: {xs: 2, sm: 3}}}>
+                <Box sx={{display: 'flex', justifyContent: 'center', my: {xs: theme.spacing(2), sm: theme.spacing(3)}}}>
                     <TextField
                         variant="outlined"
                         placeholder={dict.placeholder}
@@ -60,14 +62,14 @@ export default function BlogPage({posts, baseApiUrl, dict}: BlogGridProps) {
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
-                                    <SearchIcon />
+                                    <SearchIcon/>
                                 </InputAdornment>
                             ),
                             endAdornment: (
                                 searchTerm ? (
                                     <InputAdornment position="end">
                                         <IconButton onClick={handleSearchClear} edge="end" size="small">
-                                            <ClearIcon />
+                                            <ClearIcon/>
                                         </IconButton>
                                     </InputAdornment>
                                 ) : null
@@ -76,7 +78,7 @@ export default function BlogPage({posts, baseApiUrl, dict}: BlogGridProps) {
                     />
                 </Box>
 
-                <Grid container spacing={{xs: 2, sm: 3}}>
+                <Grid container spacing={{xs: theme.spacing(2), sm: theme.spacing(3)}}>
                     {filteredPosts.length > 0 ? (
                         filteredPosts.map((post: Post) => (
                             <Grid item xs={12} sm={6} md={4} key={post.id}>
@@ -93,7 +95,7 @@ export default function BlogPage({posts, baseApiUrl, dict}: BlogGridProps) {
                         ))
                     ) : (
                         <Grid item xs={12}>
-                            <Typography variant="h6" color="text.secondary" align="center" sx={{mt: 4}}>
+                            <Typography variant="h6" color="text.secondary" align="center" sx={{mt: theme.spacing(4)}}>
                                 {searchTerm ? `${dict.notFound} "${searchTerm}".` : dict.empty}
                             </Typography>
                         </Grid>
@@ -107,15 +109,17 @@ export default function BlogPage({posts, baseApiUrl, dict}: BlogGridProps) {
                     aria-label={dict.add}
                     sx={{
                         position: 'fixed',
-                        borderRadius: 1,
-                        bottom: {xs: 16, sm: 24, lg: 52},
-                        right: {xs: 16, sm: 24, lg: 52},
+                        borderRadius: theme.shape.borderRadius,
+                        bottom: {xs: theme.spacing(2), sm: theme.spacing(3), lg: theme.spacing(6.5)},
+                        right: {xs: theme.spacing(2), sm: theme.spacing(3), lg: theme.spacing(6.5)},
                     }}
-                    onClick={() => {router.push('/blog/create')}}
+                    onClick={() => {
+                        router.push('/blog/create')
+                    }}
                 >
-                    <AddIcon />
+                    <AddIcon/>
                 </Fab>
             )}
-        </>
+        </Box>
     );
-}
+};

@@ -1,6 +1,6 @@
 "use client";
 
-import {Box, Button, Typography} from "@mui/material";
+import {Box, Button, Typography, useTheme} from "@mui/material";
 import React from "react";
 
 interface Props {
@@ -32,6 +32,8 @@ class ErrorBoundary extends React.Component<Props, State> {
 
     render() {
         if (this.state.hasError) {
+            const theme = useTheme();
+
             return (
                 <Box
                     sx={{
@@ -41,13 +43,16 @@ class ErrorBoundary extends React.Component<Props, State> {
                         justifyContent: "center",
                         height: "100vh",
                         textAlign: "center",
-                        padding: "20px",
+                        padding: { xs: 2, md: 4 },
                         bgcolor: "background.default",
                     }}
                 >
                     <Typography
                         variant="h4"
-                        sx={{marginBottom: "16px", color: "primary.main"}}
+                        sx={{
+                            mb: theme.spacing(2),
+                            color: "primary.main"
+                        }}
                     >
                         {this.props.dict.errorTitle}
                     </Typography>

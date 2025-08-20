@@ -1,4 +1,4 @@
-import PostEditorPage from "@/components/blog/PostEditorPage";
+import {PostEditorPage} from "@/components/blog/PostEditorPage";
 import {getDictionary} from "@/lib/i18n";
 
 interface Props {

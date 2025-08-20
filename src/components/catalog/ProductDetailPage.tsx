@@ -50,7 +50,7 @@ interface Props {
     }
 }
 
-function ProductDetailPage({initialProductData, initialError, dict}: Props) {
+export const ProductDetailPage: React.FC<Props> = ({initialProductData, initialError, dict}) => {
     const [productData] = useState<ProductDetailData | null>(initialProductData);
     const [error] = useState<string | null>(initialError);
 
@@ -74,9 +74,17 @@ function ProductDetailPage({initialProductData, initialError, dict}: Props) {
 
     if (error) {
         return (
-            <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="100vh">
+            <Box
+                display="flex"
+                flexDirection="column"
+                justifyContent="center"
+                alignItems="center"
+                height="100vh"
+            >
                 <Typography color="error" variant="h6">{error}</Typography>
-                <Button onClick={() => router.back()} sx={{mt: 2}}>{dict.goBack}</Button>
+                <Button onClick={() => router.back()} sx={{mt: theme.spacing(2)}}>
+                    {dict.goBack}
+                </Button>
             </Box>
         );
     }
@@ -84,7 +92,7 @@ function ProductDetailPage({initialProductData, initialError, dict}: Props) {
     if (!productData) {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-                <Typography variant="h6" color="textSecondary">Product data not available.</Typography>
+                <Typography variant="h6" color="text.secondary">Product data not available.</Typography>
             </Box>
         );
     }
@@ -98,19 +106,20 @@ function ProductDetailPage({initialProductData, initialError, dict}: Props) {
             sx={{
                 display: 'flex',
                 flexDirection: 'column',
-                gap: {xs: 2, sm: 3},
+                gap: {xs: theme.spacing(2), sm: theme.spacing(3)},
             }}
         >
-            <Paper elevation={2} sx={{borderRadius: 1, p: {xs: 2, sm: 3}}}>
-                <Grid container spacing={{xs: 2, sm: 3}}>
+            <Paper elevation={2}
+                   sx={{borderRadius: theme.shape.borderRadius, p: {xs: theme.spacing(2), sm: theme.spacing(3)}}}>
+                <Grid container spacing={{xs: theme.spacing(2), sm: theme.spacing(3)}}>
                     <Grid item xs={12} md={5}>
                         <Box
                             sx={{
                                 display: 'flex',
                                 flexDirection: 'column',
                                 alignItems: 'center',
-                                gap: {xs: 2, sm: 3},
-                                pb: {xs: 2, sm: 0}
+                                gap: {xs: theme.spacing(2), sm: theme.spacing(3)},
+                                pb: {xs: theme.spacing(2), sm: theme.spacing(0)}
                             }}
                         >
                             <Box
@@ -118,8 +127,8 @@ function ProductDetailPage({initialProductData, initialError, dict}: Props) {
                                     width: '100%',
                                     height: isMobile ? 200 : 300,
                                     maxHeight: 300,
-                                    bgcolor: theme.palette.grey[100],
-                                    borderRadius: 1,
+                                    bgcolor: theme.palette.background.paper,
+                                    borderRadius: theme.shape.borderRadius,
                                     display: 'flex',
                                     justifyContent: 'center',
                                     alignItems: 'center',
@@ -157,9 +166,9 @@ function ProductDetailPage({initialProductData, initialError, dict}: Props) {
                                             : <ShoppingCart/>
                                 }
                                 sx={{
-                                    py: 1.5,
-                                    fontWeight: 600,
-                                    borderRadius: 1,
+                                    py: theme.spacing(1.5),
+                                    fontWeight: theme.typography.fontWeightBold,
+                                    borderRadius: theme.shape.borderRadius,
                                     textTransform: "none",
                                 }}
                             >
@@ -174,15 +183,19 @@ function ProductDetailPage({initialProductData, initialError, dict}: Props) {
                     </Grid>
 
                     <Grid item xs={12} md={7}>
-                        <Box sx={{display: 'flex', flexDirection: 'column', gap: {xs: 2, md: 3}}}>
+                        <Box sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: {xs: theme.spacing(2), md: theme.spacing(3)}
+                        }}>
                             <Typography
                                 variant="h4"
                                 component="h1"
                                 sx={{
-                                    fontWeight: 700,
+                                    fontWeight: theme.typography.fontWeightBold,
                                     color: "text.primary",
                                     lineHeight: 1.2,
-                                    mb: 1
+                                    mb: theme.spacing(1)
                                 }}
                             >
                                 {item.shape}
@@ -193,43 +206,51 @@ function ProductDetailPage({initialProductData, initialError, dict}: Props) {
                                 sx={(theme) => ({
                                     bgcolor: theme.palette.primary.light,
                                     color: theme.palette.primary.contrastText,
-                                    fontWeight: 600,
+                                    fontWeight: theme.typography.fontWeightBold,
                                     fontSize: "1rem",
-                                    py: 1,
-                                    px: 1.5,
+                                    py: theme.spacing(1),
+                                    px: theme.spacing(1.5),
                                     height: 'auto',
                                     alignSelf: 'flex-start',
-                                    borderRadius: 1
+                                    borderRadius: theme.shape.borderRadius
                                 })}
                             />
 
-                            <Divider sx={{my: 2}}/>
+                            <Divider sx={{my: theme.spacing(2)}}/>
 
                             <Box>
-                                <Typography variant="h6" sx={{fontWeight: 600, mb: 1, color: 'text.secondary'}}>
+                                <Typography variant="h6" sx={{
+                                    fontWeight: theme.typography.fontWeightMedium,
+                                    mb: theme.spacing(1),
+                                    color: 'text.secondary'
+                                }}>
                                     {dict.keySpecs}
                                 </Typography>
-                                <Grid container spacing={1}>
+                                <Grid container spacing={theme.spacing(1)}>
                                     <Grid item xs={12}>
-                                        <Typography variant="body1" sx={{fontWeight: 500}}>
+                                        <Typography variant="body1"
+                                                    sx={{fontWeight: theme.typography.fontWeightMedium}}>
                                             {dict.dimensions} {item.dimensions}
                                         </Typography>
                                     </Grid>
                                     <Grid item xs={12}>
                                         {bonds && bonds.length > 0 && (
-                                            <Typography variant="body1" sx={{fontWeight: 500}}>
+                                            <Typography variant="body1"
+                                                        sx={{fontWeight: theme.typography.fontWeightMedium}}>
                                                 {dict.bond} {bonds.map(bond => bond.name_bond).join(', ')}
                                             </Typography>
                                         )}
                                     </Grid>
                                     <Grid item xs={12}>
-                                        <Typography variant="body1" sx={{fontWeight: 500}}>
+                                        <Typography variant="body1"
+                                                    sx={{fontWeight: theme.typography.fontWeightMedium}}>
                                             {dict.gridSize} {item.grid_size}
                                         </Typography>
                                     </Grid>
                                     {mounting && (
                                         <Grid item xs={12}>
-                                            <Typography variant="body1" sx={{fontWeight: 500}}>
+                                            <Typography variant="body1"
+                                                        sx={{fontWeight: theme.typography.fontWeightMedium}}>
                                                 {dict.mounting} {mounting.mm} {dict.mm} / {mounting.inch} {dict.inch}
                                             </Typography>
                                         </Grid>
@@ -242,23 +263,32 @@ function ProductDetailPage({initialProductData, initialError, dict}: Props) {
             </Paper>
 
             {bonds && bonds.length > 0 && (
-                <Paper elevation={2} sx={{borderRadius: 1, p: {xs: 2, md: 4}}}>
-                    <Typography variant="h5" component="h2" sx={{fontWeight: 600, mb: 2, color: 'text.primary'}}>
+                <Paper elevation={2}
+                       sx={{borderRadius: theme.shape.borderRadius, p: {xs: theme.spacing(2), md: theme.spacing(4)}}}>
+                    <Typography variant="h5" component="h2" sx={{
+                        fontWeight: theme.typography.fontWeightMedium,
+                        mb: theme.spacing(2),
+                        color: 'text.primary'
+                    }}>
                         {dict.bondDetails}
                     </Typography>
                     {bonds.map((bond, index) => (
                         <Box key={index} sx={{
-                            mb: 2,
-                            '&:last-child': {mb: 0}
+                            mb: theme.spacing(2),
+                            '&:last-child': {mb: theme.spacing(0)}
                         }}>
                             <Typography variant="h6" component="h3"
-                                        sx={{fontWeight: 600, mb: 1, color: 'text.primary'}}>
+                                        sx={{
+                                            fontWeight: theme.typography.fontWeightMedium,
+                                            mb: theme.spacing(1),
+                                            color: 'text.primary'
+                                        }}>
                                 {bond.name_bond}
                             </Typography>
-                            <Typography variant="body1" color="text.secondary" sx={{mb: 2}}>
+                            <Typography variant="body1" color="text.secondary" sx={{mb: theme.spacing(2)}}>
                                 {bond.bond_description}
                             </Typography>
-                            <Box sx={{display: 'flex', alignItems: 'flex-start', gap: 1}}>
+                            <Box sx={{display: 'flex', alignItems: 'flex-start', gap: theme.spacing(1)}}>
                                 <InfoOutlined color="action"/>
                                 <Typography variant="body2" color="text.secondary">
                                     {dict.cooling} {bond.bond_cooling}
@@ -270,8 +300,13 @@ function ProductDetailPage({initialProductData, initialError, dict}: Props) {
             )}
 
             {machines && machines.length > 0 && (
-                <Paper elevation={3} sx={{borderRadius: 1, p: {xs: 2, md: 4}}}>
-                    <Typography variant="h5" component="h2" sx={{fontWeight: 600, mb: 2, color: 'text.primary'}}>
+                <Paper elevation={3}
+                       sx={{borderRadius: theme.shape.borderRadius, p: {xs: theme.spacing(2), md: theme.spacing(4)}}}>
+                    <Typography variant="h5" component="h2" sx={{
+                        fontWeight: theme.typography.fontWeightMedium,
+                        mb: theme.spacing(2),
+                        color: 'text.primary'
+                    }}>
                         {dict.compatibleMachines}
                     </Typography>
                     <List dense>
@@ -282,7 +317,8 @@ function ProductDetailPage({initialProductData, initialError, dict}: Props) {
                                 </ListItemIcon>
                                 <ListItemText
                                     primary={
-                                        <Typography variant="body1" sx={{fontWeight: 500}}>
+                                        <Typography variant="body1"
+                                                    sx={{fontWeight: theme.typography.fontWeightMedium}}>
                                             {machine.model}
                                         </Typography>
                                     }
@@ -296,5 +332,3 @@ function ProductDetailPage({initialProductData, initialError, dict}: Props) {
         </Box>
     );
 }
-
-export default ProductDetailPage;

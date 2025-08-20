@@ -9,15 +9,18 @@ import {ErrorMessage, Field, Form, Formik, FormikHelpers} from "formik";
 import {UpdateUserRequest} from "@/features/auth/types";
 import {
     Box,
-    Button, CircularProgress,
+    Button,
+    CircularProgress,
     Container,
-    Dialog, DialogActions,
+    Dialog,
+    DialogActions,
     DialogContent,
     DialogContentText,
     DialogTitle,
     Paper,
     TextField,
-    Typography
+    Typography,
+    useTheme
 } from "@mui/material";
 import {getProfileSchema} from "@/utils/validationSchemas";
 import {PasswordField} from "@/components/auth/PasswordField";
@@ -63,6 +66,7 @@ interface Props {
 export const EditProfilePage: React.FC<Props> = ({dict}) => {
     const {user, updateUser, deleteUser, logoutAll} = useAuthStore();
     const router = useNavigatingRouter();
+    const theme = useTheme();
     const {enqueueSnackbar} = useSnackbar();
     const {startLoading, stopLoading, handleSuccess, handleError} = useFormHandler();
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -121,14 +125,16 @@ export const EditProfilePage: React.FC<Props> = ({dict}) => {
     };
     if (!user) {
         return (
-            <Container maxWidth="lg" sx={{mt: 4}}>
+            <Container maxWidth="lg" sx={{mt: theme.spacing(4)}}>
                 <Typography variant="h6" align="center">{dict.loginRequired}</Typography>
             </Container>
         );
     }
+
     return (
-        <>
-            <Typography variant="h4" component="h1" fontWeight="bold" sx={{mb: {xs: 2, sm: 3}}}>
+        <Box>
+            <Typography variant="h4" component="h1" fontWeight={theme.typography.fontWeightBold}
+                        sx={{mb: {xs: theme.spacing(2), sm: theme.spacing(3)}}}>
                 {dict.title}
             </Typography>
             <Formik<ProfileFormValues>
@@ -145,7 +151,11 @@ export const EditProfilePage: React.FC<Props> = ({dict}) => {
             >
                 {({isSubmitting}) => (
                     <Form>
-                        <Paper elevation={3} sx={{p: {xs: 2, sm: 3}, mb: {xs: 2, sm: 3}, borderRadius: 1}}>
+                        <Paper elevation={3} sx={{
+                            p: {xs: theme.spacing(2), sm: theme.spacing(3)},
+                            mb: {xs: theme.spacing(2), sm: theme.spacing(3)},
+                            borderRadius: theme.shape.borderRadius
+                        }}>
                             <Typography variant="h6" gutterBottom>{dict.personalInfoTitle}</Typography>
                             <Field
                                 as={TextField}
@@ -172,7 +182,11 @@ export const EditProfilePage: React.FC<Props> = ({dict}) => {
                                 helperText={<ErrorMessage name="phone"/>}
                             />
                         </Paper>
-                        <Paper elevation={3} sx={{p: {xs: 2, sm: 3}, mb: {xs: 2, sm: 3}, borderRadius: 1}}>
+                        <Paper elevation={3} sx={{
+                            p: {xs: theme.spacing(2), sm: theme.spacing(3)},
+                            mb: {xs: theme.spacing(2), sm: theme.spacing(3)},
+                            borderRadius: theme.shape.borderRadius
+                        }}>
                             <Typography variant="h6" gutterBottom>{dict.changePasswordTitle}</Typography>
                             <PasswordField
                                 name="currentPassword"
@@ -193,57 +207,60 @@ export const EditProfilePage: React.FC<Props> = ({dict}) => {
                                 type="submit"
                                 variant="contained"
                                 disabled={isSubmitting}
-                                sx={{mt: 2}}
+                                sx={{mt: theme.spacing(2)}}
                             >
                                 {dict.updateProfileButton}
                             </Button>
                         </Paper>
+                        <Paper elevation={3} sx={{
+                            p: {xs: theme.spacing(2), sm: theme.spacing(3)},
+                            borderRadius: theme.shape.borderRadius
+                        }}>
+                            <Typography variant="h6" gutterBottom>{dict.accountManagementTitle}</Typography>
+                            <Box sx={{
+                                display: 'flex',
+                                flexDirection: {xs: 'column', md: 'row'},
+                                gap: {xs: theme.spacing(2), sm: theme.spacing(3)},
+                                mt: {xs: theme.spacing(2), sm: theme.spacing(3)}
+                            }}>
+                                <Button
+                                    variant="outlined"
+                                    color="primary"
+                                    onClick={handleLogoutAllDevices}
+                                >
+                                    {dict.logoutAllDevicesButton}
+                                </Button>
+                                <Button
+                                    variant="outlined"
+                                    color="error"
+                                    onClick={() => setOpenDeleteDialog(true)}
+                                >
+                                    {dict.deleteAccountButton}
+                                </Button>
+                            </Box>
+                        </Paper>
+                        <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}
+                                sx={{'& .MuiDialog-paper': {borderRadius: theme.shape.borderRadius}}}>
+                            <DialogTitle>{dict.confirmDeletionTitle}</DialogTitle>
+                            <DialogContent>
+                                <DialogContentText>{dict.confirmDeletionText}</DialogContentText>
+                            </DialogContent>
+                            <DialogActions>
+                                <Button onClick={() => setOpenDeleteDialog(false)} color="primary"
+                                        disabled={isDeleting}>{dict.cancelButton}</Button>
+                                <Button
+                                    onClick={handleConfirmDelete}
+                                    color="error"
+                                    variant="contained"
+                                    disabled={isDeleting}
+                                >
+                                    {isDeleting ? <CircularProgress size={theme.spacing(3)}/> : dict.deleteButton}
+                                </Button>
+                            </DialogActions>
+                        </Dialog>
                     </Form>
                 )}
             </Formik>
-            <Paper elevation={3} sx={{p: {xs: 2, sm: 3}, borderRadius: 1}}>
-                <Typography variant="h6" gutterBottom>{dict.accountManagementTitle}</Typography>
-                <Box sx={{
-                    display: 'flex',
-                    flexDirection: {xs: 'column', md: 'row'},
-                    gap: {xs: 2, sm: 3},
-                    mt: {xs: 2, sm: 3}
-                }}>
-                    <Button
-                        variant="outlined"
-                        color="primary"
-                        onClick={handleLogoutAllDevices}
-                    >
-                        {dict.logoutAllDevicesButton}
-                    </Button>
-                    <Button
-                        variant="outlined"
-                        color="error"
-                        onClick={() => setOpenDeleteDialog(true)}
-                    >
-                        {dict.deleteAccountButton}
-                    </Button>
-                </Box>
-            </Paper>
-            <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}
-                    sx={{'& .MuiDialog-paper': {borderRadius: 1}}}>
-                <DialogTitle>{dict.confirmDeletionTitle}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>{dict.confirmDeletionText}</DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpenDeleteDialog(false)} color="primary"
-                            disabled={isDeleting}>{dict.cancelButton}</Button>
-                    <Button
-                        onClick={handleConfirmDelete}
-                        color="error"
-                        variant="contained"
-                        disabled={isDeleting}
-                    >
-                        {isDeleting ? <CircularProgress size={24}/> : dict.deleteButton}
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </>
+        </Box>
     );
 }

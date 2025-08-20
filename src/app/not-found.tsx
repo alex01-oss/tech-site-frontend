@@ -1,7 +1,7 @@
-import Link from "next/link";
-import {Box, Typography} from "@mui/material";
+import {Box, Link, Typography} from "@mui/material";
 
-export default function NotFound() {
+export default async function NotFound() {
+
     return (
         <Box
             sx={{
@@ -25,16 +25,14 @@ export default function NotFound() {
             </Typography>
             <Typography
                 variant="body1"
-                sx={{
-                    fontSize: "1.5rem",
-                }}
+                sx={{fontSize: "1.5rem",}}
             >
                 Page Not Found
             </Typography>
             <Link
-                href="/public"
-                style={{
-                    marginTop: "1rem",
+                href="/"
+                sx={{
+                    mt: "1rem",
                     fontSize: "1.2rem",
                     color: "#000",
                     textDecoration: "underline",

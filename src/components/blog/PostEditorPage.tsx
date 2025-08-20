@@ -61,7 +61,7 @@ interface PostEditorProps {
     }
 }
 
-const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) => {
+export const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) => {
     const router = useNavigatingRouter();
     const {enqueueSnackbar} = useSnackbar();
 
@@ -201,13 +201,13 @@ const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) => {
         return (
             <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="100vh">
                 <Typography color="error" variant="h6">{error}</Typography>
-                <Button onClick={() => router.back()} sx={{mt: 2}}>{dict.goBack}</Button>
+                <Button onClick={() => router.back()} sx={{mt: theme.spacing(2)}}>{dict.goBack}</Button>
             </Box>
         );
     }
 
     return (
-        <Box sx={{display: 'flex', flexDirection: 'column', gap: {xs: 2, sm: 3}}}>
+        <Box sx={{display: 'flex', flexDirection: 'column', gap: {xs: theme.spacing(2), sm: theme.spacing(3)}}}>
             <TextField
                 label={dict.title}
                 variant="outlined"
@@ -217,7 +217,7 @@ const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) => {
                 required
             />
 
-            <Card variant="outlined" sx={{borderRadius: 1}}>
+            <Card variant="outlined" sx={{borderRadius: theme.shape.borderRadius}}>
                 <CardContent>
                     <Typography variant="h6" gutterBottom>{dict.image}</Typography>
                     <input
@@ -238,22 +238,27 @@ const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) => {
                     </label>
 
                     {hasImage && previewImage && (
-                        <Box sx={{mt: 2, position: 'relative', width: '100%', height: 200}}>
+                        <Box sx={{mt: theme.spacing(2), position: 'relative', width: '100%', height: 200}}>
                             <Image
                                 src={previewImage}
                                 alt={dict.previewTitle}
                                 fill
-                                style={{objectFit: 'cover', borderRadius: '4px'}}
+                                style={{
+                                    objectFit: 'cover',
+                                    borderRadius: theme.shape.borderRadius,
+                                }}
                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             />
                             <IconButton
                                 onClick={handleClearImage}
                                 sx={{
                                     position: 'absolute',
-                                    top: 8,
-                                    right: 8,
-                                    backgroundColor: 'rgba(255,255,255,0.7)',
-                                    '&:hover': {backgroundColor: 'rgba(255,255,255,0.9)'}
+                                    top: theme.spacing(1),
+                                    right: theme.spacing(1),
+                                    backgroundColor: theme.palette.mode === 'dark' ? 'rgba(0,0,0,0.7)' : 'rgba(255,255,255,0.7)',
+                                    '&:hover': {
+                                        backgroundColor: theme.palette.mode === 'dark' ? 'rgba(0,0,0,0.9)' : 'rgba(255,255,255,0.9)'
+                                    }
                                 }}
                             >
                                 <DeleteIcon color="error"/>
@@ -263,7 +268,7 @@ const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) => {
                 </CardContent>
             </Card>
 
-            <Card variant="outlined" sx={{borderRadius: 1}}>
+            <Card variant="outlined" sx={{borderRadius: theme.shape.borderRadius}}>
                 <CardContent>
                     <Typography variant="h6" gutterBottom>{dict.contentEditorTitle}</Typography>
                     <Editor
@@ -288,15 +293,10 @@ const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) => {
                                 'alignright alignjustify | bullist numlist outdent indent | ' +
                                 'removeformat | help',
                             skin: isDarkMode ? 'oxide-dark' : 'oxide',
-                            content_style: isDarkMode
-                                ? `
-                                    body { font-family: Helvetica,Arial,sans-serif; font-size: 14px; background-color: #1e1e1e; color: #ffffff; }
-                                    h1, h2, h3, h4, h5, h6, p, a { color: #ffffff; }
-                                `
-                                : `
-                                    body { font-family: Helvetica,Arial,sans-serif; font-size: 14px; background-color: #ffffff; color: #000000; }
-                                    h1, h2, h3, h4, h5, h6, p, a { color: #000000; }
-                                `,
+                            content_style: `
+                                body { font-family: ${theme.typography.fontFamily}; font-size: 14px; background-color: ${theme.palette.background.default}; color: ${theme.palette.text.primary}; }
+                                h1, h2, h3, h4, h5, h6, p, a { color: ${theme.palette.text.primary}; }
+                            `,
                         }}
                     />
                 </CardContent>
@@ -314,6 +314,4 @@ const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) => {
             </Button>
         </Box>
     );
-};
-
-export default PostEditorPage;
+}

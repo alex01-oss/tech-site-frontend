@@ -28,10 +28,10 @@ export const ProductCard: React.FC<Props> = memo(({
     return (
         <Box
             onClick={() => router.push(`/catalog/${product.id}`)}
-            sx={(theme) => ({
+            sx={{
                 display: "flex",
                 flexDirection: "column",
-                borderRadius: 1,
+                borderRadius: theme.shape.borderRadius,
                 bgcolor: theme.palette.background.paper,
                 border: `1px solid ${theme.palette.divider}`,
                 transition: theme.transitions.create(
@@ -50,15 +50,15 @@ export const ProductCard: React.FC<Props> = memo(({
                     borderColor: theme.palette.success.main,
                     borderWidth: 2,
                 }),
-            })}
+            }}
         >
             <Box
                 sx={{
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
-                    px: 2,
-                    py: 1,
+                    px: theme.spacing(2),
+                    py: theme.spacing(1),
                     borderBottom: `1px solid ${theme.palette.divider}`,
                 }}
             >
@@ -67,8 +67,8 @@ export const ProductCard: React.FC<Props> = memo(({
                     label={product.code}
                     size="small"
                     sx={{
-                        borderRadius: 1,
-                        fontWeight: 600,
+                        borderRadius: theme.shape.borderRadius,
+                        fontWeight: theme.typography.fontWeightBold,
                         fontSize: "0.75rem",
                     }}
                 />
@@ -79,9 +79,9 @@ export const ProductCard: React.FC<Props> = memo(({
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
-                    height: 140,
-                    padding: 2,
-                    bgcolor: "grey.25",
+                    height: theme.spacing(17.5),
+                    padding: theme.spacing(2),
+                    bgcolor: theme.palette.background.paper,
                 }}
             >
                 <Image
@@ -99,7 +99,7 @@ export const ProductCard: React.FC<Props> = memo(({
 
             <Box
                 sx={{
-                    padding: 2,
+                    padding: theme.spacing(2),
                     display: "flex",
                     flexDirection: "column",
                     flexGrow: 1,
@@ -108,18 +108,18 @@ export const ProductCard: React.FC<Props> = memo(({
                 <Typography
                     variant="subtitle2"
                     sx={{
-                        fontWeight: 600,
+                        fontWeight: theme.typography.fontWeightBold,
                         color: "text.primary",
                         fontSize: "0.95rem",
                         lineHeight: 1.3,
-                        mb: 1.5,
+                        mb: theme.spacing(1.5),
                     }}
                 >
                     {product.shape}
                 </Typography>
 
-                <Box sx={{mb: 2}}>
-                    <Box sx={{display: "flex", mb: 1}}>
+                <Box sx={{mb: theme.spacing(2)}}>
+                    <Box sx={{display: "flex", mb: theme.spacing(1)}}>
                         <Typography
                             variant="caption"
                             sx={{
@@ -139,7 +139,7 @@ export const ProductCard: React.FC<Props> = memo(({
                                 variant="caption"
                                 sx={{
                                     color: "text.primary",
-                                    fontWeight: 500,
+                                    fontWeight: theme.typography.fontWeightMedium,
                                     whiteSpace: "nowrap",
                                     overflow: "hidden",
                                     textOverflow: "ellipsis",
@@ -152,7 +152,7 @@ export const ProductCard: React.FC<Props> = memo(({
                     </Box>
 
                     {product.name_bonds && product.name_bonds.length > 0 && (
-                        <Box sx={{display: "flex", mb: 1}}>
+                        <Box sx={{display: "flex", mb: theme.spacing(1)}}>
                             <Typography
                                 variant="caption"
                                 sx={{
@@ -168,7 +168,7 @@ export const ProductCard: React.FC<Props> = memo(({
                                 variant="caption"
                                 sx={{
                                     color: "text.primary",
-                                    fontWeight: 500,
+                                    fontWeight: theme.typography.fontWeightMedium,
                                 }}
                             >
                                 {product.name_bonds.join(', ')}
@@ -178,7 +178,7 @@ export const ProductCard: React.FC<Props> = memo(({
 
 
                     {product.grid_size && (
-                        <Box sx={{display: "flex", mb: 1}}>
+                        <Box sx={{display: "flex", mb: theme.spacing(1)}}>
                             <Typography
                                 variant="caption"
                                 sx={{
@@ -194,7 +194,7 @@ export const ProductCard: React.FC<Props> = memo(({
                                 variant="caption"
                                 sx={{
                                     color: "text.primary",
-                                    fontWeight: 500,
+                                    fontWeight: theme.typography.fontWeightMedium,
                                 }}
                             >
                                 {product.grid_size}
@@ -219,17 +219,16 @@ export const ProductCard: React.FC<Props> = memo(({
                                 variant="caption"
                                 sx={{
                                     color: "text.primary",
-                                    fontWeight: 500,
+                                    fontWeight: theme.typography.fontWeightMedium,
                                 }}
                             >
                                 {`${product.mounting.mm} ${dict.mm} / ${product.mounting.inch}″`}
                             </Typography>
                         </Box>
                     )}
-
                 </Box>
 
-                <Box sx={{ m: "auto" }}>
+                <Box sx={{mt: 'auto'}}>
                     <Button
                         variant="contained"
                         color={isCartView ? "error" : product.is_in_cart ? "success" : "primary"}
@@ -239,23 +238,23 @@ export const ProductCard: React.FC<Props> = memo(({
                         }}
                         startIcon={
                             isCartView ? (
-                                <Delete sx={{ fontSize: 20 }} />
+                                <Delete sx={{fontSize: 20}}/>
                             ) : product.is_in_cart ? (
-                                <ShoppingCart sx={{ fontSize: 20 }} />
+                                <ShoppingCart sx={{fontSize: 20}}/>
                             ) : (
-                                <AddShoppingCart sx={{ fontSize: 20 }} />
+                                <AddShoppingCart sx={{fontSize: 20}}/>
                             )
                         }
                         sx={{
-                            borderRadius: 1,
+                            borderRadius: theme.shape.borderRadius,
                             textTransform: "none",
-                            fontWeight: 500,
-                            px: 1,
-                            py: 0.5,
+                            fontWeight: theme.typography.fontWeightMedium,
+                            px: theme.spacing(1),
+                            py: theme.spacing(0.5),
                             minHeight: 'auto',
                             alignSelf: 'flex-start',
                             "&:hover": {
-                                bgcolor: (theme) => theme.palette.primary.dark,
+                                bgcolor: theme.palette.primary.dark,
                             },
                         }}
                     >

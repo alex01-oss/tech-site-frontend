@@ -4,7 +4,7 @@ import React from "react";
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 import {useAuthStore} from "@/features/auth/store";
 import {LoginRequest} from "@/features/auth/types";
-import {CssBaseline, FormControl, TextField} from "@mui/material";
+import {FormControl, TextField} from "@mui/material";
 import {ErrorMessage, Field} from "formik";
 import {FormWrapper} from "@/components/auth/FormWrapper";
 import {getSignInSchema} from "@/utils/validationSchemas";
@@ -33,8 +33,8 @@ interface Props {
 }
 
 export const SignIn: React.FC<Props> = ({dict}) => {
-    const { loading, startLoading, stopLoading, handleSuccess, handleError } = useFormHandler();
-    const { login } = useAuthStore();
+    const {loading, startLoading, stopLoading, handleSuccess, handleError} = useFormHandler();
+    const {login} = useAuthStore();
     const router = useNavigatingRouter();
 
     const handleSubmit = async (values: any) => {
@@ -59,35 +59,32 @@ export const SignIn: React.FC<Props> = ({dict}) => {
     };
 
     return (
-        <>
-            <CssBaseline />
-            <FormWrapper
-                title={dict.login.title}
-                isLogin={true}
-                loading={loading}
-                submitText={loading ? dict.login.loading : dict.login.signInButton}
-                initialValues={{ email: "", password: "" }}
-                validationSchema={getSignInSchema(dict.login)}
-                onSubmit={handleSubmit}
-                dict={dict.authLayout}
-            >
-                <FormControl fullWidth margin="normal">
-                    <Field
-                        as={TextField}
-                        type="email"
-                        label={dict.login.emailLabel}
-                        name="email"
-                        required
-                        helperText={<ErrorMessage name="email" />}
-                    />
-                </FormControl>
-                <PasswordField
-                    name="password"
-                    label={dict.login.passwordLabel}
+        <FormWrapper
+            title={dict.login.title}
+            isLogin={true}
+            loading={loading}
+            submitText={loading ? dict.login.loading : dict.login.signInButton}
+            initialValues={{email: "", password: ""}}
+            validationSchema={getSignInSchema(dict.login)}
+            onSubmitAction={handleSubmit}
+            dict={dict.authLayout}
+        >
+            <FormControl fullWidth margin="normal">
+                <Field
+                    as={TextField}
+                    type="email"
+                    label={dict.login.emailLabel}
+                    name="email"
                     required
+                    helperText={<ErrorMessage name="email"/>}
                 />
-                <ErrorMessage name="password" />
-            </FormWrapper>
-        </>
+            </FormControl>
+            <PasswordField
+                name="password"
+                label={dict.login.passwordLabel}
+                required
+            />
+            <ErrorMessage name="password"/>
+        </FormWrapper>
     );
 }

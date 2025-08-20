@@ -2,7 +2,7 @@
 
 import React, {useEffect} from 'react';
 import {useNavigatingRouter} from '@/hooks/useNavigatingRouter';
-import {Box, Grid, Typography} from '@mui/material';
+import {Box, Grid, Typography, useTheme} from '@mui/material';
 import {useDataStore} from "@/features/data/store";
 import {useCatalogStore} from "@/features/catalog/store";
 
@@ -13,7 +13,8 @@ interface Props {
     }
 }
 
-export const CategoriesSection: React.FC<Props> = ({ dict }) => {
+export const CategoriesSection: React.FC<Props> = ({dict}) => {
+    const theme = useTheme();
     const {categories, categoriesLoading, categoriesError, fetchCategories} = useDataStore();
     const {setCategory} = useCatalogStore();
     const router = useNavigatingRouter();
@@ -28,19 +29,19 @@ export const CategoriesSection: React.FC<Props> = ({ dict }) => {
         const placeholders = Array.from({length: 2});
         return (
             <Box>
-                <Typography variant="h3" component="h2" sx={{mb: {xs: 2, sm: 3}, color: 'text.primary'}}>
+                <Typography variant="h3" component="h2"
+                            sx={{mb: {xs: theme.spacing(2), sm: theme.spacing(3)}, color: 'text.primary'}}>
                     {dict.title}
                 </Typography>
-
-                <Grid container spacing={{xs: 2, sm: 3}} justifyContent="center">
+                <Grid container spacing={{xs: theme.spacing(2), sm: theme.spacing(3)}} justifyContent="center">
                     {placeholders.map((_, i) => (
                         <Grid item xs={12} md={6} key={i}>
                             <Box
                                 sx={{
                                     width: '100%',
                                     height: 220,
-                                    borderRadius: 1,
-                                    backgroundColor: 'action.hover',
+                                    borderRadius: theme.shape.borderRadius,
+                                    backgroundColor: theme.palette.action.hover,
                                     overflow: 'hidden',
                                 }}
                             />
@@ -59,10 +60,11 @@ export const CategoriesSection: React.FC<Props> = ({ dict }) => {
 
     return (
         <Box>
-            <Typography variant="h3" component="h2" sx={{mb: {xs: 1, sm: 2}, color: 'text.primary'}}>
+            <Typography variant="h3" component="h2"
+                        sx={{mb: {xs: theme.spacing(1), sm: theme.spacing(2)}, color: 'text.primary'}}>
                 {dict.title}
             </Typography>
-            <Grid container spacing={{xs: 2, sm: 3}} justifyContent="center">
+            <Grid container spacing={{xs: theme.spacing(2), sm: theme.spacing(3)}} justifyContent="center">
                 {categories.map((category) => (
                     <Grid
                         item
@@ -79,7 +81,7 @@ export const CategoriesSection: React.FC<Props> = ({ dict }) => {
                             sx={{
                                 position: 'relative',
                                 width: '100%',
-                                borderRadius: 1,
+                                borderRadius: theme.shape.borderRadius,
                                 overflow: 'hidden',
                                 '&:hover img': {
                                     transform: 'scale(1.05)',
