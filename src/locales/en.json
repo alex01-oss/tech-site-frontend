@@ -1,16 +1,12 @@
 {
-  "notFound": {
-    "title": "Page Not Found",
-    "cta": "Go back home"
-  },
   "errorBoundary": {
     "errorTitle": "Something went wrong",
     "reloadButton": "Reload Page"
   },
   "metadata": {
+    "siteTitle": "PDTools - Poltava Diamond Tools",
     "description": "Professional diamond tools manufacturer since 1966. High-quality construction and stone processing tools.",
-    "keywords": "diamond tools, construction tools, stone processing",
-    "siteTitle": "Professional diamond tools manufacturer since 1966"
+    "keywords": "diamond tools, construction tools, stone processing, PDTools"
   },
   "auth": {
     "register": {
@@ -223,6 +219,7 @@
       }
     },
     "details": {
+      "loading": "Loading...",
       "goBack": "Go back",
       "published": "Published: "
     },
@@ -249,10 +246,6 @@
       "empty": "No blog posts available yet.",
       "viewAll": "View All Posts"
     }
-  },
-  "common": {
-    "loading": "Loading...",
-    "unexpectedError": "An unexpected error occurred."
   },
   "aboutUsSection": {
     "title": "About us",

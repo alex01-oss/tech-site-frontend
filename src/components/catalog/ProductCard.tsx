@@ -123,7 +123,7 @@ export const ProductCard: React.FC<Props> = memo(({
                         <Typography
                             variant="caption"
                             sx={{
-                                minWidth: 65,
+                                minWidth: {xs: 65, sm: 75},
                                 color: "text.secondary",
                                 textTransform: "uppercase",
                                 letterSpacing: 0.5,
@@ -156,7 +156,7 @@ export const ProductCard: React.FC<Props> = memo(({
                             <Typography
                                 variant="caption"
                                 sx={{
-                                    minWidth: 65,
+                                    minWidth: {xs: 65, sm: 75},
                                     color: "text.secondary",
                                     textTransform: "uppercase",
                                     letterSpacing: 0.5,
@@ -182,7 +182,7 @@ export const ProductCard: React.FC<Props> = memo(({
                             <Typography
                                 variant="caption"
                                 sx={{
-                                    minWidth: 65,
+                                    minWidth: {xs: 65, sm: 75},
                                     color: "text.secondary",
                                     textTransform: "uppercase",
                                     letterSpacing: 0.5,
@@ -207,7 +207,7 @@ export const ProductCard: React.FC<Props> = memo(({
                             <Typography
                                 variant="caption"
                                 sx={{
-                                    minWidth: 65,
+                                    minWidth: {xs: 65, sm: 75},
                                     color: "text.secondary",
                                     textTransform: "uppercase",
                                     letterSpacing: 0.5,
@@ -229,7 +229,7 @@ export const ProductCard: React.FC<Props> = memo(({
 
                 </Box>
 
-                <Box sx={{ mt: "auto" }}>
+                <Box sx={{ m: "auto" }}>
                     <Button
                         variant="contained"
                         color={isCartView ? "error" : product.is_in_cart ? "success" : "primary"}

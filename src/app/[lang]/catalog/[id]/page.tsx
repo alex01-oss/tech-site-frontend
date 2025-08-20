@@ -5,13 +5,14 @@ import {ProductDetailData} from "@/features/catalog/types";
 import {getDictionary} from "@/lib/i18n";
 
 interface Props {
-    params: {
+    params: Promise<{
         id: string,
         lang: string
-    }
+    }>;
 }
 
-export default async function CatalogItemPage({params: {id, lang}}: Props) {
+export default async function CatalogItemPage({ params }: Props) {
+    const { id, lang } = await params;
     const product_id = parseInt(id, 10);
     const dict = await getDictionary(lang);
     let productData: ProductDetailData | null = null;

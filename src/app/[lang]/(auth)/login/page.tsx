@@ -1,7 +1,12 @@
 import {getDictionary} from '@/lib/i18n';
 import {SignIn} from "@/components/auth/LoginPage";
 
-export default async function LoginPage({ params: { lang } }: { params: { lang: string } }) {
+interface Props {
+    params: Promise<{ lang: string }>;
+}
+
+export default async function LoginPage({ params }: Props) {
+    const { lang } = await params;
     const dict = await getDictionary(lang);
 
     return <SignIn dict={{

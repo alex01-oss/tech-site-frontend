@@ -1,7 +1,12 @@
 import {getDictionary} from '@/lib/i18n';
 import {SignUp} from "@/components/auth/RegisterPage";
 
-export default async function RegisterPage({ params: { lang } }: { params: { lang: string } }) {
+interface Props {
+    params: Promise<{ lang: string }>;
+}
+
+export default async function RegisterPage({ params }: Props) {
+    const { lang } = await params;
     const dict = await getDictionary(lang);
 
     return <SignUp dict={{

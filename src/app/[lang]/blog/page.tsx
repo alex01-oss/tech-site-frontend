@@ -7,10 +7,11 @@ import {getDictionary} from "@/lib/i18n";
 const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:8080/api";
 
 interface Props {
-    params: { lang: string };
+    params: Promise<{ lang: string }>;
 }
 
-export default async function Blog({ params: { lang } }: Props) {
+export default async function Blog({ params }: Props) {
+    const { lang } = await params;
     const dict = await getDictionary(lang);
     let posts: Post[] = [];
 
