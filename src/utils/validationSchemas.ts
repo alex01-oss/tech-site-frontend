@@ -30,11 +30,14 @@ export const getProfileSchema = (dict: any) => Yup.object().shape({
     phone: Yup.string().matches(/^\+?[0-9()\s-]{7,20}$/, dict.validation.phoneInvalid).nullable(),
     password: Yup.string()
         .min(6, dict.validation.passwordMin)
-        .notOneOf([Yup.ref('currentPassword')], dict.validation.passwordSame)
         .nullable(),
+
     currentPassword: Yup.string().when('password', {
         is: (password: any) => !!password,
-        then: (schema) => schema.required(dict.validation.currentPasswordRequired),
+        then: (schema) =>
+            schema
+                .required(dict.validation.currentPasswordRequired)
+                .notOneOf([Yup.ref('password')], dict.validation.passwordSame),
         otherwise: (schema) => schema.notRequired(),
     }),
     confirmPassword: Yup.string().when('password', {

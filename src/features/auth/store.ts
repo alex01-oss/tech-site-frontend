@@ -126,8 +126,8 @@ export const useAuthStore = create<AuthState>()(
         updateUser: async (data: UpdateUserRequest) => {
             set({loading: true, error: null});
             try {
-                const updatedUser = await usersApi.updateUser(data);
-                set({user: updatedUser, error: null});
+                await usersApi.updateUser(data);
+                await get().initialize();
                 return true;
             } catch (error: any) {
                 console.error("Update user failed:", error);

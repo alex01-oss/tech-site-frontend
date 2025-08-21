@@ -36,4 +36,5 @@ export interface UpdateUserRequest {
     phone?: string;
     email?: string;
     password?: string;
+    currentPassword?: string;
 }

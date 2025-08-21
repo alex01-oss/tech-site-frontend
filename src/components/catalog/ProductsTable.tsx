@@ -27,6 +27,10 @@ export const ProductsTable: React.FC<ProductTableProps> = memo(({products, isCar
                     lg: 'repeat(4, 1fr)',
                     xl: 'repeat(4, 1fr)',
                 },
+                '& > *': {
+                    minWidth: 0,
+                    maxWidth: '100%',
+                }
             }}
         >
             {products.map((product, index) => (

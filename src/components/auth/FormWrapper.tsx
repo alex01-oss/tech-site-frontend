@@ -46,7 +46,7 @@ export const FormWrapper = <T extends object>({
                         disabled={loading}
                         sx={{mt: theme.spacing(2), height: theme.spacing(5)}}
                     >
-                        {loading ? <CircularProgress size={theme.spacing(3)}/> : submitText} // size: 24px
+                        {loading ? <CircularProgress size={theme.spacing(3)}/> : submitText}
                     </Button>
                 </Form>
             </Formik>

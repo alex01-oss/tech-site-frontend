@@ -23,16 +23,16 @@ import {
 } from "@mui/material";
 import {getProfileSchema} from "@/utils/validationSchemas";
 import {PasswordField} from "@/components/auth/PasswordField";
-import {ProfileFormValues} from "@/types/formValues";
 import {EditProfilePageDict} from "@/types/dict";
+import {ProfileFormValues} from "@/types/formValues";
 
 
-export const EditProfilePage: React.FC<{ dict: EditProfilePageDict }> = ({dict}) => {
-    const {user, updateUser, deleteUser, logoutAll} = useAuthStore();
+export const EditProfilePage: React.FC<{ dict: EditProfilePageDict }> = ({ dict }) => {
+    const { user, updateUser, deleteUser, logoutAll } = useAuthStore();
     const router = useNavigatingRouter();
     const theme = useTheme();
-    const {enqueueSnackbar} = useSnackbar();
-    const {startLoading, stopLoading, handleSuccess, handleError} = useFormHandler();
+    const { enqueueSnackbar } = useSnackbar();
+    const { startLoading, stopLoading, handleSuccess, handleError } = useFormHandler();
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
@@ -61,25 +61,36 @@ export const EditProfilePage: React.FC<{ dict: EditProfilePageDict }> = ({dict})
 
     const handleUpdateProfile = async (
         values: ProfileFormValues,
-        {setSubmitting, resetForm}: FormikHelpers<ProfileFormValues>
+        { setSubmitting, resetForm }: FormikHelpers<ProfileFormValues>
     ) => {
         startLoading();
         try {
             const updateData: UpdateUserRequest = {};
-            if (values.full_name && values.full_name !== user?.full_name) updateData.full_name = values.full_name;
-            if (values.email && values.email !== user?.email) updateData.email = values.email;
-            if (values.phone && values.phone !== user?.phone) updateData.phone = values.phone;
-            if (values.password) updateData.password = values.password;
+
+            const fields = ['full_name', 'email', 'phone'] as const;
+            fields.forEach(field => {
+                if (values[field] && values[field] !== user?.[field]) {
+                    updateData[field] = values[field];
+                }
+            });
+
+            if (values.password) {
+                updateData.password = values.password;
+                updateData.currentPassword = values.currentPassword;
+            }
+
             if (Object.keys(updateData).length === 0) {
-                enqueueSnackbar(dict.noChanges, {variant: 'info'});
+                enqueueSnackbar(dict.noChanges, { variant: 'info' });
                 return;
             }
+
             const success = await updateUser(updateData);
             if (success) {
                 handleSuccess(dict.success);
                 resetForm({
-                    values: {...values, currentPassword: '', password: '', confirmPassword: ''}
+                    values: { ...values, currentPassword: '', password: '', confirmPassword: '' }
                 });
+                router.push('/profile');
             } else {
                 handleError(dict.updateError);
             }
@@ -91,14 +102,38 @@ export const EditProfilePage: React.FC<{ dict: EditProfilePageDict }> = ({dict})
         }
     };
 
-    if (!user) return <Typography variant="h6" align="center">{dict.loginRequired}</Typography>
+    if (!user) return <Typography variant="h6" align="center">{dict.loginRequired}</Typography>;
+
+    const paperSx = {
+        p: { xs: theme.spacing(2), sm: theme.spacing(3) },
+        mb: { xs: theme.spacing(2), sm: theme.spacing(3) },
+        borderRadius: theme.shape.borderRadius,
+        elevation: 3
+    };
+
+    const personalFields = [
+        { name: 'full_name', label: dict.fullNameLabel },
+        { name: 'email', label: dict.emailLabel },
+        { name: 'phone', label: dict.phoneLabel }
+    ];
+
+    const passwordFields = [
+        { name: 'currentPassword', label: dict.currentPasswordLabel },
+        { name: 'password', label: dict.newPasswordLabel },
+        { name: 'confirmPassword', label: dict.confirmNewPasswordLabel }
+    ];
 
     return (
         <Box>
-            <Typography variant="h4" component="h1" fontWeight={theme.typography.fontWeightBold}
-                        sx={{mb: {xs: theme.spacing(2), sm: theme.spacing(3)}}}>
+            <Typography
+                variant="h4"
+                component="h1"
+                fontWeight={theme.typography.fontWeightBold}
+                sx={{ mb: { xs: theme.spacing(2), sm: theme.spacing(3) } }}
+            >
                 {dict.title}
             </Typography>
+
             <Formik<ProfileFormValues>
                 initialValues={{
                     full_name: user.full_name,
@@ -111,112 +146,79 @@ export const EditProfilePage: React.FC<{ dict: EditProfilePageDict }> = ({dict})
                 validationSchema={getProfileSchema(dict)}
                 onSubmit={handleUpdateProfile}
             >
-                {({isSubmitting}) => (
+                {({ isSubmitting }) => (
                     <Form>
-                        <Paper elevation={3} sx={{
-                            p: {xs: theme.spacing(2), sm: theme.spacing(3)},
-                            mb: {xs: theme.spacing(2), sm: theme.spacing(3)},
-                            borderRadius: theme.shape.borderRadius
-                        }}>
+                        <Paper sx={paperSx}>
                             <Typography variant="h6" gutterBottom>{dict.personalInfoTitle}</Typography>
-                            <Field
-                                as={TextField}
-                                name="full_name"
-                                label={dict.fullNameLabel}
-                                fullWidth
-                                margin="normal"
-                                helperText={<ErrorMessage name="full_name"/>}
-                            />
-                            <Field
-                                as={TextField}
-                                name="email"
-                                label={dict.emailLabel}
-                                fullWidth
-                                margin="normal"
-                                helperText={<ErrorMessage name="email"/>}
-                            />
-                            <Field
-                                as={TextField}
-                                name="phone"
-                                label={dict.phoneLabel}
-                                fullWidth
-                                margin="normal"
-                                helperText={<ErrorMessage name="phone"/>}
-                            />
+                            {personalFields.map(({ name, label }) => (
+                                <Field
+                                    key={name}
+                                    as={TextField}
+                                    name={name}
+                                    label={label}
+                                    fullWidth
+                                    margin="normal"
+                                    helperText={<ErrorMessage name={name} />}
+                                />
+                            ))}
                         </Paper>
-                        <Paper elevation={3} sx={{
-                            p: {xs: theme.spacing(2), sm: theme.spacing(3)},
-                            mb: {xs: theme.spacing(2), sm: theme.spacing(3)},
-                            borderRadius: theme.shape.borderRadius
-                        }}>
+
+                        <Paper sx={paperSx}>
                             <Typography variant="h6" gutterBottom>{dict.changePasswordTitle}</Typography>
-                            <PasswordField
-                                name="currentPassword"
-                                label={dict.currentPasswordLabel}
-                                required
-                            />
-                            <PasswordField
-                                name="password"
-                                label={dict.newPasswordLabel}
-                                required
-                            />
-                            <PasswordField
-                                name="confirmPassword"
-                                label={dict.confirmNewPasswordLabel}
-                                required
-                            />
+                            {passwordFields.map(({ name, label }) => (
+                                <PasswordField key={name} name={name} label={label} />
+                            ))}
                             <Button
                                 type="submit"
                                 variant="contained"
                                 disabled={isSubmitting}
-                                sx={{mt: theme.spacing(2)}}
+                                sx={{ mt: theme.spacing(2) }}
                             >
                                 {dict.updateProfileButton}
                             </Button>
                         </Paper>
-                        <Paper elevation={3} sx={{
-                            p: {xs: theme.spacing(2), sm: theme.spacing(3)},
-                            borderRadius: theme.shape.borderRadius
-                        }}>
+
+                        <Paper sx={{ ...paperSx, mb: 0 }}>
                             <Typography variant="h6" gutterBottom>{dict.accountManagementTitle}</Typography>
                             <Box sx={{
                                 display: 'flex',
-                                flexDirection: {xs: 'column', md: 'row'},
-                                gap: {xs: theme.spacing(2), sm: theme.spacing(3)},
-                                mt: {xs: theme.spacing(2), sm: theme.spacing(3)}
+                                flexDirection: { xs: 'column', md: 'row' },
+                                gap: { xs: theme.spacing(2), sm: theme.spacing(3) },
+                                mt: { xs: theme.spacing(2), sm: theme.spacing(3) }
                             }}>
-                                <Button
-                                    variant="outlined"
-                                    color="primary"
-                                    onClick={handleLogoutAllDevices}
-                                >
+                                <Button variant="outlined" color="primary" onClick={handleLogoutAllDevices}>
                                     {dict.logoutAllDevicesButton}
                                 </Button>
-                                <Button
-                                    variant="outlined"
-                                    color="error"
-                                    onClick={() => setOpenDeleteDialog(true)}
-                                >
+                                <Button variant="outlined" color="error" onClick={() => setOpenDeleteDialog(true)}>
                                     {dict.deleteAccountButton}
                                 </Button>
                             </Box>
                         </Paper>
-                        <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}
-                                sx={{'& .MuiDialog-paper': {borderRadius: theme.shape.borderRadius}}}>
+
+                        <Dialog
+                            open={openDeleteDialog}
+                            onClose={() => setOpenDeleteDialog(false)}
+                            sx={{ '& .MuiDialog-paper': { borderRadius: theme.shape.borderRadius } }}
+                        >
                             <DialogTitle>{dict.confirmDeletionTitle}</DialogTitle>
                             <DialogContent>
                                 <DialogContentText>{dict.confirmDeletionText}</DialogContentText>
                             </DialogContent>
                             <DialogActions>
-                                <Button onClick={() => setOpenDeleteDialog(false)} color="primary"
-                                        disabled={isDeleting}>{dict.cancelButton}</Button>
+                                <Button
+                                    onClick={() => setOpenDeleteDialog(false)}
+                                    color="primary"
+                                    disabled={isDeleting}
+                                >
+                                    {dict.cancelButton}
+                                </Button>
                                 <Button
                                     onClick={handleConfirmDelete}
                                     color="error"
                                     variant="contained"
                                     disabled={isDeleting}
                                 >
-                                    {isDeleting ? <CircularProgress size={theme.spacing(3)}/> : dict.deleteButton}
+                                    {isDeleting ? <CircularProgress size={theme.spacing(3)} /> : dict.deleteButton}
                                 </Button>
                             </DialogActions>
                         </Dialog>
@@ -225,4 +227,4 @@ export const EditProfilePage: React.FC<{ dict: EditProfilePageDict }> = ({dict})
             </Formik>
         </Box>
     );
-}
+};

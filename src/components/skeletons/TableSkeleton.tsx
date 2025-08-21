@@ -57,7 +57,7 @@ export const ProductSkeleton = ({count = 12}: { count?: number; }) => {
                                     alignItems: "center",
                                     height: theme.spacing(17.5),
                                     padding: theme.spacing(2),
-                                    bgcolor: theme.palette.grey[100],
+                                    bgcolor: theme.palette.background.paper,
                                 }}
                             >
                                 <Skeleton
@@ -101,7 +101,6 @@ export const ProductSkeleton = ({count = 12}: { count?: number; }) => {
                                 <Box sx={{mt: "auto"}}>
                                     <Skeleton
                                         variant="rounded"
-                                        width={theme.spacing(12.5)}
                                         height={theme.spacing(4.5)}
                                         sx={{borderRadius: theme.shape.borderRadius}}
                                     />
