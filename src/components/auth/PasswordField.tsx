@@ -31,7 +31,7 @@ export const PasswordField: React.FC<PasswordFieldProps> = ({
                 name={name}
                 required={required}
                 helperText={<ErrorMessage name={name} />}
-                InputProps={{
+                slotProps={{
                     endAdornment: (
                         <InputAdornment position="end">
                             <IconButton

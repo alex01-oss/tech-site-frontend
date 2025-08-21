@@ -1,5 +1,5 @@
 import {Stack} from "@mui/material";
-import AboutUsSection from "@/components/home/AboutUsSection";
+import {AboutUsSection} from "@/components/home/AboutUsSection";
 import {CategoriesSection} from "@/components/home/CategoriesSection";
 import {BlogSection} from "@/components/home/BlogSection";
 import {VideosSection} from "@/components/home/VideosSection";
@@ -9,8 +9,7 @@ import {Video} from "@/features/youtube/types";
 import {youtubeApi} from "@/features/youtube/api";
 import React from "react";
 import {getDictionary} from "@/lib/i18n";
-
-const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:8080/api";
+import {API_URL} from "@/constants/constants";
 
 interface Props {
     params: Promise<{ lang: string }>;
@@ -54,7 +53,7 @@ export default async function Page({params}: Props) {
                     blogSection: dict.blog.blogSection,
                 }}
                 posts={posts}
-                baseApiUrl={BASE_API_URL}
+                baseApiUrl={API_URL}
                 isLoading={false}
             />
             <VideosSection dict={dict.videosSection} videos={youtubeVideos} />

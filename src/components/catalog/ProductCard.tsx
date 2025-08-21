@@ -7,6 +7,7 @@ import {CatalogItem} from "@/features/catalog/types";
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 import Image from "next/image";
 import {ProductCardDict} from "@/types/dict";
+import {API_URL} from "@/constants/constants";
 
 interface Props {
     product: CatalogItem;
@@ -21,7 +22,6 @@ export const ProductCard: React.FC<Props> = memo(({
     onToggleCart,
     dict
 }) => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:8080/api";
     const router = useNavigatingRouter();
     const theme = useTheme();
 
@@ -85,7 +85,7 @@ export const ProductCard: React.FC<Props> = memo(({
                 }}
             >
                 <Image
-                    src={`${apiUrl}/${product.images}`}
+                    src={`${API_URL}/${product.images}`}
                     alt={product.shape}
                     height={300}
                     width={300}
@@ -230,6 +230,7 @@ export const ProductCard: React.FC<Props> = memo(({
 
                 <Box sx={{mt: 'auto'}}>
                     <Button
+                        fullWidth
                         variant="contained"
                         color={isCartView ? "error" : product.is_in_cart ? "success" : "primary"}
                         onClick={(e) => {

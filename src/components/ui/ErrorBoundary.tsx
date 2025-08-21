@@ -2,13 +2,11 @@
 
 import {Box, Button, Typography, useTheme} from "@mui/material";
 import React from "react";
+import {ErrorBoundaryDict} from "@/types/dict";
 
 interface Props {
     children: React.ReactNode;
-    dict: {
-        errorTitle: string;
-        reloadButton: string;
-    };
+    dict: ErrorBoundaryDict
 }
 
 interface State {
@@ -66,7 +64,6 @@ class ErrorBoundary extends React.Component<Props, State> {
                 </Box>
             );
         }
-
         return this.props.children;
     }
 }

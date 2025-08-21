@@ -2,7 +2,6 @@
 
 import {
     AppBar,
-    Avatar,
     Badge,
     Box,
     Button,
@@ -30,6 +29,8 @@ import {useAuthStore} from "@/features/auth/store";
 import {useCartStore} from "@/features/cart/store";
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 import {LANGS} from "@/lib/i18n";
+import {NavbarDict} from "@/types/dict";
+import {UserAvatar} from "@/components/ui/UserAvatar";
 
 
 const useMenu = () => {
@@ -64,29 +65,13 @@ const LangMenuItem = ({lang, onClick}: { lang: keyof typeof LANGS, onClick: (l: 
     </MenuItem>
 );
 
-interface Props {
-    dict: {
-        authRequired: string,
-        login: string,
-        lightMode: string,
-        darkMode: string,
-        language: string,
-        settings: string,
-        cart: string,
-        profile: string,
-        logo: string,
-        goBack: string,
-    }
-}
-
-export const Navbar: React.FC<Props> = ({dict}) => {
+export const Navbar: React.FC<{ dict: NavbarDict }> = ({dict}) => {
     const theme = useTheme();
+    const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const {mode, toggleColorMode} = useThemeContext();
     const isDark = mode === "dark";
-    const {push, replaceLanguage, back, currentLang, pathname} =
-        useNavigatingRouter();
-    const {enqueueSnackbar} = useSnackbar();
+    const {push, replaceLanguage, back, currentLang, pathname} = useNavigatingRouter();
     const {isAuthenticated, user} = useAuthStore();
     const {cartCount, fetchCartCount, countLoading} = useCartStore();
 
@@ -235,19 +220,12 @@ export const Navbar: React.FC<Props> = ({dict}) => {
                         </Tooltip>
 
                         <Tooltip title={dict.profile}>
-                            <Avatar
+                            <UserAvatar
+                                user={user}
+                                isAuthenticated={isAuthenticated}
+                                size="small"
                                 onClick={() => push(isAuthenticated ? `/profile` : `/login`)}
-                                sx={{width: theme.spacing(5), height: theme.spacing(5), cursor: "pointer", ml: 1}}
-                            >
-                                {isAuthenticated && user?.full_name?.trim()
-                                    ? user.full_name
-                                        .split(" ")
-                                        .filter(Boolean)
-                                        .slice(0, 2)
-                                        .map((word: string) => word[0]?.toUpperCase())
-                                        .join("")
-                                    : ""}
-                            </Avatar>
+                            />
                         </Tooltip>
                     </Box>
                 </Toolbar>

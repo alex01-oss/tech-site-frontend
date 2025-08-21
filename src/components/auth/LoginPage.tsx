@@ -10,29 +10,9 @@ import {FormWrapper} from "@/components/auth/FormWrapper";
 import {getSignInSchema} from "@/utils/validationSchemas";
 import {useFormHandler} from "@/hooks/useFormHandler";
 import {PasswordField} from "@/components/auth/PasswordField";
+import {LoginPageDict} from "@/types/dict";
 
-interface Props {
-    dict: {
-        login: {
-            title: string,
-            signInButton: string,
-            loading: string,
-            emailLabel: string,
-            passwordLabel: string,
-            success: string,
-            invalidCredentials: string,
-            error: string,
-            validation: {
-                emailRequired: string,
-                emailInvalid: string,
-                passwordRequired: string
-            },
-        },
-        authLayout: any
-    }
-}
-
-export const SignIn: React.FC<Props> = ({dict}) => {
+export const SignIn: React.FC<{dict: LoginPageDict}> = ({dict}) => {
     const {loading, startLoading, stopLoading, handleSuccess, handleError} = useFormHandler();
     const {login} = useAuthStore();
     const router = useNavigatingRouter();

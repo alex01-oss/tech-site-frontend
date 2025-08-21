@@ -24,56 +24,32 @@ import {revalidateBlogPosts} from "@/actions/actions";
 import {Editor as TinyMCEEditor} from "tinymce";
 import {Editor} from "@tinymce/tinymce-react";
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
-
-
-const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:8080/api";
-const TINYMCE_API_KEY = process.env.NEXT_PUBLIC_TINYMCE_API_KEY?.trim() || "";
-
-interface PostEditorFormState {
-    title: string;
-    content: string;
-    imageFile: File | null;
-    imageUrl: string | null;
-}
+import {PostEditorDict} from "@/types/dict";
+import {EditorFormState} from "@/types/editorFormState";
+import Spinner from "@/components/ui/Spinner";
+import {API_URL, TINYMCE_API_KEY} from '@/constants/constants';
 
 type PostEditorMode = 'create' | 'edit';
 
 interface PostEditorProps {
     mode: PostEditorMode;
     postId?: number;
-    dict: {
-        loadError: string;
-        titleRequired: string;
-        contentRequired: string;
-        create: string,
-        update: string,
-        error: string,
-        goBack: string,
-        unknownError: string,
-        title: string,
-        image: string,
-        changeImage: string,
-        pickImage: string,
-        previewTitle: string,
-        contentEditorTitle: string,
-        createPost: string,
-        updatePost: string,
-    }
+    dict: PostEditorDict;
 }
 
 export const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) => {
     const router = useNavigatingRouter();
     const {enqueueSnackbar} = useSnackbar();
-
     const theme = useTheme();
     const isDarkMode = theme.palette.mode === 'dark';
 
-    const [formState, setFormState] = useState<PostEditorFormState>({
+    const [formState, setFormState] = useState<EditorFormState>({
         title: '',
         content: '',
         imageFile: null,
         imageUrl: null,
     });
+
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [isSaving, setIsSaving] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -83,7 +59,7 @@ export const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) 
 
     const previewImage = formState.imageFile
         ? URL.createObjectURL(formState.imageFile)
-        : `${BASE_API_URL}/${formState.imageUrl}`;
+        : `${API_URL}/${formState.imageUrl}`;
 
     const editorRef = React.useRef<TinyMCEEditor | null>(null)
     const [editorKey, setEditorKey] = useState(0);
@@ -128,9 +104,7 @@ export const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) 
 
     const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            setFormState(prev => ({...prev, imageFile: file, imageUrl: null}));
-        }
+        if (file) setFormState(prev => ({...prev, imageFile: file, imageUrl: null}));
     };
 
     const handleClearImage = () => {
@@ -189,13 +163,7 @@ export const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) 
         }
     }, [formState, isNewPost, postId, router, enqueueSnackbar, hasImage]);
 
-    if (isLoading) {
-        return (
-            <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-                <CircularProgress/>
-            </Box>
-        );
-    }
+    if (isLoading) return <Spinner/>;
 
     if (error && mode === 'edit') {
         return (

@@ -74,7 +74,7 @@ export const getThemeOptions = (mode: PaletteMode): ThemeOptions => ({
         button: {textTransform: "none"},
     },
     shape: {
-        borderRadius: 2,
+        borderRadius: 1,
     },
     components: {
         MuiButton: {

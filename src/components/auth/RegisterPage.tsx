@@ -10,40 +10,9 @@ import {useFormHandler} from "@/hooks/useFormHandler";
 import {FormWrapper} from "@/components/auth/FormWrapper";
 import {getSignUpSchema} from "@/utils/validationSchemas";
 import {PasswordField} from "@/components/auth/PasswordField";
+import {RegisterPageDict} from "@/types/dict";
 
-interface Props {
-    dict: {
-        register: {
-            title: string,
-            fullNameLabel: string,
-            emailLabel: string,
-            phoneLabel: string,
-            passwordLabel: string,
-            privacyText: string,
-            privacyPolicy: string,
-            and: string,
-            termsOfUse: string,
-            signUpButton: string,
-            loading: string,
-            success: string,
-            registrationFailed: string,
-            error: string,
-            validation: {
-                fullNameRequired: string,
-                emailRequired: string,
-                emailInvalid: string,
-                phoneRequired: string,
-                phoneInvalid: string,
-                passwordRequired: string,
-                passwordMin: string,
-                privacyPolicyRequired: string,
-            },
-        },
-        authLayout: any,
-    }
-}
-
-export const SignUp: React.FC<Props> = ({dict}) => {
+export const SignUp: React.FC<{ dict: RegisterPageDict }> = ({dict}) => {
     const {loading, startLoading, stopLoading, handleSuccess, handleError} = useFormHandler();
     const {register} = useAuthStore();
     const router = useNavigatingRouter();
@@ -71,6 +40,7 @@ export const SignUp: React.FC<Props> = ({dict}) => {
             stopLoading();
         }
     };
+
     return (
         <FormWrapper
             title={dict.register.title}

@@ -6,12 +6,10 @@ import {
     Alert,
     Box,
     Button,
-    Container,
     Divider,
     FormControl,
     FormControlLabel,
     FormLabel,
-    Grid,
     InputLabel,
     MenuItem,
     MobileStepper,
@@ -29,32 +27,22 @@ import {ProductsTable} from "@/components/catalog/ProductsTable";
 import {useCartStore} from "@/features/cart/store";
 import {useAuthStore} from "@/features/auth/store";
 import {OrderFormSchema, OrderFormValues} from "@/types/order";
-import {CartDict, ProductCardDict} from "@/types/dict";
+import {CartPageDict} from "@/types/dict";
 
-interface Props {
-    dict: {
-        cart: CartDict,
-        productCard: ProductCardDict
-    },
-}
-
-export const OrderForm: React.FC<Props> = ({dict}) => {
+export const OrderForm: React.FC<{ dict: CartPageDict }> = ({dict}) => {
+    const formikRef = useRef<any>(null);
     const [activeStep, setActiveStep] = useState(0);
     const {cart, fetchCart, error} = useCartStore();
     const {user, initializing} = useAuthStore();
     const {enqueueSnackbar} = useSnackbar();
     const theme = useTheme();
 
-    const formikRef = useRef<any>(null);
-
     useEffect(() => {
         if (!initializing) void fetchCart()
     }, [initializing]);
 
     useEffect(() => {
-        if (!initializing) {
-            void fetchCart();
-        }
+        if (!initializing) void fetchCart()
     }, [initializing, fetchCart]);
 
     const handleNext = async () => {
@@ -88,15 +76,15 @@ export const OrderForm: React.FC<Props> = ({dict}) => {
 
     if (error) {
         return (
-            <Container maxWidth="lg" sx={{
+            <Box sx={{
                 mt: theme.spacing(12),
                 minHeight: "80vh",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center"
             }}>
-                <Alert severity="error">Loading cart error: {error}</Alert>
-            </Container>
+                <Alert severity="error">{dict.cart.loadingError} {error}</Alert>
+            </Box>
         );
     }
 
@@ -120,7 +108,7 @@ export const OrderForm: React.FC<Props> = ({dict}) => {
                 );
             case 1:
                 return (
-                    <Paper sx={{p: theme.spacing(3), borderRadius: theme.shape.borderRadius * 2}}> // `borderRadius: 2`
+                    <Paper sx={{p: theme.spacing(3), borderRadius: theme.shape.borderRadius * 2}}>
                         <Typography variant="h5" sx={{mb: theme.spacing(2)}}>
                             {dict.cart.placing}
                         </Typography>
@@ -134,10 +122,23 @@ export const OrderForm: React.FC<Props> = ({dict}) => {
                         >
                             {({values, handleChange, errors, touched}) => (
                                 <Form>
-                                    <Grid container spacing={{xs: theme.spacing(2), sm: theme.spacing(3)}}>
+                                    <Box
+                                        sx={{
+                                            display: 'grid',
+                                            gap: {xs: theme.spacing(2), sm: theme.spacing(3)},
+                                            gridTemplateColumns: {xs: '1fr', sm: 'repeat(2, 1fr)'},
+                                        }}
+                                    >
                                         {formFields.map((fieldProps) => (
-                                            <Grid item xs={12} sm={fieldProps.fullWidth ? 12 : 6}
-                                                  key={fieldProps.name}>
+                                            <Box
+                                                key={fieldProps.name}
+                                                sx={{
+                                                    gridColumn: {
+                                                        xs: 'span 1',
+                                                        sm: fieldProps.fullWidth ? 'span 2' : 'span 1'
+                                                    }
+                                                }}
+                                            >
                                                 <Field
                                                     as={TextField}
                                                     fullWidth
@@ -149,10 +150,10 @@ export const OrderForm: React.FC<Props> = ({dict}) => {
                                                     error={touched[fieldProps.name as keyof OrderFormValues] && Boolean(errors[fieldProps.name as keyof OrderFormValues])}
                                                     helperText={touched[fieldProps.name as keyof OrderFormValues] && errors[fieldProps.name as keyof OrderFormValues]}
                                                 />
-                                            </Grid>
+                                            </Box>
                                         ))}
 
-                                        <Grid item xs={12}>
+                                        <Box sx={{gridColumn: {xs: 'span 1', sm: 'span 2'}}}>
                                             <FormControl fullWidth required>
                                                 <InputLabel>{dict.cart.deliveryMethod}</InputLabel>
                                                 <Select
@@ -166,9 +167,9 @@ export const OrderForm: React.FC<Props> = ({dict}) => {
                                                     <MenuItem value="pickup">{dict.cart.pickup}</MenuItem>
                                                 </Select>
                                             </FormControl>
-                                        </Grid>
+                                        </Box>
 
-                                        <Grid item xs={12}>
+                                        <Box sx={{gridColumn: {xs: 'span 1', sm: 'span 2'}}}>
                                             <FormControl fullWidth required>
                                                 <FormLabel>{dict.cart.payment}</FormLabel>
                                                 <RadioGroup
@@ -184,8 +185,8 @@ export const OrderForm: React.FC<Props> = ({dict}) => {
                                                                       label={dict.cart.installments}/>
                                                 </RadioGroup>
                                             </FormControl>
-                                        </Grid>
-                                    </Grid>
+                                        </Box>
+                                    </Box>
                                 </Form>
                             )}
                         </Formik>
@@ -193,9 +194,13 @@ export const OrderForm: React.FC<Props> = ({dict}) => {
                 );
             case 2:
                 return (
-                    <Grid item xs={12} md={4}>
-                        <Paper sx={{p: theme.spacing(3), borderRadius: theme.shape.borderRadius * 2}}> // `borderRadius:
-                            2`
+                    <Box
+                        sx={{
+                            flexGrow: 1,
+                            flexShrink: 0,
+                        }}
+                    >
+                        <Paper sx={{p: theme.spacing(3), borderRadius: theme.shape.borderRadius * 2}}>
                             <Typography variant="h6">{dict.cart.summary}</Typography>
                             <Divider sx={{my: theme.spacing(2)}}/>
                             <Typography
@@ -214,7 +219,7 @@ export const OrderForm: React.FC<Props> = ({dict}) => {
                                 {dict.cart.cta}
                             </Button>
                         </Paper>
-                    </Grid>
+                    </Box>
                 );
             default:
                 return null;

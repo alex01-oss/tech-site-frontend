@@ -1,15 +1,25 @@
 import React from "react";
-import {Box, Grid, Skeleton, useTheme} from "@mui/material";
+import {Box, Skeleton, useTheme} from "@mui/material";
 
 export const ProductSkeleton = ({count = 12}: { count?: number; }) => {
     const theme = useTheme();
 
     return (
-        <Grid container spacing={{xs: theme.spacing(2), sm: theme.spacing(3)}}>
+        <Box
+            sx={{
+                display: 'grid',
+                gap: {xs: theme.spacing(2), sm: theme.spacing(3)},
+                gridTemplateColumns: {
+                    xs: 'repeat(2, 1fr)',
+                    md: 'repeat(3, 1fr)',
+                    lg: 'repeat(4, 1fr)',
+                },
+            }}
+        >
             {Array(count)
                 .fill(0)
                 .map((_, index) => (
-                    <Grid item xs={6} sm={6} md={4} lg={3} xl={3} key={`skeleton-${index}`}>
+                    <Box key={`skeleton-${index}`}>
                         <Box
                             sx={{
                                 display: "flex",
@@ -98,8 +108,8 @@ export const ProductSkeleton = ({count = 12}: { count?: number; }) => {
                                 </Box>
                             </Box>
                         </Box>
-                    </Grid>
+                    </Box>
                 ))}
-        </Grid>
+        </Box>
     );
 };

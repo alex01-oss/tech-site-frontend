@@ -1,24 +1,22 @@
 "use client";
 
 import React, {useEffect, useState} from 'react';
-import {Box, Button, CircularProgress, Paper, Typography, useTheme} from '@mui/material';
+import {Box, Button, Paper, Typography, useTheme} from '@mui/material';
 import Image from 'next/image';
 import {Post} from '@/features/blog/types';
 import {blogApi} from "@/features/blog/api";
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
+import {PostDetailDict} from "@/types/dict";
+import Spinner from "@/components/ui/Spinner";
 
-interface PostDetailPageProps {
+interface Props {
     initialPost?: Post;
     postId: number;
     baseApiUrl: string;
-    dict: {
-        loading: string;
-        goBack: string;
-        published: string;
-    }
+    dict: PostDetailDict
 }
 
-export function PostDetailPage({initialPost, postId, baseApiUrl, dict}: PostDetailPageProps) {
+export function PostDetailPage({initialPost, postId, baseApiUrl, dict}: Props) {
     const [post, setPost] = useState<Post | null>(initialPost || null);
     const [isLoading, setIsLoading] = useState<boolean>(!initialPost);
     const [error, setError] = useState<string | null>(null);
@@ -43,14 +41,7 @@ export function PostDetailPage({initialPost, postId, baseApiUrl, dict}: PostDeta
         }
     }, [postId, post, router]);
 
-    if (isLoading) {
-        return (
-            <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-                <CircularProgress/>
-                <Typography variant="h6" sx={{ml: theme.spacing(2)}}>{dict.loading}</Typography>
-            </Box>
-        );
-    }
+    if (isLoading) return <Spinner/>
 
     if (error) {
         return (
@@ -61,9 +52,7 @@ export function PostDetailPage({initialPost, postId, baseApiUrl, dict}: PostDeta
         );
     }
 
-    if (!post) {
-        return null;
-    }
+    if (!post) return null
 
     const createMarkup = (htmlString: string) => {
         return {__html: htmlString};

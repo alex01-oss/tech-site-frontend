@@ -20,6 +20,7 @@ import {FilterItem} from "@/features/data/types";
 import DoneIcon from '@mui/icons-material/Done';
 import {useCatalogStore} from "@/features/catalog/store";
 import {FiltersSkeleton} from "@/components/skeletons/FiltersSkeleton";
+import {FiltersPanelDict} from "@/types/dict";
 
 interface FiltersPanelProps {
     filters: Record<string, Set<number>>;
@@ -27,13 +28,7 @@ interface FiltersPanelProps {
     onClearAllFilters: () => void;
     onClose?: () => void;
     isMobileDrawer?: boolean;
-    dict: {
-        filters: string,
-        apply: string,
-        error: string,
-        mm: string,
-        titles: Record<string, string>
-    }
+    dict: FiltersPanelDict
 }
 
 export const FiltersPanel: React.FC<FiltersPanelProps> = memo(({

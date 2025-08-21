@@ -11,7 +11,6 @@ import {
     Box,
     Button,
     CircularProgress,
-    Container,
     Dialog,
     DialogActions,
     DialogContent,
@@ -25,45 +24,10 @@ import {
 import {getProfileSchema} from "@/utils/validationSchemas";
 import {PasswordField} from "@/components/auth/PasswordField";
 import {ProfileFormValues} from "@/types/formValues";
+import {EditProfilePageDict} from "@/types/dict";
 
-interface Props {
-    dict: {
-        title: string,
-        personalInfoTitle: string,
-        fullNameLabel: string,
-        emailLabel: string,
-        phoneLabel: string,
-        changePasswordTitle: string,
-        currentPasswordLabel: string,
-        newPasswordLabel: string,
-        confirmNewPasswordLabel: string,
-        updateProfileButton: string,
-        accountManagementTitle: string,
-        logoutAllDevicesButton: string,
-        deleteAccountButton: string,
-        confirmDeletionTitle: string,
-        confirmDeletionText: string,
-        cancelButton: string,
-        deleteButton: string,
-        loginRequired: string,
-        success: string,
-        noChanges: string,
-        updateError: string,
-        unexpectedError: string,
-        accountDeleted: string,
-        deleteAccountFailed: string,
-        logoutAllSuccess: string,
-        logoutAllFailed: string,
-        validation: {
-            currentPasswordRequired: string,
-            newPasswordSame: string,
-            passwordsMatch: string,
-            confirmPasswordRequired: string
-        }
-    }
-}
 
-export const EditProfilePage: React.FC<Props> = ({dict}) => {
+export const EditProfilePage: React.FC<{ dict: EditProfilePageDict }> = ({dict}) => {
     const {user, updateUser, deleteUser, logoutAll} = useAuthStore();
     const router = useNavigatingRouter();
     const theme = useTheme();
@@ -71,6 +35,7 @@ export const EditProfilePage: React.FC<Props> = ({dict}) => {
     const {startLoading, stopLoading, handleSuccess, handleError} = useFormHandler();
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+
     const handleConfirmDelete = async () => {
         setIsDeleting(true);
         try {
@@ -84,6 +49,7 @@ export const EditProfilePage: React.FC<Props> = ({dict}) => {
             setOpenDeleteDialog(false);
         }
     };
+
     const handleLogoutAllDevices = async () => {
         try {
             await logoutAll();
@@ -92,6 +58,7 @@ export const EditProfilePage: React.FC<Props> = ({dict}) => {
             handleError(dict.logoutAllFailed, error);
         }
     };
+
     const handleUpdateProfile = async (
         values: ProfileFormValues,
         {setSubmitting, resetForm}: FormikHelpers<ProfileFormValues>
@@ -123,13 +90,8 @@ export const EditProfilePage: React.FC<Props> = ({dict}) => {
             setSubmitting(false);
         }
     };
-    if (!user) {
-        return (
-            <Container maxWidth="lg" sx={{mt: theme.spacing(4)}}>
-                <Typography variant="h6" align="center">{dict.loginRequired}</Typography>
-            </Container>
-        );
-    }
+
+    if (!user) return <Typography variant="h6" align="center">{dict.loginRequired}</Typography>
 
     return (
         <Box>

@@ -25,6 +25,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import {blogApi} from '@/features/blog/api';
 import {enqueueSnackbar} from "notistack";
 import {revalidateBlogPosts} from "@/actions/actions";
+import {PostCardDict} from "@/types/dict";
 
 interface PostCardProps {
     post: Post;
@@ -33,17 +34,7 @@ interface PostCardProps {
     showAdminControls?: boolean;
     elevation?: number;
     showDescription?: boolean;
-    dict: {
-        deletePost: string,
-        editPost: string,
-        confirm: string,
-        text: string,
-        irreversible: string,
-        cancel: string,
-        delete: string,
-        deleteSuccess: string,
-        deleteError: string,
-    }
+    dict: PostCardDict;
 }
 
 export const PostCard: React.FC<PostCardProps> = ({

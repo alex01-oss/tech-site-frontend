@@ -4,15 +4,9 @@ import React from 'react';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import {useTheme} from "@mui/material";
+import {AboutUsDict} from "@/types/dict";
 
-interface Props {
-    dict: {
-        title: string,
-        content: string,
-    }
-}
-
-export const AboutUsSection: React.FC<Props> = ({ dict }) => {
+export const AboutUsSection: React.FC<{ dict: AboutUsDict }> = ({ dict }) => {
     const theme = useTheme();
 
     return (
@@ -38,5 +32,3 @@ export const AboutUsSection: React.FC<Props> = ({ dict }) => {
         </Paper>
     );
 };
-
-export default AboutUsSection;

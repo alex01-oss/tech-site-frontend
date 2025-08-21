@@ -13,7 +13,7 @@ interface Props {
     minLength: number;
     value: string;
     onChange: (type: keyof SearchFields, value: string) => void;
-    onKeyPress: (e: React.KeyboardEvent) => void;
+    onKeyDown: (e: React.KeyboardEvent) => void;
     isMobile?: boolean;
     dict: { enter: string }
 }
@@ -26,7 +26,7 @@ const apiMap = {
 };
 
 export const AutocompleteSearchField: React.FC<Props> = memo(
-    ({type, label, minLength, value, onChange, onKeyPress, isMobile, dict}) => {
+    ({type, label, minLength, value, onChange, onKeyDown, isMobile, dict}) => {
         const [options, setOptions] = useState<string[]>([]);
         const [loading, setLoading] = useState(false);
         const theme = useTheme();
@@ -155,24 +155,26 @@ export const AutocompleteSearchField: React.FC<Props> = memo(
                         {...params}
                         variant="outlined"
                         placeholder={getPlaceholderText(label)}
-                        onKeyPress={onKeyPress}
+                        onKeyDown={onKeyDown}
                         fullWidth
                         size={isMobile ? undefined : "small"}
                         sx={textFieldSx}
-                        InputProps={{
-                            ...params.InputProps,
-                            startAdornment: isMobile && (
-                                <InputAdornment position="start">
-                                    <SearchIcon color="action"/>
-                                </InputAdornment>
-                            ),
-                            endAdornment: (
-                                <>
-                                    {loading ? <CircularProgress color="inherit" size={20}/> : null}
-                                    {params.InputProps.endAdornment}
-                                </>
-                            ),
-                            sx: inputPropsSx,
+                        slotProps={{
+                            input: {
+                                ...params.InputProps,
+                                startAdornment: isMobile && (
+                                    <InputAdornment position="start">
+                                        <SearchIcon color="action"/>
+                                    </InputAdornment>
+                                ),
+                                endAdornment: (
+                                    <>
+                                        {loading ? <CircularProgress color="inherit" size={20}/> : null}
+                                        {params.InputProps.endAdornment}
+                                    </>
+                                ),
+                                sx: inputPropsSx,
+                            }
                         }}
                     />
                 )}

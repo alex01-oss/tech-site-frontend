@@ -197,7 +197,8 @@
     "privacyPolicy": "Privacy Policy",
     "and": "and",
     "termsOfService": "Terms of Service",
-    "cta": "Confirm Order"
+    "cta": "Confirm Order",
+    "loadingError": "Loading cart error:"
   },
   "blog": {
     "main": {
@@ -219,7 +220,6 @@
       }
     },
     "details": {
-      "loading": "Loading...",
       "goBack": "Go back",
       "published": "Published: "
     },

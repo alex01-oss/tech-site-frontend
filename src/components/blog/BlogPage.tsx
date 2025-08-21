@@ -1,7 +1,7 @@
 "use client";
 
 import React, {useMemo} from 'react';
-import {Box, Fab, Grid, IconButton, InputAdornment, TextField, Typography, useTheme} from '@mui/material';
+import {Box, Fab, IconButton, InputAdornment, TextField, Typography, useTheme} from '@mui/material';
 import {Post} from '@/features/blog/types';
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
@@ -9,18 +9,12 @@ import {PostCard} from "@/components/blog/PostCard";
 import AddIcon from '@mui/icons-material/Add';
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 import {useAuthStore} from "@/features/auth/store";
+import {BlogPageDict} from "@/types/dict";
 
 interface BlogGridProps {
     posts: Post[];
     baseApiUrl: string;
-    dict: {
-        title: string,
-        placeholder: string,
-        notFound: string,
-        empty: string,
-        add: string,
-        dialog: any,
-    }
+    dict: BlogPageDict
 }
 
 export const BlogPage: React.FC<BlogGridProps> = ({posts, baseApiUrl, dict}) => {
@@ -46,20 +40,20 @@ export const BlogPage: React.FC<BlogGridProps> = ({posts, baseApiUrl, dict}) => 
 
     return (
         <Box>
-            <Box>
-                <Typography variant="h2" component="h1" align="center"
-                            sx={{color: 'text.primary', fontWeight: theme.typography.fontWeightBold}}>
-                    {dict.title}
-                </Typography>
+            <Typography variant="h2" component="h1" align="center"
+                        sx={{color: 'text.primary', fontWeight: theme.typography.fontWeightBold}}>
+                {dict.title}
+            </Typography>
 
-                <Box sx={{display: 'flex', justifyContent: 'center', my: {xs: theme.spacing(2), sm: theme.spacing(3)}}}>
-                    <TextField
-                        variant="outlined"
-                        placeholder={dict.placeholder}
-                        value={searchTerm}
-                        onChange={handleSearchChange}
-                        sx={{width: '100%'}}
-                        InputProps={{
+            <Box sx={{display: 'flex', justifyContent: 'center', my: {xs: theme.spacing(2), sm: theme.spacing(3)}}}>
+                <TextField
+                    variant="outlined"
+                    placeholder={dict.placeholder}
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    sx={{width: '100%'}}
+                    slotProps={{
+                        input: {
                             startAdornment: (
                                 <InputAdornment position="start">
                                     <SearchIcon/>
@@ -74,33 +68,43 @@ export const BlogPage: React.FC<BlogGridProps> = ({posts, baseApiUrl, dict}) => 
                                     </InputAdornment>
                                 ) : null
                             )
-                        }}
-                    />
-                </Box>
+                        }
+                    }}
+                />
+            </Box>
 
-                <Grid container spacing={{xs: theme.spacing(2), sm: theme.spacing(3)}}>
-                    {filteredPosts.length > 0 ? (
-                        filteredPosts.map((post: Post) => (
-                            <Grid item xs={12} sm={6} md={4} key={post.id}>
-                                <PostCard
-                                    post={post}
-                                    baseApiUrl={baseApiUrl}
-                                    height={300}
-                                    showAdminControls={true}
-                                    elevation={4}
-                                    showDescription={true}
-                                    dict={dict.dialog}
-                                />
-                            </Grid>
-                        ))
-                    ) : (
-                        <Grid item xs={12}>
-                            <Typography variant="h6" color="text.secondary" align="center" sx={{mt: theme.spacing(4)}}>
-                                {searchTerm ? `${dict.notFound} "${searchTerm}".` : dict.empty}
-                            </Typography>
-                        </Grid>
-                    )}
-                </Grid>
+            <Box
+                sx={{
+                    display: 'grid',
+                    gap: {xs: theme.spacing(2), sm: theme.spacing(3)},
+                    gridTemplateColumns: {
+                        xs: 'repeat(1, 1fr)',
+                        sm: 'repeat(2, 1fr)',
+                        md: 'repeat(3, 1fr)',
+                    },
+                }}
+            >
+                {filteredPosts.length > 0 ? (
+                    filteredPosts.map((post: Post) => (
+                        <Box key={post.id}>
+                            <PostCard
+                                post={post}
+                                baseApiUrl={baseApiUrl}
+                                height={300}
+                                showAdminControls={true}
+                                elevation={4}
+                                showDescription={true}
+                                dict={dict.dialog}
+                            />
+                        </Box>
+                    ))
+                ) : (
+                    <Box sx={{gridColumn: '1 / -1'}}>
+                        <Typography variant="h6" color="text.secondary" align="center" sx={{mt: theme.spacing(4)}}>
+                            {searchTerm ? `${dict.notFound} "${searchTerm}".` : dict.empty}
+                        </Typography>
+                    </Box>
+                )}
             </Box>
 
             {user && user.role === 'admin' && (
@@ -113,9 +117,7 @@ export const BlogPage: React.FC<BlogGridProps> = ({posts, baseApiUrl, dict}) => 
                         bottom: {xs: theme.spacing(2), sm: theme.spacing(3), lg: theme.spacing(6.5)},
                         right: {xs: theme.spacing(2), sm: theme.spacing(3), lg: theme.spacing(6.5)},
                     }}
-                    onClick={() => {
-                        router.push('/blog/create')
-                    }}
+                    onClick={() => router.push('/blog/create')}
                 >
                     <AddIcon/>
                 </Fab>

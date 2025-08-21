@@ -6,16 +6,11 @@ import React from "react";
 import ErrorBoundary from "@/components/ui/ErrorBoundary";
 import {Footer} from "@/components/layout/Footer";
 import {Navbar} from "@/components/layout/Navbar";
+import {LayoutDict} from "@/types/dict";
 
 interface LayoutContentProps {
     children: React.ReactNode;
-    dict: {
-        layout: {
-            navbar: any,
-            footer: any,
-        }
-        errorBoundary: any
-    }
+    dict: LayoutDict
 }
 
 export default function LayoutContent({ children, dict }: LayoutContentProps) {

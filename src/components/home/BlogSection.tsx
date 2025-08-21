@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import {Box, Button, Grid, Typography} from '@mui/material';
+import {Box, Button, Typography} from '@mui/material';
 import {useTheme} from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import {Post} from "@/features/blog/types";
@@ -12,37 +12,19 @@ import 'swiper/css/pagination';
 import {PostCard} from "@/components/blog/PostCard";
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 import {BlogSkeleton} from "@/components/skeletons/BlogSkeleton";
+import {BlogSectionDict} from "@/types/dict";
 
 interface Props {
     posts: Post[];
     baseApiUrl: string;
     isLoading: boolean;
-    dict: {
-        dialog: any,
-        blogSection: {
-            title: string,
-            empty: string,
-            viewAll: string,
-        }
-    }
+    dict: BlogSectionDict
 }
 
 export const BlogSection: React.FC<Props> = ({posts, baseApiUrl, isLoading, dict}) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const router = useNavigatingRouter();
-
-    if (isLoading) {
-        return (
-            <Box>
-                <Typography variant="h3" component="h2"
-                            sx={{mb: {xs: theme.spacing(2), sm: theme.spacing(3)}, color: 'text.primary'}}>
-                    {dict.blogSection.title}
-                </Typography>
-                <BlogSkeleton/>
-            </Box>
-        );
-    }
 
     return (
         <Box>
@@ -51,7 +33,7 @@ export const BlogSection: React.FC<Props> = ({posts, baseApiUrl, isLoading, dict
                 {dict.blogSection.title}
             </Typography>
 
-            {posts.length > 0 ? (
+            {isLoading ? <BlogSkeleton/> : posts.length > 0 ? (
                 isMobile ? (
                     <Swiper
                         modules={[Pagination]}
@@ -82,9 +64,19 @@ export const BlogSection: React.FC<Props> = ({posts, baseApiUrl, isLoading, dict
                         ))}
                     </Swiper>
                 ) : (
-                    <Grid container spacing={theme.spacing(3)} justifyContent="center">
+                    <Box
+                        sx={{
+                            display: 'grid',
+                            gap: theme.spacing(3),
+                            gridTemplateColumns: {
+                                sm: 'repeat(2, 1fr)',
+                                md: 'repeat(3, 1fr)',
+                            },
+                            justifyContent: 'center',
+                        }}
+                    >
                         {posts.map((post: Post) => (
-                            <Grid item xs={12} sm={6} md={4} key={post.id}>
+                            <Box key={post.id}>
                                 <PostCard
                                     post={post}
                                     baseApiUrl={baseApiUrl}
@@ -94,16 +86,14 @@ export const BlogSection: React.FC<Props> = ({posts, baseApiUrl, isLoading, dict
                                     showAdminControls={false}
                                     dict={dict.dialog}
                                 />
-                            </Grid>
+                            </Box>
                         ))}
-                    </Grid>
+                    </Box>
                 )
             ) : (
-                <Grid item xs={12}>
-                    <Typography variant="h6" color="text.secondary" align="center">
-                        {dict.blogSection.empty}
-                    </Typography>
-                </Grid>
+                <Typography variant="h6" color="text.secondary" align="center">
+                    {dict.blogSection.empty}
+                </Typography>
             )}
 
             {posts.length > 0 && (

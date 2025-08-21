@@ -1,19 +1,11 @@
 "use client";
 
 import React, {useEffect, useState} from "react";
-import {Box, Container, Grid, IconButton, Link, Paper, Typography, useTheme} from "@mui/material";
+import {Box, Container, IconButton, Link, Paper, Typography, useTheme} from "@mui/material";
 import {socialLinks} from "@/constants/socialLinks";
+import {FooterDict} from "@/types/dict";
 
-
-interface Props {
-    dict: {
-        tagline: string,
-        companyName: string,
-        copyright: string,
-    }
-}
-
-export const Footer: React.FC<Props> = ({ dict }) => {
+export const Footer: React.FC<{ dict: FooterDict }> = ({ dict }) => {
     const [year, setYear] = useState(new Date().getFullYear());
     const theme = useTheme();
 
@@ -31,61 +23,65 @@ export const Footer: React.FC<Props> = ({ dict }) => {
             }}
         >
             <Container maxWidth="xl">
-                <Grid container justifyContent="center" alignItems="center" flexDirection="column" spacing={2}>
-                    <Grid item xs={12} md={8} lg={6}>
-                        <Box sx={{ textAlign: "center" }}>
-                            <Typography variant="h6" sx={{ mb: { xs: 1, md: 2 }, fontWeight: 600 }}>
-                                POLTAVA SUPERABRASIVES
-                            </Typography>
-                            <Typography
-                                variant="body2"
-                                sx={{
-                                    maxWidth: '40ch',
-                                    mx: "auto",
-                                    lineHeight: 1.5,
-                                }}
-                            >
-                                {dict.tagline}
-                            </Typography>
-                        </Box>
-                    </Grid>
+                <Box
+                    sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        gap: theme.spacing(2),
+                    }}
+                >
+                    <Box sx={{ textAlign: "center" }}>
+                        <Typography variant="h6" sx={{ mb: { xs: 1, md: 2 }, fontWeight: 600 }}>
+                            POLTAVA SUPERABRASIVES
+                        </Typography>
+                        <Typography
+                            variant="body2"
+                            sx={{
+                                maxWidth: '40ch',
+                                mx: "auto",
+                                lineHeight: 1.5,
+                            }}
+                        >
+                            {dict.tagline}
+                        </Typography>
+                    </Box>
 
-                    <Grid item xs={12}>
-                        <Box sx={{
-                            display: "flex",
-                            justifyContent: "center",
-                            gap: theme.spacing(1)
-                        }}>
-                            {socialLinks.map((social, index) => {
-                                const IconComponent = social.icon;
-                                return (
-                                    <Link
-                                        key={index}
-                                        href={social.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
+                    <Box sx={{
+                        display: "flex",
+                        justifyContent: "center",
+                        gap: theme.spacing(1)
+                    }}>
+                        {socialLinks.map((social, index) => {
+                            const IconComponent = social.icon;
+                            return (
+                                <Link
+                                    key={index}
+                                    href={social.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    color="inherit"
+                                >
+                                    <IconButton
+                                        sx={{
+                                            border: "1px solid",
+                                            borderColor: "divider",
+                                            "&:hover": {
+                                                color: social.hoverColor,
+                                                borderColor: social.hoverColor,
+                                            },
+                                        }}
                                         color="inherit"
                                     >
-                                        <IconButton
-                                            sx={{
-                                                border: "1px solid",
-                                                borderColor: "divider",
-                                                "&:hover": {
-                                                    color: social.hoverColor,
-                                                    borderColor: social.hoverColor,
-                                                },
-                                            }}
-                                            color="inherit"
-                                        >
-                                            <IconComponent />
-                                        </IconButton>
-                                    </Link>
-                                );
-                            })}
-                        </Box>
-                    </Grid>
+                                        <IconComponent />
+                                    </IconButton>
+                                </Link>
+                            );
+                        })}
+                    </Box>
 
-                    <Grid item xs={12}>
+                    <Box>
                         <Typography variant="body2" sx={{ textAlign: "center" }}>
                             <Link
                                 href="https://pdt.tools/"
@@ -97,8 +93,8 @@ export const Footer: React.FC<Props> = ({ dict }) => {
                             <br />
                             {dict.copyright} {year}.
                         </Typography>
-                    </Grid>
-                </Grid>
+                    </Box>
+                </Box>
             </Container>
         </Paper>
     );

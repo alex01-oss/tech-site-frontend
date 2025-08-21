@@ -10,28 +10,10 @@ import {Search} from "@/components/catalog/Search";
 import {ProductSkeleton} from "@/components/skeletons/TableSkeleton";
 import {ProductsTable} from "@/components/catalog/ProductsTable";
 import {ScrollToTop} from "@/components/ui/ScrollToTop";
+import {CatalogPageDict} from "@/types/dict";
 
-interface Props {
-    dict: {
-        productCard: any,
-        catalog: {
-            emptyState: {
-                noItemsFound: string,
-                startTyping: string,
-            },
-            controls: {
-                filters: any,
-                search: any,
-            }
-        },
-        titles: {
-            "Grinding Wheels": string,
-            "Hybrid bounded wheels": string,
-        }
-    }
-}
 
-export const CatalogPage: React.FC<Props> = ({dict}) => {
+export const CatalogPage: React.FC<{ dict: CatalogPageDict }> = ({dict}) => {
     const theme = useTheme();
     const itemsPerPage = useGridItemsPerPage();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));

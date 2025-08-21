@@ -2,46 +2,19 @@
 
 import {useAuthStore} from "@/features/auth/store";
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
-import {
-    Avatar,
-    Box,
-    Button,
-    Container,
-    Divider,
-    List,
-    ListItem,
-    ListItemText,
-    Paper,
-    Typography,
-    useTheme
-} from "@mui/material";
+import {Box, Button, Divider, List, ListItem, ListItemText, Paper, Typography, useTheme} from "@mui/material";
 import {useCartStore} from "@/features/cart/store";
 import {enqueueSnackbar} from "notistack";
 import EditIcon from "@mui/icons-material/Edit";
 import React from "react";
+import {ProfilePageDict} from "@/types/dict";
+import {UserAvatar} from "@/components/ui/UserAvatar";
 
-interface Props {
-    dict: {
-        title: string;
-        edit: string;
-        contactInfo: string;
-        activity: string;
-        cartItems: string;
-        logout: string;
-        logoutSuccess: string;
-        logoutError: string;
-        loginRequired: string;
-        email: string;
-        phone: string;
-    }
-}
-
-export const ProfilePage: React.FC<Props> = ({dict}) => {
-    const {user, logout} = useAuthStore();
+export const ProfilePage: React.FC<{ dict: ProfilePageDict }> = ({dict}) => {
     const router = useNavigatingRouter();
-    const theme = useTheme();
-
+    const {user, logout, isAuthenticated} = useAuthStore();
     const {cartCount} = useCartStore();
+    const theme = useTheme();
 
     const handleLogout = async () => {
         try {
@@ -53,30 +26,7 @@ export const ProfilePage: React.FC<Props> = ({dict}) => {
         }
     };
 
-    if (!user) {
-        return (
-            <Container maxWidth="lg" sx={{mt: theme.spacing(4)}}>
-                <Typography variant="h6" align="center">{dict.loginRequired}</Typography>
-            </Container>
-        );
-    }
-
-    const renderUserAvatar = () => (
-        <Avatar
-            sx={{
-                width: theme.spacing(12),
-                height: theme.spacing(12),
-                fontSize: theme.spacing(6),
-            }}
-        >
-            {user.full_name
-                ?.split(" ")
-                .filter(Boolean)
-                .slice(0, 2)
-                .map((word: string) => word[0]?.toUpperCase())
-                .join("")}
-        </Avatar>
-    );
+    if (!user) return <Typography variant="h6" align="center">{dict.loginRequired}</Typography>
 
     return (
         <Paper elevation={3}
@@ -87,7 +37,11 @@ export const ProfilePage: React.FC<Props> = ({dict}) => {
                 mb: {xs: theme.spacing(2), sm: theme.spacing(3)},
                 flexDirection: {xs: 'column', md: 'row'}
             }}>
-                {renderUserAvatar()}
+                <UserAvatar
+                    user={user}
+                    isAuthenticated={isAuthenticated}
+                    size="large"
+                />
                 <Box sx={{
                     ml: {xs: 0, md: theme.spacing(4)},
                     mt: {xs: theme.spacing(2), md: 0},

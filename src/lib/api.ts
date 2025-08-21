@@ -52,12 +52,14 @@ api.interceptors.response.use(
                     processQueue(null, null);
                     return api(originalRequest);
                 } else {
-                    throw new Error("Refresh failed: Token invalid or expired.");
+                    const refreshError = new Error("Refresh failed: Token invalid or expired.");
+                    processQueue(refreshError);
+                    useAuthStore.getState().clearAuth();
+                    return Promise.reject(refreshError);
                 }
             } catch (refreshError) {
                 processQueue(refreshError);
                 useAuthStore.getState().clearAuth();
-
                 return Promise.reject(refreshError);
             } finally {
                 isRefreshing = false;

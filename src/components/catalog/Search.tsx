@@ -8,32 +8,19 @@ import {AutocompleteSearchField} from "@/components/catalog/SearchField";
 import {FiltersPanel} from "@/components/catalog/FiltersPanel";
 import {useCatalogStore} from "@/features/catalog/store";
 import {SearchFields} from "@/types/searchFields";
+import {SearchDict} from "@/types/dict";
 
 
-interface SearchProps {
+interface Props {
     onSearch: (searchFields: Partial<SearchFields>) => void;
     currentSearchFields: SearchFields;
     currentFilters: Record<string, Set<number>>;
     onFilterToggle: (categoryTitle: string, itemValue: number, checked: boolean) => void;
     onClearAllFilters: () => void;
-    dict: {
-        filters: any,
-        search: {
-            search: string,
-            filters: string,
-            apply: string,
-            clearAll: string,
-            params: string,
-            code: string,
-            shape: string,
-            dimensions: string,
-            machine: string,
-            field: any
-        }
-    }
+    dict: SearchDict
 }
 
-export const Search: React.FC<SearchProps> = memo(({
+export const Search: React.FC<Props> = memo(({
     onSearch,
     currentSearchFields,
     currentFilters,
@@ -87,7 +74,7 @@ export const Search: React.FC<SearchProps> = memo(({
         setOpenFiltersDrawer(false);
     }, [fields, onSearch]);
 
-    const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
+    const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
         if (e.key === 'Enter') handleSearch();
     }, [handleSearch]);
 
@@ -115,7 +102,7 @@ export const Search: React.FC<SearchProps> = memo(({
                 {...f}
                 value={fields[f.type] || ""}
                 onChange={handleChange}
-                onKeyPress={handleKeyPress}
+                onKeyDown={handleKeyDown}
                 isMobile={isMobile}
                 dict={dict.search.field}
             />

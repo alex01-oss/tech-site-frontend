@@ -3,11 +3,7 @@
 import React from 'react';
 import {Box, Skeleton, useTheme} from '@mui/material';
 
-interface Props {
-    isMobileDrawer?: boolean;
-}
-
-export const FiltersSkeleton: React.FC<Props> = ({isMobileDrawer = false}) => {
+export const FiltersSkeleton: React.FC<{ isMobileDrawer?: boolean; }> = ({isMobileDrawer = false}) => {
     const theme = useTheme();
     const toolbarHeight = theme.mixins.toolbar.minHeight as number;
     const minWidthNumber = parseInt(theme.spacing(7.5).toString());

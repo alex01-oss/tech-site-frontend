@@ -3,17 +3,13 @@
 import {Card, Link, Stack, Typography, useTheme} from '@mui/material';
 import React from 'react';
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
+import {AuthLayoutDict} from "@/types/dict";
 
 interface AuthCardLayoutProps {
     title: string;
     children: React.ReactNode;
     isLogin?: boolean;
-    dict: {
-        haveAccount: string;
-        noAccount: string;
-        signUp: string;
-        signIn: string;
-    }
+    dict: AuthLayoutDict
 }
 
 export const AuthCardLayout: React.FC<AuthCardLayoutProps> = ({
