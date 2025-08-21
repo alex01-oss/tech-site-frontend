@@ -17,7 +17,7 @@ export const CategoriesSection: React.FC<{ dict: CategoriesSectionDict }> = ({di
 
     useEffect(() => {
         void fetchCategories();
-    }, [fetchCategories]);
+    }, []);
 
     if (categoriesLoading) {
         const placeholders = Array.from({length: 2});

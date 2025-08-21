@@ -33,9 +33,7 @@ export const useDataStore = create<DataState>()(
         categoriesFetched: false,
 
         fetchFilters: async (categoryId: number | null) => {
-            if (get().filtersLoading) {
-                return;
-            }
+            if (get().filtersLoading) return
             try {
                 set({filtersLoading: true, filtersError: null});
                 const response = await dataApi.getFilters(categoryId);
@@ -49,9 +47,7 @@ export const useDataStore = create<DataState>()(
         },
 
         fetchCategories: async () => {
-            if (get().categoriesFetched) {
-                return;
-            }
+            if (get().categoriesFetched || get().categoriesLoading) return;
             try {
                 set({categoriesLoading: true, categoriesError: null});
                 const response = await dataApi.getCategories();

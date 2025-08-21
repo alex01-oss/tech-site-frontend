@@ -41,7 +41,7 @@ export const useCatalogStore = create<CatalogState>()(
             totalItems: 0,
             totalPages: 0,
             currentPage: 1,
-            itemsPerPage: 8,
+            itemsPerPage: 12,
             categoryName: null,
             categoryId: null,
             search: {

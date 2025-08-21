@@ -80,7 +80,7 @@ export const Navbar: React.FC<{ dict: NavbarDict }> = ({dict}) => {
 
     useEffect(() => {
         if (isAuthenticated) void fetchCartCount();
-    }, [isAuthenticated, fetchCartCount]);
+    }, [isAuthenticated]);
 
     const handleLanguageChange = (lang: string) => {
         replaceLanguage(lang);
@@ -89,9 +89,8 @@ export const Navbar: React.FC<{ dict: NavbarDict }> = ({dict}) => {
     };
 
     const handleCartClick = () => {
-        if (isAuthenticated) {
-            push("/cart");
-        } else {
+        if (isAuthenticated) push("/cart");
+        else {
             enqueueSnackbar(dict.authRequired, {
                 variant: "error",
                 action: (

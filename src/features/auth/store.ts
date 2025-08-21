@@ -27,11 +27,13 @@ export const useAuthStore = create<AuthState>()(
     (set, get) => ({
         user: null,
         isAuthenticated: false,
-        initializing: true,
+        initializing: false,
         loading: false,
         error: null,
 
         initialize: async () => {
+            if (get().initializing) return;
+
             set({initializing: true, error: null});
 
             try {
