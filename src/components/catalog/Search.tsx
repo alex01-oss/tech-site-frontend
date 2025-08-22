@@ -9,6 +9,7 @@ import {FiltersPanel} from "@/components/catalog/FiltersPanel";
 import {useCatalogStore} from "@/features/catalog/store";
 import {SearchFields} from "@/types/searchFields";
 import {SearchDict} from "@/types/dict";
+import ClearIcon from "@mui/icons-material/Clear";
 
 
 interface Props {
@@ -138,6 +139,8 @@ export const Search: React.FC<Props> = memo(({
                 fullWidth
                 onClick={() => setOpenSearchDrawer(true)}
                 startIcon={<SearchIcon />}
+                aria-haspopup="dialog"
+                aria-controls="mobile-search-drawer"
                 sx={{
                     ...buttonStyle,
                     boxShadow: 'none',
@@ -152,6 +155,8 @@ export const Search: React.FC<Props> = memo(({
                 fullWidth
                 onClick={() => setOpenFiltersDrawer(true)}
                 startIcon={<TuneIcon />}
+                aria-haspopup="dialog"
+                aria-controls="mobile-filters-drawer"
                 sx={{
                     ...buttonStyle,
                     borderColor: theme.palette.grey[300],
@@ -168,8 +173,8 @@ export const Search: React.FC<Props> = memo(({
             {mobileDrawer(openSearchDrawer, setOpenSearchDrawer, (
                 <>
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={theme.spacing(1)}>
-                        <Typography variant="h6">{dict.search.params}</Typography>
-                        <IconButton onClick={() => setOpenSearchDrawer(false)}>
+                        <Typography variant="h6" component="h2">{dict.search.params}</Typography>
+                        <IconButton onClick={() => setOpenSearchDrawer(false)} aria-label={dict.search.close}>
                             <CloseIcon />
                         </IconButton>
                     </Box>
@@ -194,6 +199,7 @@ export const Search: React.FC<Props> = memo(({
                         variant="outlined"
                         fullWidth
                         onClick={() => FIXED_SEARCH_FIELDS_CONFIG.forEach(f => handleChange(f.type, ''))}
+                        startIcon={<ClearIcon />}
                         sx={{
                             ...buttonStyle,
                             height: theme.spacing(6.25),
@@ -230,6 +236,7 @@ export const Search: React.FC<Props> = memo(({
                 borderRadius: theme.shape.borderRadius,
                 overflow: 'hidden',
             }}
+            role="search"
         >
             {renderSearchFields()}
             <Button

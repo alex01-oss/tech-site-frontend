@@ -10,7 +10,6 @@ import {
     IconButton,
     List,
     ListItem,
-    ListItemText,
     Typography,
     useTheme,
 } from "@mui/material";
@@ -49,7 +48,7 @@ export const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
     const toolbarHeight = theme.mixins.toolbar.minHeight as number;
 
     return filtersLoading
-        ? <FiltersSkeleton isMobileDrawer={isMobileDrawer} />
+        ? <FiltersSkeleton isMobileDrawer={isMobileDrawer}/>
         : (
             <Box
                 sx={{
@@ -80,12 +79,12 @@ export const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
                     sx={{px: isMobileDrawer ? 0 : theme.spacing(3)}}
                 >
                     {isMobileDrawer && (
-                        <Typography variant="h6" component="div">
+                        <Typography variant="h6" component="h2">
                             {dict.filters}
                         </Typography>
                     )}
                     {onClose && (
-                        <IconButton onClick={onClose} aria-label="close filters">
+                        <IconButton onClick={onClose} aria-label={dict.closeFilters}>
                             <CloseIcon/>
                         </IconButton>
                     )}
@@ -93,11 +92,11 @@ export const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
 
                 {filtersLoading && (
                     <Typography sx={{my: theme.spacing(2), textAlign: 'center'}}>
-                        <CircularProgress/>
+                        <CircularProgress aria-label={dict.loadingFilters}/>
                     </Typography>
                 )}
                 {filtersError && (
-                    <Typography color="error" sx={{my: theme.spacing(2), textAlign: 'center'}}>
+                    <Typography color="error" sx={{my: theme.spacing(2), textAlign: 'center'}} role="alert">
                         {dict.error} {filtersError}
                     </Typography>
                 )}
@@ -116,6 +115,7 @@ export const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
                                 {isMobileDrawer ? (
                                     <>
                                         <Typography variant="subtitle1"
+                                                    component="h2"
                                                     sx={{fontWeight: theme.typography.fontWeightBold}}>
                                             {translatedTitle}
                                         </Typography>
@@ -124,16 +124,17 @@ export const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
                                 ) : (
                                     <List disablePadding>
                                         <ListItem disablePadding sx={{py: theme.spacing(1)}}>
-                                            <ListItemText
-                                                primary={translatedTitle}
+                                            <Typography
+                                                variant="h6"
+                                                component="h2"
                                                 sx={{
-                                                    "& .MuiTypography-root": {
-                                                        fontWeight: theme.typography.fontWeightBold,
-                                                        color: theme.palette.primary.main,
-                                                        ml: theme.spacing(2),
-                                                    },
+                                                    fontWeight: theme.typography.fontWeightBold,
+                                                    color: theme.palette.primary.main,
+                                                    ml: theme.spacing(2),
                                                 }}
-                                            />
+                                            >
+                                                {translatedTitle}
+                                            </Typography>
                                         </ListItem>
                                     </List>
                                 )}

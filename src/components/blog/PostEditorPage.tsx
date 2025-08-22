@@ -163,11 +163,11 @@ export const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) 
         }
     }, [formState, isNewPost, postId, router, enqueueSnackbar, hasImage]);
 
-    if (isLoading) return <Spinner/>;
+    if (isLoading) return <Spinner aria-label={dict.loading} />;
 
     if (error && mode === 'edit') {
         return (
-            <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="100vh">
+            <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="100vh" role="alert">
                 <Typography color="error" variant="h6">{error}</Typography>
                 <Button onClick={() => router.back()} sx={{mt: theme.spacing(2)}}>{dict.goBack}</Button>
             </Box>
@@ -183,27 +183,33 @@ export const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) 
                 value={formState.title}
                 onChange={handleTitleChange}
                 required
+                id="post-title-input"
             />
 
             <Card variant="outlined" sx={{borderRadius: theme.shape.borderRadius}}>
                 <CardContent>
-                    <Typography variant="h6" gutterBottom>{dict.image}</Typography>
+                    <Typography variant="h6" component="h2" gutterBottom>{dict.image}</Typography>
                     <input
                         accept="image/*"
                         style={{display: 'none'}}
                         id="upload-image-button"
                         type="file"
                         onChange={handleImageChange}
+                        aria-describedby="upload-image-button-description"
                     />
                     <label htmlFor="upload-image-button">
                         <Button
                             variant="contained"
                             component="span"
                             startIcon={<AddPhotoAlternateIcon/>}
+                            aria-describedby="upload-image-button-description"
                         >
                             {hasImage ? dict.changeImage : dict.pickImage}
                         </Button>
                     </label>
+                    <Typography id="upload-image-button-description" sx={{display: 'none'}}>
+                        {dict.uploadImageDescription}
+                    </Typography>
 
                     {hasImage && previewImage && (
                         <Box sx={{mt: theme.spacing(2), position: 'relative', width: '100%', height: 200}}>
@@ -228,6 +234,7 @@ export const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) 
                                         backgroundColor: theme.palette.mode === 'dark' ? 'rgba(0,0,0,0.9)' : 'rgba(255,255,255,0.9)'
                                     }
                                 }}
+                                aria-label={dict.clearImage}
                             >
                                 <DeleteIcon color="error"/>
                             </IconButton>
@@ -238,7 +245,7 @@ export const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) 
 
             <Card variant="outlined" sx={{borderRadius: theme.shape.borderRadius}}>
                 <CardContent>
-                    <Typography variant="h6" gutterBottom>{dict.contentEditorTitle}</Typography>
+                    <Typography variant="h6" component="h2" gutterBottom>{dict.contentEditorTitle}</Typography>
                     <Editor
                         key={editorKey}
                         onInit={(_, editor) => editorRef.current = editor}
@@ -265,6 +272,7 @@ export const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) 
                                 body { font-family: ${theme.typography.fontFamily}; font-size: 14px; background-color: ${theme.palette.background.default}; color: ${theme.palette.text.primary}; }
                                 h1, h2, h3, h4, h5, h6, p, a { color: ${theme.palette.text.primary}; }
                             `,
+                            title: dict.contentEditorTitle
                         }}
                     />
                 </CardContent>
@@ -278,7 +286,7 @@ export const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) 
                 fullWidth
                 startIcon={<SaveIcon/>}
             >
-                {isSaving ? <CircularProgress size={24}/> : (isNewPost ? dict.createPost : dict.updatePost)}
+                {isSaving ? <CircularProgress size={24} aria-label={dict.saving} /> : (isNewPost ? dict.createPost : dict.updatePost)}
             </Button>
         </Box>
     );

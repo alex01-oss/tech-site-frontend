@@ -47,14 +47,15 @@ export const SignIn: React.FC<{dict: LoginPageDict}> = ({dict}) => {
             initialValues={{email: "", password: ""}}
             validationSchema={getSignInSchema(dict.login)}
             onSubmitAction={handleSubmit}
-            dict={dict.authLayout}
+            dict={dict.formWrapper}
         >
             <FormControl fullWidth margin="normal">
                 <Field
                     as={TextField}
                     type="email"
-                    label={dict.login.emailLabel}
                     name="email"
+                    label={dict.login.emailLabel}
+                    id="login-email-input"
                     required
                     helperText={<ErrorMessage name="email"/>}
                 />
@@ -62,9 +63,9 @@ export const SignIn: React.FC<{dict: LoginPageDict}> = ({dict}) => {
             <PasswordField
                 name="password"
                 label={dict.login.passwordLabel}
+                dict={dict.passwordField}
                 required
             />
-            <ErrorMessage name="password"/>
         </FormWrapper>
     );
 }

@@ -19,14 +19,14 @@ export const ProfilePage: React.FC<{ dict: ProfilePageDict }> = ({dict}) => {
     const handleLogout = async () => {
         try {
             await logout();
-            enqueueSnackbar(dict.logoutSuccess, {variant: 'success'});
+            enqueueSnackbar(dict.profile.logoutSuccess, {variant: 'success'});
             router.push('/');
         } catch (error) {
-            enqueueSnackbar(dict.logoutError, {variant: 'error'});
+            enqueueSnackbar(dict.profile.logoutError, {variant: 'error'});
         }
     };
 
-    if (!user) return <Typography variant="h6" align="center">{dict.loginRequired}</Typography>
+    if (!user) return <Typography variant="h6" align="center">{dict.profile.loginRequired}</Typography>
 
     return (
         <Paper elevation={3}
@@ -41,6 +41,7 @@ export const ProfilePage: React.FC<{ dict: ProfilePageDict }> = ({dict}) => {
                     user={user}
                     isAuthenticated={isAuthenticated}
                     size="large"
+                    dict={dict.avatar}
                 />
                 <Box sx={{
                     ml: {xs: 0, md: theme.spacing(4)},
@@ -57,7 +58,7 @@ export const ProfilePage: React.FC<{ dict: ProfilePageDict }> = ({dict}) => {
                         onClick={() => router.push("/profile/edit")}
                         startIcon={<EditIcon/>}
                     >
-                        {dict.edit}
+                        {dict.profile.edit}
                     </Button>
                 </Box>
             </Box>
@@ -65,13 +66,13 @@ export const ProfilePage: React.FC<{ dict: ProfilePageDict }> = ({dict}) => {
             <Divider sx={{my: {xs: theme.spacing(2), sm: theme.spacing(3)}}}/>
 
             <Box sx={{display: 'flex', flexDirection: 'column', gap: theme.spacing(2)}}>
-                <Typography variant="h6">{dict.contactInfo}</Typography>
+                <Typography variant="h6" component="h2">{dict.profile.contactInfo}</Typography>
                 <List disablePadding>
                     <ListItem disablePadding>
-                        <ListItemText primary={dict.email} secondary={user.email}/>
+                        <ListItemText primary={dict.profile.email} secondary={user.email}/>
                     </ListItem>
                     <ListItem disablePadding>
-                        <ListItemText primary={dict.phone} secondary={user.phone || 'N/A'}/>
+                        <ListItemText primary={dict.profile.phone} secondary={user.phone || 'N/A'}/>
                     </ListItem>
                 </List>
             </Box>
@@ -79,10 +80,10 @@ export const ProfilePage: React.FC<{ dict: ProfilePageDict }> = ({dict}) => {
             <Divider sx={{my: {xs: theme.spacing(2), sm: theme.spacing(3)}}}/>
 
             <Box>
-                <Typography variant="h6">{dict.activity}</Typography>
+                <Typography variant="h6" component="h2">{dict.profile.activity}</Typography>
                 <List>
                     <ListItem>
-                        <ListItemText primary={dict.cartItems} secondary={cartCount}/>
+                        <ListItemText primary={dict.profile.cartItems} secondary={cartCount}/>
                     </ListItem>
                 </List>
             </Box>
@@ -91,7 +92,7 @@ export const ProfilePage: React.FC<{ dict: ProfilePageDict }> = ({dict}) => {
 
             <Box>
                 <Button variant="contained" color="primary" onClick={handleLogout}>
-                    {dict.logout}
+                    {dict.profile.logout}
                 </Button>
             </Box>
         </Paper>

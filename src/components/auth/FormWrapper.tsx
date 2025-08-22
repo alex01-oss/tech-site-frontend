@@ -4,6 +4,7 @@ import React from 'react';
 import {Button, CircularProgress, useTheme} from '@mui/material';
 import {Form, Formik, FormikConfig} from 'formik';
 import {AuthCardLayout} from "@/components/layout/AuthCardLayout";
+import {FormWrapperDict} from "@/types/dict";
 
 interface Props<T> {
     title: string;
@@ -14,7 +15,7 @@ interface Props<T> {
     loading: boolean;
     submitText: string;
     children: React.ReactNode;
-    dict: any
+    dict: FormWrapperDict
 }
 
 export const FormWrapper = <T extends object>({
@@ -31,13 +32,13 @@ export const FormWrapper = <T extends object>({
     const theme = useTheme();
 
     return (
-        <AuthCardLayout title={title} isLogin={isLogin} dict={dict}>
+        <AuthCardLayout title={title} isLogin={isLogin} dict={dict.authLayout}>
             <Formik
                 initialValues={initialValues}
                 validationSchema={validationSchema}
                 onSubmit={onSubmitAction}
             >
-                <Form>
+                <Form role="form">
                     {children}
                     <Button
                         type="submit"
@@ -46,7 +47,9 @@ export const FormWrapper = <T extends object>({
                         disabled={loading}
                         sx={{mt: theme.spacing(2), height: theme.spacing(5)}}
                     >
-                        {loading ? <CircularProgress size={theme.spacing(3)}/> : submitText}
+                        {loading
+                            ? <CircularProgress size={theme.spacing(3)} aria-label={dict.loadingLabel} />
+                            : submitText}
                     </Button>
                 </Form>
             </Formik>

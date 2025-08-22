@@ -1,15 +1,17 @@
 import React from 'react';
 import { Avatar, useTheme } from '@mui/material';
 import {User} from "@/features/auth/types";
+import {AvatarDict} from "@/types/dict";
 
 interface UserAvatarProps {
     user: User | null;
     isAuthenticated: boolean;
     size: 'small' | 'large';
     onClick?: () => void;
+    dict: AvatarDict
 }
 
-export const UserAvatar: React.FC<UserAvatarProps> = ({ user, isAuthenticated, size, onClick }) => {
+export const UserAvatar: React.FC<UserAvatarProps> = ({ user, isAuthenticated, size, onClick, dict }) => {
     const theme = useTheme();
 
     const getInitials = (fullName: string | undefined): string => {
@@ -35,8 +37,16 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({ user, isAuthenticated, s
         }),
     };
 
+    const label = isAuthenticated && user?.full_name ? dict.userAvatar.replace('{userName}', user.full_name) : dict.logIn;
+
     return (
-        <Avatar onClick={onClick} sx={avatarSx}>
+        <Avatar
+            onClick={onClick}
+            sx={avatarSx}
+            aria-label={label}
+            role={onClick ? "button" : undefined}
+            tabIndex={onClick ? 0 : undefined}
+        >
             {isAuthenticated && user?.full_name ? getInitials(user.full_name) : ''}
         </Avatar>
     );

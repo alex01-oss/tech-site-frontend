@@ -28,31 +28,41 @@ export function PostDetailPage({initialPost, postId, baseApiUrl, dict}: Props) {
             setIsLoading(true);
             blogApi.fetchPost(postId)
                 .then(fetchedPost => {
-                    if (!fetchedPost) return
+                    if (!fetchedPost) {
+                        setError(dict.notFound);
+                        return;
+                    }
                     setPost(fetchedPost);
                 })
                 .catch(err => {
                     console.error("Failed to fetch post data:", err);
-                    setError(err.message || 'Failed to load post data.');
+                    setError(err.message || dict.failedToLoad);
                 })
                 .finally(() => {
                     setIsLoading(false);
                 });
         }
-    }, [postId, post, router]);
+    }, [postId, post, router, dict.notFound, dict.failedToLoad]);
 
-    if (isLoading) return <Spinner/>
+    if (isLoading) return <Spinner aria-label={dict.loadingPost} />
 
     if (error) {
         return (
-            <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="100vh">
+            <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="100vh" role="alert">
                 <Typography color="error" variant="h6">{error}</Typography>
                 <Button onClick={() => router.back()} sx={{mt: theme.spacing(2)}}>{dict.goBack}</Button>
             </Box>
         );
     }
 
-    if (!post) return null
+    if (!post) {
+        return (
+            <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="100vh" role="alert">
+                <Typography color="error" variant="h6">{dict.notFound}</Typography>
+                <Button onClick={() => router.back()} sx={{mt: theme.spacing(2)}}>{dict.goBack}</Button>
+            </Box>
+        );
+    }
 
     const createMarkup = (htmlString: string) => {
         return {__html: htmlString};

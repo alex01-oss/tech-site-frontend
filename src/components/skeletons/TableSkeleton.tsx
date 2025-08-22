@@ -1,11 +1,15 @@
 import React from "react";
 import {Box, Skeleton, useTheme} from "@mui/material";
 
-export const ProductSkeleton = ({count = 12}: { count?: number; }) => {
+export const ProductSkeleton = ({ count = 12 }: { count?: number; }) => {
     const theme = useTheme();
 
     return (
         <Box
+            component="ul"
+            role="status"
+            aria-live="polite"
+            aria-label="Завантаження товарів"
             sx={{
                 display: 'grid',
                 gap: {xs: theme.spacing(2), sm: theme.spacing(3)},
@@ -14,12 +18,15 @@ export const ProductSkeleton = ({count = 12}: { count?: number; }) => {
                     md: 'repeat(3, 1fr)',
                     lg: 'repeat(4, 1fr)',
                 },
+                listStyle: 'none',
+                p: 0,
+                m: 0,
             }}
         >
             {Array(count)
                 .fill(0)
                 .map((_, index) => (
-                    <Box key={`skeleton-${index}`}>
+                    <Box component="li" key={`skeleton-${index}`}>
                         <Box
                             sx={{
                                 display: "flex",
@@ -111,4 +118,4 @@ export const ProductSkeleton = ({count = 12}: { count?: number; }) => {
                 ))}
         </Box>
     );
-};
+}

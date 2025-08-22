@@ -50,7 +50,7 @@ export const SignUp: React.FC<{ dict: RegisterPageDict }> = ({dict}) => {
             initialValues={{fullname: "", email: "", phone: "", password: "", agreeToPrivacy: false}}
             validationSchema={getSignUpSchema(dict.register)}
             onSubmitAction={handleSubmit}
-            dict={dict.authLayout}
+            dict={dict.formWrapper}
         >
             <FormControl fullWidth margin="normal">
                 <Field
@@ -58,6 +58,7 @@ export const SignUp: React.FC<{ dict: RegisterPageDict }> = ({dict}) => {
                     label={dict.register.fullNameLabel}
                     type="text"
                     name="fullname"
+                    id="signup-fullname-input"
                     required
                     helperText={<ErrorMessage name="fullname"/>}
                 />
@@ -68,6 +69,7 @@ export const SignUp: React.FC<{ dict: RegisterPageDict }> = ({dict}) => {
                     label={dict.register.emailLabel}
                     type="email"
                     name="email"
+                    id="signup-email-input"
                     required
                     helperText={<ErrorMessage name="email"/>}
                 />
@@ -78,6 +80,7 @@ export const SignUp: React.FC<{ dict: RegisterPageDict }> = ({dict}) => {
                     label={dict.register.phoneLabel}
                     type="tel"
                     name="phone"
+                    id="signup-phone-input"
                     required
                     helperText={<ErrorMessage name="phone"/>}
                 />
@@ -85,6 +88,7 @@ export const SignUp: React.FC<{ dict: RegisterPageDict }> = ({dict}) => {
             <PasswordField
                 name="password"
                 label={dict.register.passwordLabel}
+                dict={dict.passwordField}
                 required
             />
             <FormControl fullWidth margin="normal">

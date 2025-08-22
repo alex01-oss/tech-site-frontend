@@ -50,11 +50,19 @@
         "passwordRequired": "Password is required"
       }
     },
-    "authLayout": {
-      "haveAccount": "Already have an account?",
-      "noAccount": "Don't have an account?",
-      "signUp": "Sign up",
-      "signIn": "Sign in"
+    "formWrapper": {
+      "authLayout": {
+        "haveAccount": "Already have an account?",
+        "noAccount": "Don't have an account?",
+        "signUp": "Sign up",
+        "signIn": "Sign in",
+        "authFormLabel": "Authentication form"
+      },
+      "loadingLabel": "Submitting form, please wait..."
+    },
+    "passwordField": {
+      "hidePassword": "Hide password",
+      "showPassword": "Show password"
     }
   },
   "profile": {
@@ -97,6 +105,8 @@
     "deleteAccountFailed": "Failed to delete account.",
     "logoutAllSuccess": "Logged out of all other devices.",
     "logoutAllFailed": "Failed to log out of all devices.",
+    "deletingProcessLabel": "Deleting account...",
+    "submittingLabel": "Saving changes...",
     "validation": {
       "currentPasswordRequired": "Current password is required",
       "newPasswordSame": "New password cannot be the same as the current password",
@@ -105,6 +115,8 @@
     }
   },
   "catalog": {
+    "scrollUp": "Scroll back to top",
+    "loading": "Loading products...",
     "emptyState": {
       "noItemsFound": "No items found for the current filters.",
       "startTyping": "Start typing or select a filter to find items."
@@ -129,7 +141,9 @@
       "inCart": "In Cart",
       "add": "Add to Cart",
       "mm": "mm",
-      "inch": "inch"
+      "inch": "inch",
+      "loadingProduct": "Loading product details...",
+      "productImageAltText": "Image of {productShape}"
     },
     "controls": {
       "filters": {
@@ -137,6 +151,8 @@
         "apply": "Apply",
         "error": "Error:",
         "mm": "mm",
+        "closeFilters": "Close filters",
+        "loadingFilters": "Loading filters...",
         "titles": {
           "grids": "Grid",
           "bonds": "Bond",
@@ -153,8 +169,10 @@
         "shape": "shape",
         "dimensions": "dimensions",
         "machine": "machine",
+        "close": "Close search options",
         "field": {
-          "enter": "Enter"
+          "enter": "Enter",
+          "loading": "Loading..."
         }
       }
     }
@@ -167,7 +185,9 @@
     "remove": "Remove",
     "inCart": "In Cart",
     "add": "Add to cart",
-    "mm": "mm"
+    "mm": "mm",
+    "viewProduct": "View product details for",
+    "imageAlt": "Product image of {productName}"
   },
   "cart": {
     "next": "Next",
@@ -207,6 +227,8 @@
       "notFound": "Nothing found for ",
       "empty": "There are no blog posts yet.",
       "add": "Add post",
+      "searchLabel": "Search blog posts",
+      "clearSearchLabel": "Clear search input",
       "dialog": {
         "deletePost": "Delete Post",
         "editPost": "Edit post",
@@ -216,12 +238,16 @@
         "cancel": "Cancel",
         "delete": "Delete",
         "deleteSuccess": "Post deleted successfully!",
-        "deleteError": "Failed to delete post."
+        "deleteError": "Failed to delete post.",
+        "deletingProcessLabel": "Deleting post..."
       }
     },
     "details": {
       "goBack": "Go back",
-      "published": "Published: "
+      "published": "Published: ",
+      "loadingPost": "Loading post...",
+      "notFound": "Post not found.",
+      "failedToLoad": "Failed to load post data."
     },
     "editor": {
       "loadError": "Failed to load post data.",
@@ -239,12 +265,17 @@
       "previewTitle": "Post Preview",
       "contentEditorTitle": "Content Editor",
       "createPost": "Create Post",
-      "updatePost": "Update Post"
+      "updatePost": "Update Post",
+      "loading": "Loading...",
+      "saving": "Saving post...",
+      "clearImage": "Clear image",
+      "uploadImageDescription": "Upload an image from your computer to use as the post's featured image."
     },
     "blogSection": {
       "title": "Our blog",
       "empty": "No blog posts available yet.",
-      "viewAll": "View All Posts"
+      "viewAll": "View All Posts",
+      "loadingPosts": "Loading blog posts..."
     }
   },
   "aboutUsSection": {
@@ -254,6 +285,9 @@
   "categoriesSection": {
     "title": "Categories",
     "loadError": "Failed to load categories: ",
+    "loadingCategories": "Loading categories...",
+    "categoryImageAlt": "Category image for {categoryName}",
+    "viewCategory": "View category",
     "titles": {
       "Grinding Wheels": "Grinding Wheels",
       "Hybrid bounded wheels": "Hybrid bounded wheels"
@@ -261,13 +295,23 @@
   },
   "videosSection": {
     "title": "Our videos",
-    "empty": "No videos available yet."
+    "empty": "No videos available yet.",
+    "videoCard": {
+      "playVideo": "Play video",
+      "videoThumbnail": "Thumbnail for video"
+    }
   },
   "layout": {
+    "skipToMainContent": "Skip to main content",
     "footer": {
       "tagline": "High-quality industrial abrasives for metalworking, grinding, and polishing. Manufactured to international standards.",
       "companyName": "PJSC «POLTAVA DIAMOND TOOLS»",
       "copyright": "© Copyright"
+    },
+    "avatar": {
+      "profile": "Profile",
+      "userAvatar": "User avatar for {userName}",
+      "logIn": "Log in to your account"
     },
     "navbar": {
       "authRequired": "You must be authorized",
@@ -279,7 +323,9 @@
       "cart": "Shopping Cart",
       "profile": "Profile",
       "logo": "logo",
-      "goBack": "Go back"
+      "goBack": "Go back",
+      "cartCount": "items in cart",
+      "loading": "Loading..."
     }
   }
 }

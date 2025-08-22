@@ -59,6 +59,7 @@ export const PostCard: React.FC<PostCardProps> = ({
     };
 
     const handleCloseDeleteDialog = () => {
+        setIsDeleting(false);
         setOpenDeleteDialog(false);
     };
 
@@ -96,6 +97,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                     },
                 }}
                 onClick={() => router.push(`/blog/${post.id}`)}
+                role="article"
             >
                 <Box sx={{
                     position: 'absolute',
@@ -164,7 +166,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                             onClick={handleDeleteClick}
                             disabled={isDeleting}
                         >
-                            {isDeleting ? <CircularProgress size={24} color="inherit"/> : <DeleteIcon/>}
+                            {isDeleting ? <CircularProgress size={24} color="inherit" aria-label={dict.deletingProcessLabel} /> : <DeleteIcon/>}
                         </IconButton>
                     </Box>
                 )}
@@ -178,6 +180,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                 }}>
                     <Typography
                         variant="h6"
+                        component="h2"
                         sx={{
                             fontWeight: theme.typography.fontWeightBold,
                             textShadow: `1px 1px 4px ${theme.palette.text.primary}`,
@@ -194,7 +197,9 @@ export const PostCard: React.FC<PostCardProps> = ({
                                 textShadow: `1px 1px 2px ${theme.palette.text.primary}`,
                             }}
                         >
-                            {post.content.length > 100 ? `${post.content.replace(/<[^>]*>/g, '').substring(0, 97)}...` : post.content.replace(/<[^>]*>/g, '')}
+                            {post.content.length > 100
+                                ? `${post.content.replace(/<[^>]*>/g, '').substring(0, 97)}...`
+                                : post.content.replace(/<[^>]*>/g, '')}
                         </Typography>
                     )}
                 </Box>
@@ -219,7 +224,9 @@ export const PostCard: React.FC<PostCardProps> = ({
                         {dict.cancel}
                     </Button>
                     <Button onClick={handleConfirmDelete} color="error" disabled={isDeleting} autoFocus>
-                        {isDeleting ? <CircularProgress size={theme.typography.fontSize * 1.5}/> : dict.delete}
+                        {isDeleting
+                            ? <CircularProgress size={theme.typography.fontSize * 1.5} aria-label={dict.deletingProcessLabel} />
+                            : dict.delete}
                     </Button>
                 </DialogActions>
             </Dialog>

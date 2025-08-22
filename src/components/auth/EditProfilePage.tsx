@@ -112,9 +112,9 @@ export const EditProfilePage: React.FC<{ dict: EditProfilePageDict }> = ({ dict 
     };
 
     const personalFields = [
-        { name: 'full_name', label: dict.fullNameLabel },
-        { name: 'email', label: dict.emailLabel },
-        { name: 'phone', label: dict.phoneLabel }
+        { name: 'full_name', label: dict.fullNameLabel, id: 'full-name-input' },
+        { name: 'email', label: dict.emailLabel, id: 'email-input' },
+        { name: 'phone', label: dict.phoneLabel, id: 'phone-input' }
     ];
 
     const passwordFields = [
@@ -149,13 +149,14 @@ export const EditProfilePage: React.FC<{ dict: EditProfilePageDict }> = ({ dict 
                 {({ isSubmitting }) => (
                     <Form>
                         <Paper sx={paperSx}>
-                            <Typography variant="h6" gutterBottom>{dict.personalInfoTitle}</Typography>
-                            {personalFields.map(({ name, label }) => (
+                            <Typography variant="h6" component="h2" gutterBottom>{dict.personalInfoTitle}</Typography>
+                            {personalFields.map(({ name, label, id }) => (
                                 <Field
                                     key={name}
                                     as={TextField}
                                     name={name}
                                     label={label}
+                                    id={id}
                                     fullWidth
                                     margin="normal"
                                     helperText={<ErrorMessage name={name} />}
@@ -164,7 +165,7 @@ export const EditProfilePage: React.FC<{ dict: EditProfilePageDict }> = ({ dict 
                         </Paper>
 
                         <Paper sx={paperSx}>
-                            <Typography variant="h6" gutterBottom>{dict.changePasswordTitle}</Typography>
+                            <Typography variant="h6" component="h2" gutterBottom>{dict.changePasswordTitle}</Typography>
                             {passwordFields.map(({ name, label }) => (
                                 <PasswordField key={name} name={name} label={label} />
                             ))}
@@ -174,12 +175,14 @@ export const EditProfilePage: React.FC<{ dict: EditProfilePageDict }> = ({ dict 
                                 disabled={isSubmitting}
                                 sx={{ mt: theme.spacing(2) }}
                             >
-                                {dict.updateProfileButton}
+                                {isSubmitting
+                                    ? <CircularProgress size={24} aria-label={dict.submittingLabel}/>
+                                    : dict.updateProfileButton}
                             </Button>
                         </Paper>
 
                         <Paper sx={{ ...paperSx, mb: 0 }}>
-                            <Typography variant="h6" gutterBottom>{dict.accountManagementTitle}</Typography>
+                            <Typography variant="h6" component="h2" gutterBottom>{dict.accountManagementTitle}</Typography>
                             <Box sx={{
                                 display: 'flex',
                                 flexDirection: { xs: 'column', md: 'row' },
@@ -199,10 +202,12 @@ export const EditProfilePage: React.FC<{ dict: EditProfilePageDict }> = ({ dict 
                             open={openDeleteDialog}
                             onClose={() => setOpenDeleteDialog(false)}
                             sx={{ '& .MuiDialog-paper': { borderRadius: theme.shape.borderRadius } }}
+                            aria-labelledby="delete-dialog-title"
+                            aria-describedby="delete-dialog-description"
                         >
-                            <DialogTitle>{dict.confirmDeletionTitle}</DialogTitle>
+                            <DialogTitle id="delete-dialog-title">{dict.confirmDeletionTitle}</DialogTitle>
                             <DialogContent>
-                                <DialogContentText>{dict.confirmDeletionText}</DialogContentText>
+                                <DialogContentText id="delete-dialog-description">{dict.confirmDeletionText}</DialogContentText>
                             </DialogContent>
                             <DialogActions>
                                 <Button
@@ -218,7 +223,9 @@ export const EditProfilePage: React.FC<{ dict: EditProfilePageDict }> = ({ dict 
                                     variant="contained"
                                     disabled={isDeleting}
                                 >
-                                    {isDeleting ? <CircularProgress size={theme.spacing(3)} /> : dict.deleteButton}
+                                    {isDeleting
+                                        ? <CircularProgress size={theme.spacing(3)} aria-label={dict.deletingProcessLabel}/>
+                                        : dict.deleteButton}
                                 </Button>
                             </DialogActions>
                         </Dialog>

@@ -62,12 +62,13 @@ export const VideosSection: React.FC<Props> = ({videos, dict}) => {
                     >
                         {videos.map((video) => (
                             <SwiperSlide key={video.snippet.resourceId.videoId}>
-                                <VideoCard video={video} onClickAction={handleVideoClick}/>
+                                <VideoCard video={video} onClickAction={handleVideoClick} dict={dict.videoCard} />
                             </SwiperSlide>
                         ))}
                     </StyledSwiper>
                 ) : (
                     <Box
+                        component="ul"
                         sx={{
                             display: 'grid',
                             gap: theme.spacing(3),
@@ -76,18 +77,26 @@ export const VideosSection: React.FC<Props> = ({videos, dict}) => {
                                 md: 'repeat(3, 1fr)',
                             },
                             justifyContent: 'center',
+                            listStyle: 'none',
+                            padding: 0,
                         }}
                     >
                         {videos.map((video) => (
-                            <Box key={video.snippet.resourceId.videoId}>
-                                <VideoCard video={video} onClickAction={handleVideoClick}/>
+                            <Box component="li" key={video.snippet.resourceId.videoId}>
+                                <VideoCard video={video} onClickAction={handleVideoClick} dict={dict.videoCard} />
                             </Box>
                         ))}
                     </Box>
                 )
             ) : (
                 <Box>
-                    <Typography variant="h6" color="text.secondary" align="center">
+                    <Typography
+                        variant="h6"
+                        color="text.secondary"
+                        align="center"
+                        role="status"
+                        aria-live="polite"
+                    >
                         {dict.empty}
                     </Typography>
                 </Box>

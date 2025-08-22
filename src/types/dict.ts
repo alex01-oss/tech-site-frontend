@@ -7,6 +7,8 @@ export interface ProductCardDict {
     inCart: string;
     add: string;
     mm: string;
+    viewProduct: string;
+    imageAlt: string;
 }
 
 export interface CartDict {
@@ -62,10 +64,17 @@ export interface ProductDetailDict {
     add: string,
     mm: string,
     inch: string,
+    loadingProduct: string,
+    productImageAltText: string
+}
+
+export interface SearchFieldDict {
+    enter: string,
+    loading: string,
 }
 
 export interface SearchDict {
-    filters: any,
+    filters: FiltersPanelDict,
     search: {
         search: string,
         filters: string,
@@ -76,13 +85,17 @@ export interface SearchDict {
         shape: string,
         dimensions: string,
         machine: string,
-        field: any
+        close: string,
+        field: SearchFieldDict
     }
 }
 
 export interface PostDetailDict {
     goBack: string;
     published: string;
+    loadingPost: string;
+    notFound: string;
+    failedToLoad: string;
 }
 
 export interface PostEditorDict {
@@ -102,6 +115,10 @@ export interface PostEditorDict {
     contentEditorTitle: string,
     createPost: string,
     updatePost: string,
+    loading: string,
+    saving: string,
+    clearImage: string,
+    uploadImageDescription: string,
 }
 
 export interface PostCardDict {
@@ -114,6 +131,7 @@ export interface PostCardDict {
     delete: string,
     deleteSuccess: string,
     deleteError: string,
+    deletingProcessLabel: string,
 }
 
 export interface BlogPageDict {
@@ -122,7 +140,27 @@ export interface BlogPageDict {
     notFound: string,
     empty: string,
     add: string,
+    searchLabel: string,
+    clearSearchLabel: string,
     dialog: any,
+}
+
+export interface AuthLayoutDict {
+    haveAccount: string;
+    noAccount: string;
+    signUp: string;
+    signIn: string;
+    authFormLabel: string;
+}
+
+export interface FormWrapperDict {
+    authLayout: AuthLayoutDict,
+    loadingLabel: string,
+}
+
+export interface PasswordFieldDict {
+    showPassword: string;
+    hidePassword: string;
 }
 
 export interface RegisterPageDict {
@@ -152,21 +190,8 @@ export interface RegisterPageDict {
             privacyPolicyRequired: string,
         },
     },
-    authLayout: any,
-}
-
-export interface ProfilePageDict {
-    title: string;
-    edit: string;
-    contactInfo: string;
-    activity: string;
-    cartItems: string;
-    logout: string;
-    logoutSuccess: string;
-    logoutError: string;
-    loginRequired: string;
-    email: string;
-    phone: string;
+    formWrapper: FormWrapperDict,
+    passwordField: PasswordFieldDict
 }
 
 export interface LoginPageDict {
@@ -185,7 +210,25 @@ export interface LoginPageDict {
             passwordRequired: string
         },
     },
-    authLayout: any
+    formWrapper: FormWrapperDict,
+    passwordField: PasswordFieldDict
+}
+
+export interface ProfilePageDict {
+    profile: {
+        title: string;
+        edit: string;
+        contactInfo: string;
+        activity: string;
+        cartItems: string;
+        logout: string;
+        logoutSuccess: string;
+        logoutError: string;
+        loginRequired: string;
+        email: string;
+        phone: string;
+    }
+    avatar: AvatarDict
 }
 
 export interface EditProfilePageDict {
@@ -215,6 +258,8 @@ export interface EditProfilePageDict {
     deleteAccountFailed: string,
     logoutAllSuccess: string,
     logoutAllFailed: string,
+    deletingProcessLabel: string;
+    submittingLabel: string;
     validation: {
         currentPasswordRequired: string,
         newPasswordSame: string,
@@ -228,13 +273,6 @@ export interface ErrorBoundaryDict {
     reloadButton: string;
 }
 
-export interface AuthLayoutDict {
-    haveAccount: string;
-    noAccount: string;
-    signUp: string;
-    signIn: string;
-}
-
 export interface NavbarDict {
     authRequired: string,
     login: string,
@@ -246,14 +284,23 @@ export interface NavbarDict {
     profile: string,
     logo: string,
     goBack: string,
+    cartCount: string,
+    loading: string,
+}
+
+export interface ToolbarDict {
+    navbar: NavbarDict,
+    avatar: AvatarDict,
 }
 
 export interface LayoutDict {
     layout: {
-        navbar: any,
-        footer: any,
+        skipToMainContent: string,
+        footer: FooterDict,
+        avatar: AvatarDict,
+        navbar: NavbarDict,
     }
-    errorBoundary: any
+    errorBoundary: ErrorBoundaryDict
 }
 
 export interface FooterDict {
@@ -265,11 +312,15 @@ export interface FooterDict {
 export interface VideosSectionDict {
     title: string,
     empty: string,
+    videoCard: VideoCardDict,
 }
 
 export interface CategoriesSectionDict {
     title: string,
     loadError: string,
+    loadingCategories: string,
+    categoryImageAlt: string,
+    viewCategory: string,
 }
 
 export interface BlogSectionDict {
@@ -278,7 +329,13 @@ export interface BlogSectionDict {
         title: string,
         empty: string,
         viewAll: string,
+        loadingPosts: string,
     }
+}
+
+export interface VideoCardDict {
+    playVideo: string,
+    videoThumbnail: string,
 }
 
 export interface AboutUsDict {
@@ -292,15 +349,17 @@ export interface CartPageDict {
 }
 
 export interface CatalogPageDict {
-    productCard: any,
+    productCard: ProductCardDict,
     catalog: {
+        scrollUp: string,
+        loading: string,
         emptyState: {
             noItemsFound: string,
             startTyping: string,
         },
         controls: {
-            filters: any,
-            search: any,
+            filters: FiltersPanelDict,
+            search: SearchDict,
         }
     },
     titles: {
@@ -314,5 +373,13 @@ export interface FiltersPanelDict {
     apply: string,
     error: string,
     mm: string,
+    closeFilters: string,
+    loadingFilters: string,
     titles: Record<string, string>
+}
+
+export interface AvatarDict {
+    profile: string;
+    userAvatar: string;
+    logIn: string;
 }

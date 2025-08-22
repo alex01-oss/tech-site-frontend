@@ -41,10 +41,6 @@ export const OrderForm: React.FC<{ dict: CartPageDict }> = ({dict}) => {
         if (!initializing) void fetchCart()
     }, [initializing]);
 
-    useEffect(() => {
-        if (!initializing) void fetchCart()
-    }, [initializing, fetchCart]);
-
     const handleNext = async () => {
         if (activeStep === 1 && formikRef.current) {
             const formikInstance = formikRef.current;
@@ -77,8 +73,6 @@ export const OrderForm: React.FC<{ dict: CartPageDict }> = ({dict}) => {
     if (error) {
         return (
             <Box sx={{
-                mt: theme.spacing(12),
-                minHeight: "80vh",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center"
@@ -109,7 +103,7 @@ export const OrderForm: React.FC<{ dict: CartPageDict }> = ({dict}) => {
             case 1:
                 return (
                     <Paper sx={{p: theme.spacing(3), borderRadius: theme.shape.borderRadius * 2}}>
-                        <Typography variant="h5" sx={{mb: theme.spacing(2)}}>
+                        <Typography variant="h5" component="h2" sx={{mb: theme.spacing(2)}}>
                             {dict.cart.placing}
                         </Typography>
                         <Formik
@@ -145,6 +139,7 @@ export const OrderForm: React.FC<{ dict: CartPageDict }> = ({dict}) => {
                                                     label={fieldProps.label}
                                                     variant="outlined"
                                                     name={fieldProps.name}
+                                                    id={`order-form-${fieldProps.name}-input`}
                                                     value={values[fieldProps.name as keyof OrderFormValues]}
                                                     onChange={handleChange}
                                                     error={touched[fieldProps.name as keyof OrderFormValues] && Boolean(errors[fieldProps.name as keyof OrderFormValues])}
@@ -155,8 +150,10 @@ export const OrderForm: React.FC<{ dict: CartPageDict }> = ({dict}) => {
 
                                         <Box sx={{gridColumn: {xs: 'span 1', sm: 'span 2'}}}>
                                             <FormControl fullWidth required>
-                                                <InputLabel>{dict.cart.deliveryMethod}</InputLabel>
+                                                <InputLabel id="delivery-method-label">{dict.cart.deliveryMethod}</InputLabel>
                                                 <Select
+                                                    labelId="delivery-method-label"
+                                                    id="delivery-method-select"
                                                     label={dict.cart.deliveryMethod}
                                                     name="deliveryMethod"
                                                     value={values.deliveryMethod}
@@ -171,18 +168,25 @@ export const OrderForm: React.FC<{ dict: CartPageDict }> = ({dict}) => {
 
                                         <Box sx={{gridColumn: {xs: 'span 1', sm: 'span 2'}}}>
                                             <FormControl fullWidth required>
-                                                <FormLabel>{dict.cart.payment}</FormLabel>
+                                                <FormLabel id="payment-method-group-label">{dict.cart.payment}</FormLabel>
                                                 <RadioGroup
+                                                    aria-labelledby="payment-method-group-label"
                                                     name="paymentMethod"
                                                     value={values.paymentMethod}
                                                     onChange={handleChange}
                                                 >
-                                                    <FormControlLabel value="cashOnDelivery" control={<Radio/>}
-                                                                      label={dict.cart.cashOnDelivery}/>
-                                                    <FormControlLabel value="payNow" control={<Radio/>}
-                                                                      label={dict.cart.payNow}/>
-                                                    <FormControlLabel value="installments" control={<Radio/>}
-                                                                      label={dict.cart.installments}/>
+                                                    <FormControlLabel
+                                                        value="cashOnDelivery"
+                                                        control={<Radio/>}
+                                                        label={dict.cart.cashOnDelivery}/>
+                                                    <FormControlLabel
+                                                        value="payNow"
+                                                        control={<Radio/>}
+                                                        label={dict.cart.payNow}/>
+                                                    <FormControlLabel
+                                                        value="installments"
+                                                        control={<Radio/>}
+                                                        label={dict.cart.installments}/>
                                                 </RadioGroup>
                                             </FormControl>
                                         </Box>
@@ -201,7 +205,7 @@ export const OrderForm: React.FC<{ dict: CartPageDict }> = ({dict}) => {
                         }}
                     >
                         <Paper sx={{p: theme.spacing(3), borderRadius: theme.shape.borderRadius * 2}}>
-                            <Typography variant="h6">{dict.cart.summary}</Typography>
+                            <Typography variant="h6" component="h2">{dict.cart.summary}</Typography>
                             <Divider sx={{my: theme.spacing(2)}}/>
                             <Typography
                                 variant="body1">{dict.cart.total} {cart.length} {cart.length > 1 ? dict.cart.itemsPlural : dict.cart.itemsSingular}</Typography>

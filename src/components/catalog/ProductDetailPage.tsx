@@ -41,7 +41,7 @@ export const ProductDetailPage: React.FC<Props> = ({ initialProductData, initial
     const router = useNavigatingRouter();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-    if (isLoading) return <Spinner />;
+    if (isLoading) return <Spinner aria-label={dict.loadingProduct} />;
 
     if (error) {
         return (
@@ -52,7 +52,7 @@ export const ProductDetailPage: React.FC<Props> = ({ initialProductData, initial
                 alignItems="center"
                 height="100vh"
             >
-                <Typography color="error" variant="h6">{error}</Typography>
+                <Typography color="error" variant="h6" role="alert">{error}</Typography>
                 <Button onClick={() => router.back()} sx={{ mt: theme.spacing(2) }}>
                     {dict.goBack}
                 </Button>
@@ -63,7 +63,7 @@ export const ProductDetailPage: React.FC<Props> = ({ initialProductData, initial
     if (!productData) {
         return (
             <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-                <Typography variant="h6" color="text.secondary">Product data not available.</Typography>
+                <Typography variant="h6" color="text.secondary" role="status">Product data not available.</Typography>
             </Box>
         );
     }
@@ -111,7 +111,7 @@ export const ProductDetailPage: React.FC<Props> = ({ initialProductData, initial
                         >
                             <Image
                                 src={imageUrl}
-                                alt={item.shape}
+                                alt={dict.productImageAltText.replace('{productShape}', item.shape)}
                                 height={300}
                                 width={300}
                                 style={{
@@ -144,6 +144,13 @@ export const ProductDetailPage: React.FC<Props> = ({ initialProductData, initial
                                 borderRadius: theme.shape.borderRadius,
                                 textTransform: "none",
                             }}
+                            aria-label={
+                                inCart
+                                    ? dict.remove
+                                    : item.is_in_cart
+                                        ? dict.inCart
+                                        : dict.add
+                            }
                         >
                             {inCart
                                 ? dict.remove
@@ -191,7 +198,7 @@ export const ProductDetailPage: React.FC<Props> = ({ initialProductData, initial
                         <Divider sx={{ my: theme.spacing(2) }} />
 
                         <Box>
-                            <Typography variant="h6" sx={{
+                            <Typography variant="h6" component="h2" sx={{
                                 fontWeight: theme.typography.fontWeightMedium,
                                 mb: theme.spacing(1),
                                 color: 'text.secondary'

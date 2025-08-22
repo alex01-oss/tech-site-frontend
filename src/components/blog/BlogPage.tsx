@@ -48,27 +48,27 @@ export const BlogPage: React.FC<BlogGridProps> = ({posts, baseApiUrl, dict}) => 
             <Box sx={{display: 'flex', justifyContent: 'center', my: {xs: theme.spacing(2), sm: theme.spacing(3)}}}>
                 <TextField
                     variant="outlined"
+                    label={dict.searchLabel}
                     placeholder={dict.placeholder}
                     value={searchTerm}
                     onChange={handleSearchChange}
                     sx={{width: '100%'}}
-                    slotProps={{
-                        input: {
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <SearchIcon/>
+                    InputProps={{
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <SearchIcon/>
+                            </InputAdornment>
+                        ),
+                        endAdornment: (
+                            searchTerm ? (
+                                <InputAdornment position="end">
+                                    <IconButton onClick={handleSearchClear} edge="end" size="small"
+                                                aria-label={dict.clearSearchLabel}>
+                                        <ClearIcon/>
+                                    </IconButton>
                                 </InputAdornment>
-                            ),
-                            endAdornment: (
-                                searchTerm ? (
-                                    <InputAdornment position="end">
-                                        <IconButton onClick={handleSearchClear} edge="end" size="small">
-                                            <ClearIcon/>
-                                        </IconButton>
-                                    </InputAdornment>
-                                ) : null
-                            )
-                        }
+                            ) : null
+                        )
                     }}
                 />
             </Box>
@@ -100,7 +100,13 @@ export const BlogPage: React.FC<BlogGridProps> = ({posts, baseApiUrl, dict}) => 
                     ))
                 ) : (
                     <Box sx={{gridColumn: '1 / -1'}}>
-                        <Typography variant="h6" color="text.secondary" align="center" sx={{mt: theme.spacing(4)}}>
+                        <Typography
+                            variant="h6"
+                            color="text.secondary"
+                            align="center"
+                            sx={{mt: theme.spacing(4)}}
+                            role="status"
+                        >
                             {searchTerm ? `${dict.notFound} "${searchTerm}".` : dict.empty}
                         </Typography>
                     </Box>

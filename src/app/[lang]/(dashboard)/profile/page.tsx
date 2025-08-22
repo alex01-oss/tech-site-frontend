@@ -11,6 +11,9 @@ export default async function Profile({params}: Props) {
     const { lang } = await params;
     const dict = await getDictionary(lang);
 
-    return <ProfilePage dict={dict.profile}/>
+    return <ProfilePage dict={{
+        profile: dict.profile,
+        avatar: dict.layout.avatar,
+    }}/>
 }
 

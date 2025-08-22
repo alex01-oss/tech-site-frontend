@@ -11,6 +11,7 @@ export default async function RegisterPage({ params }: Props) {
 
     return <SignUp dict={{
         register: dict.auth.register,
-        authLayout: dict.auth.authLayout
+        formWrapper: dict.auth.formWrapper,
+        passwordField: dict.auth.passwordField,
     }} />;
 }

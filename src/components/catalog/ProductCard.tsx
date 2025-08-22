@@ -51,6 +51,9 @@ export const ProductCard: React.FC<Props> = memo(({
                     borderWidth: 2,
                 }),
             }}
+            role="link"
+            tabIndex={0}
+            aria-label={`${dict.viewProduct} ${product.shape}`}
         >
             <Box
                 sx={{
@@ -86,7 +89,7 @@ export const ProductCard: React.FC<Props> = memo(({
             >
                 <Image
                     src={`${API_URL}/${product.images}`}
-                    alt={product.shape}
+                    alt={dict.imageAlt.replace('{productName}', product.shape)}
                     height={300}
                     width={300}
                     style={{
@@ -107,6 +110,7 @@ export const ProductCard: React.FC<Props> = memo(({
             >
                 <Typography
                     variant="subtitle2"
+                    component="h3"
                     sx={{
                         fontWeight: theme.typography.fontWeightBold,
                         color: "text.primary",
@@ -258,6 +262,13 @@ export const ProductCard: React.FC<Props> = memo(({
                                 bgcolor: theme.palette.primary.dark,
                             },
                         }}
+                        aria-label={
+                            isCartView
+                                ? dict.remove
+                                : product.is_in_cart
+                                    ? dict.inCart
+                                    : dict.add
+                        }
                     >
                         {isCartView
                             ? dict.remove

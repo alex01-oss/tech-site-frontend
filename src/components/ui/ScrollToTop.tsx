@@ -5,7 +5,7 @@ import {darken, Fab, useScrollTrigger, useTheme, Zoom} from '@mui/material';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import {SxProps} from '@mui/system';
 
-export const ScrollToTop = () => {
+export const ScrollToTop: React.FC<{ label: string }> = ({label}) => {
     const theme = useTheme();
 
     const fabStyle: SxProps = {
@@ -35,7 +35,7 @@ export const ScrollToTop = () => {
                 sx={fabStyle}
                 color="inherit"
                 size="medium"
-                aria-label="scroll back to top"
+                aria-label={label}
                 onClick={handleClick}
             >
                 <KeyboardArrowUpIcon/>

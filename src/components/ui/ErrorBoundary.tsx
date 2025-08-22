@@ -34,6 +34,8 @@ class ErrorBoundary extends React.Component<Props, State> {
 
             return (
                 <Box
+                    role="alert"
+                    aria-live="assertive"
                     sx={{
                         display: "flex",
                         flexDirection: "column",
@@ -47,6 +49,7 @@ class ErrorBoundary extends React.Component<Props, State> {
                 >
                     <Typography
                         variant="h4"
+                        component="h1"
                         sx={{
                             mb: theme.spacing(2),
                             color: "primary.main"
@@ -58,6 +61,7 @@ class ErrorBoundary extends React.Component<Props, State> {
                         variant="contained"
                         onClick={() => window.location.reload()}
                         color="primary"
+                        aria-label={"Reload the page"}
                     >
                         {this.props.dict.reloadButton}
                     </Button>
@@ -67,5 +71,4 @@ class ErrorBoundary extends React.Component<Props, State> {
         return this.props.children;
     }
 }
-
 export default ErrorBoundary;

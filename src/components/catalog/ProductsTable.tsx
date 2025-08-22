@@ -18,6 +18,7 @@ export const ProductsTable: React.FC<ProductTableProps> = memo(({products, isCar
 
     return (
         <Box
+            component="ul"
             sx={{
                 display: 'grid',
                 gap: {xs: theme.spacing(2), sm: theme.spacing(3)},
@@ -27,14 +28,17 @@ export const ProductsTable: React.FC<ProductTableProps> = memo(({products, isCar
                     lg: 'repeat(4, 1fr)',
                     xl: 'repeat(4, 1fr)',
                 },
+                listStyle: 'none',
+                padding: 0,
+                margin: 0,
                 '& > *': {
                     minWidth: 0,
                     maxWidth: '100%',
                 }
             }}
         >
-            {products.map((product, index) => (
-                <Box key={`product-${index}`}>
+            {products.map((product) => (
+                <Box key={`product-${product.id}`} component="li">
                     <ProductCard
                         product={{...product, is_in_cart: isInCart(product.id)}}
                         isCartView={isCartView}

@@ -34,6 +34,9 @@ export const CategoriesSection: React.FC<{ dict: CategoriesSectionDict }> = ({di
                         justifyContent: 'center',
                         gap: { xs: theme.spacing(2), sm: theme.spacing(3) }
                     }}
+                    role="status"
+                    aria-label={dict.loadingCategories}
+                    aria-live="polite"
                 >
                     {placeholders.map((_, i) => (
                         <Box
@@ -54,7 +57,9 @@ export const CategoriesSection: React.FC<{ dict: CategoriesSectionDict }> = ({di
     }
 
     if (categoriesError) {
-        return <Typography color="error" align="center">{dict.loadError} {categoriesError}</Typography>
+        return <Typography color="error" align="center" role="alert" aria-live="assertive">
+            {dict.loadError} {categoriesError}
+        </Typography>
     }
 
     return (
@@ -90,11 +95,14 @@ export const CategoriesSection: React.FC<{ dict: CategoriesSectionDict }> = ({di
                                 transition: 'transform .3s ease-in-out',
                             },
                         }}
+                        component="a"
+                        href={`/catalog?category_id=${category.id}`}
+                        aria-label={`${dict.viewCategory} ${category.name}`}
                     >
                         <Box
                             component="img"
                             src={`${API_URL}/${category.img_url}`}
-                            alt={category.name}
+                            alt={dict.categoryImageAlt.replace('{categoryName}', category.name)}
                             sx={{
                                 width: '100%',
                                 objectFit: 'cover',

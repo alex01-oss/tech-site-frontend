@@ -33,7 +33,7 @@ export const Footer: React.FC<{ dict: FooterDict }> = ({ dict }) => {
                     }}
                 >
                     <Box sx={{ textAlign: "center" }}>
-                        <Typography variant="h6" sx={{ mb: { xs: 1, md: 2 }, fontWeight: 600 }}>
+                        <Typography variant="h6" component="h2" sx={{ mb: { xs: 1, md: 2 }, fontWeight: 600 }}>
                             POLTAVA SUPERABRASIVES
                         </Typography>
                         <Typography
@@ -73,6 +73,7 @@ export const Footer: React.FC<{ dict: FooterDict }> = ({ dict }) => {
                                             },
                                         }}
                                         color="inherit"
+                                        aria-label={social.ariaLabel}
                                     >
                                         <IconComponent />
                                     </IconButton>
@@ -91,7 +92,7 @@ export const Footer: React.FC<{ dict: FooterDict }> = ({ dict }) => {
                                 {dict.companyName}.
                             </Link>
                             <br />
-                            {dict.copyright} {year}.
+                            {dict.copyright} <time dateTime={year.toString()}>{year}</time>.
                         </Typography>
                     </Box>
                 </Box>

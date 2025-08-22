@@ -182,7 +182,7 @@ export const CatalogPage: React.FC<{ dict: CatalogPageDict }> = ({dict}) => {
                     }
                     {isLoading && products.length > 0 && (
                         <Box sx={{textAlign: "center", my: {xs: theme.spacing(2), md: theme.spacing(3)}}}>
-                            <CircularProgress/>
+                            <CircularProgress aria-label={dict.catalog.loading}/>
                         </Box>
                     )}
                     {!isLoading && products.length === 0 && (isSearchActive || areFiltersActive) && (
@@ -190,7 +190,7 @@ export const CatalogPage: React.FC<{ dict: CatalogPageDict }> = ({dict}) => {
                             textAlign: "center",
                             my: {xs: theme.spacing(2), md: theme.spacing(3)},
                             color: 'text.secondary'
-                        }}>
+                        }} role="status" aria-live="polite">
                             {dict.catalog.emptyState.noItemsFound}
                         </Box>
                     )}
@@ -199,14 +199,14 @@ export const CatalogPage: React.FC<{ dict: CatalogPageDict }> = ({dict}) => {
                             textAlign: "center",
                             my: {xs: theme.spacing(2), md: theme.spacing(3)},
                             color: 'text.secondary'
-                        }}>
+                        }} role="status" aria-live="polite">
                             {dict.catalog.emptyState.startTyping}
                         </Box>
                     )}
                     <Box ref={ref} sx={{
                         visibility: isLoading && products.length > 0 ? 'hidden' : 'visible'
                     }}/>
-                    <ScrollToTop/>
+                    <ScrollToTop label={dict.catalog.scrollUp}/>
                 </Box>
             </Box>
         </Box>
