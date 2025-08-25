@@ -3,21 +3,18 @@ import {notFound} from "next/navigation";
 import {blogApi} from "@/features/blog/api";
 import {PostDetailPage} from "@/components/blog/PostDetailPage";
 import React from "react";
-import {getDictionary} from "@/lib/i18n";
 
 const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:8080/api";
 
 interface Props {
     params: Promise<{
         id: string,
-        lang: string
     }>
 }
 
 export default async function PostPage({ params }: Props) {
-    const { id, lang } = await params;
+    const { id } = await params;
     const postId = parseInt(id, 10);
-    const dict = await getDictionary(lang);
 
     if (isNaN(postId)) notFound()
 
@@ -33,7 +30,6 @@ export default async function PostPage({ params }: Props) {
             initialPost={post}
             postId={postId}
             baseApiUrl={BASE_API_URL}
-            dict={dict.blog.details}
         />
     );
 }

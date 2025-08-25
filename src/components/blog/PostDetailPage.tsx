@@ -6,21 +6,21 @@ import Image from 'next/image';
 import {Post} from '@/features/blog/types';
 import {blogApi} from "@/features/blog/api";
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
-import {PostDetailDict} from "@/types/dict";
 import Spinner from "@/components/ui/Spinner";
+import {useDictionary} from "@/providers/DictionaryProvider";
 
 interface Props {
     initialPost?: Post;
     postId: number;
     baseApiUrl: string;
-    dict: PostDetailDict
 }
 
-export function PostDetailPage({initialPost, postId, baseApiUrl, dict}: Props) {
+export function PostDetailPage({initialPost, postId, baseApiUrl}: Props) {
     const [post, setPost] = useState<Post | null>(initialPost || null);
     const [isLoading, setIsLoading] = useState<boolean>(!initialPost);
     const [error, setError] = useState<string | null>(null);
     const router = useNavigatingRouter();
+    const dict = useDictionary()
     const theme = useTheme();
 
     useEffect(() => {
@@ -29,28 +29,28 @@ export function PostDetailPage({initialPost, postId, baseApiUrl, dict}: Props) {
             blogApi.fetchPost(postId)
                 .then(fetchedPost => {
                     if (!fetchedPost) {
-                        setError(dict.notFound);
+                        setError(dict.blog.post.notFound);
                         return;
                     }
                     setPost(fetchedPost);
                 })
                 .catch(err => {
                     console.error("Failed to fetch post data:", err);
-                    setError(err.message || dict.failedToLoad);
+                    setError(err.message || dict.blog.post.failedToLoad);
                 })
                 .finally(() => {
                     setIsLoading(false);
                 });
         }
-    }, [postId, post, router, dict.notFound, dict.failedToLoad]);
+    }, [postId, post, router, dict.blog.post.notFound, dict.blog.post.failedToLoad]);
 
-    if (isLoading) return <Spinner aria-label={dict.loadingPost} />
+    if (isLoading) return <Spinner aria-label={dict.common.loading} />
 
     if (error) {
         return (
             <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="100vh" role="alert">
                 <Typography color="error" variant="h6">{error}</Typography>
-                <Button onClick={() => router.back()} sx={{mt: theme.spacing(2)}}>{dict.goBack}</Button>
+                <Button onClick={() => router.back()} sx={{mt: theme.spacing(2)}}>{dict.common.back}</Button>
             </Box>
         );
     }
@@ -58,8 +58,8 @@ export function PostDetailPage({initialPost, postId, baseApiUrl, dict}: Props) {
     if (!post) {
         return (
             <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="100vh" role="alert">
-                <Typography color="error" variant="h6">{dict.notFound}</Typography>
-                <Button onClick={() => router.back()} sx={{mt: theme.spacing(2)}}>{dict.goBack}</Button>
+                <Typography color="error" variant="h6">{dict.blog.post.notFound}</Typography>
+                <Button onClick={() => router.back()} sx={{mt: theme.spacing(2)}}>{dict.common.back}</Button>
             </Box>
         );
     }
@@ -109,7 +109,7 @@ export function PostDetailPage({initialPost, postId, baseApiUrl, dict}: Props) {
             </Typography>
 
             <Typography variant="body2" color="text.secondary" sx={{mb: theme.spacing(2)}}>
-                {dict.published} {new Date(post.created_at).toLocaleDateString()}
+                {dict.blog.published} {new Date(post.created_at).toLocaleDateString()}
             </Typography>
 
             <Box

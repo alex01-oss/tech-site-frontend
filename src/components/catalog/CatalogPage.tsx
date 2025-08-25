@@ -10,15 +10,15 @@ import {Search} from "@/components/catalog/Search";
 import {ProductSkeleton} from "@/components/skeletons/TableSkeleton";
 import {ProductsTable} from "@/components/catalog/ProductsTable";
 import {ScrollToTop} from "@/components/ui/ScrollToTop";
-import {CatalogPageDict} from "@/types/dict";
+import {useDictionary} from "@/providers/DictionaryProvider";
 
 
-export const CatalogPage: React.FC<{ dict: CatalogPageDict }> = ({dict}) => {
+export const CatalogPage = () => {
     const theme = useTheme();
     const itemsPerPage = useGridItemsPerPage();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-    const ref = useRef<HTMLDivElement>(null);
-    const observer = useRef<IntersectionObserver | null>(null);
+    const dict = useDictionary();
+    const ref = useRef(null);
 
     const {
         items: products,
@@ -26,9 +26,7 @@ export const CatalogPage: React.FC<{ dict: CatalogPageDict }> = ({dict}) => {
         filters,
         isLoading,
         currentPage,
-        totalPages,
         categoryName,
-        setPage,
         fetchCatalog,
         itemsPerPage: storeItemsPerPage,
         setItemsPerPage: setStoreItemsPerPage,
@@ -37,20 +35,28 @@ export const CatalogPage: React.FC<{ dict: CatalogPageDict }> = ({dict}) => {
     } = useCatalogStore();
 
     useEffect(() => {
-        if (observer.current) observer.current.disconnect();
+        const observer = new IntersectionObserver(
+            (entries) => {
+                const { isLoading, currentPage, totalPages, setPage } = useCatalogStore.getState();
 
-        observer.current = new IntersectionObserver(entries => {
-            if (entries[0].isIntersecting && !isLoading && currentPage < totalPages) {
-                setPage(currentPage + 1);
-            }
-        }, {threshold: 0.1});
+                if (entries[0].isIntersecting && !isLoading && currentPage < totalPages) {
+                    setPage(currentPage + 1);
+                }
+            },
+            { threshold: 0.1 }
+        );
 
-        if (ref.current) observer.current.observe(ref.current);
+        const element = ref.current;
+        if (element) {
+            observer.observe(element);
+        }
 
         return () => {
-            if (observer.current) observer.current.disconnect();
+            if (element) {
+                observer.unobserve(element);
+            }
         };
-    }, [isLoading, currentPage, totalPages, setPage]);
+    }, []);
 
     useEffect(() => {
         if (itemsPerPage !== null && storeItemsPerPage !== itemsPerPage) {
@@ -60,7 +66,7 @@ export const CatalogPage: React.FC<{ dict: CatalogPageDict }> = ({dict}) => {
 
     useEffect(() => {
         void fetchCatalog()
-    }, [fetchCatalog, currentPage, storeItemsPerPage, search, filters]);
+    }, [currentPage, storeItemsPerPage, search, filters]);
 
     const handleCombinedSearchSubmit = useCallback((
         searchFields: Partial<SearchFields>,
@@ -116,8 +122,8 @@ export const CatalogPage: React.FC<{ dict: CatalogPageDict }> = ({dict}) => {
 
     let translatedCategoryName = categoryName;
 
-    if (categoryName && dict.titles && categoryName in dict.titles) {
-        translatedCategoryName = dict.titles[categoryName as keyof typeof dict.titles];
+    if (categoryName && dict.sections.categories.titles && categoryName in dict.sections.categories.titles) {
+        translatedCategoryName = dict.sections.categories.titles[categoryName as keyof typeof dict.sections.categories.titles];
     }
 
     return (
@@ -133,7 +139,6 @@ export const CatalogPage: React.FC<{ dict: CatalogPageDict }> = ({dict}) => {
                     onFilterToggle={handleFilterToggle}
                     onClearAllFilters={handleClearAllFilters}
                     isMobileDrawer={false}
-                    dict={dict.catalog.controls.filters}
                 />
             }
 
@@ -154,7 +159,6 @@ export const CatalogPage: React.FC<{ dict: CatalogPageDict }> = ({dict}) => {
                         currentFilters={currentFiltersState}
                         onFilterToggle={handleFilterToggle}
                         onClearAllFilters={handleClearAllFilters}
-                        dict={dict.catalog.controls}
                     />
                 </Box>
 
@@ -178,11 +182,11 @@ export const CatalogPage: React.FC<{ dict: CatalogPageDict }> = ({dict}) => {
 
                     {isLoading && products.length === 0
                         ? <ProductSkeleton/>
-                        : <ProductsTable products={products} dict={dict.productCard}/>
+                        : <ProductsTable products={products}/>
                     }
                     {isLoading && products.length > 0 && (
                         <Box sx={{textAlign: "center", my: {xs: theme.spacing(2), md: theme.spacing(3)}}}>
-                            <CircularProgress aria-label={dict.catalog.loading}/>
+                            <CircularProgress aria-label={dict.catalog.loadingProducts}/>
                         </Box>
                     )}
                     {!isLoading && products.length === 0 && (isSearchActive || areFiltersActive) && (
@@ -191,7 +195,7 @@ export const CatalogPage: React.FC<{ dict: CatalogPageDict }> = ({dict}) => {
                             my: {xs: theme.spacing(2), md: theme.spacing(3)},
                             color: 'text.secondary'
                         }} role="status" aria-live="polite">
-                            {dict.catalog.emptyState.noItemsFound}
+                            {dict.catalog.noItems}
                         </Box>
                     )}
                     {!isLoading && products.length === 0 && !isSearchActive && !areFiltersActive && (
@@ -200,13 +204,13 @@ export const CatalogPage: React.FC<{ dict: CatalogPageDict }> = ({dict}) => {
                             my: {xs: theme.spacing(2), md: theme.spacing(3)},
                             color: 'text.secondary'
                         }} role="status" aria-live="polite">
-                            {dict.catalog.emptyState.startTyping}
+                            {dict.catalog.startTyping}
                         </Box>
                     )}
                     <Box ref={ref} sx={{
                         visibility: isLoading && products.length > 0 ? 'hidden' : 'visible'
                     }}/>
-                    <ScrollToTop label={dict.catalog.scrollUp}/>
+                    <ScrollToTop />
                 </Box>
             </Box>
         </Box>

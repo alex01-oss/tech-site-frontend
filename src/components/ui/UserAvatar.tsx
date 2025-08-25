@@ -1,18 +1,18 @@
 import React from 'react';
 import { Avatar, useTheme } from '@mui/material';
 import {User} from "@/features/auth/types";
-import {AvatarDict} from "@/types/dict";
+import {useDictionary} from "@/providers/DictionaryProvider";
 
 interface UserAvatarProps {
     user: User | null;
     isAuthenticated: boolean;
     size: 'small' | 'large';
     onClick?: () => void;
-    dict: AvatarDict
 }
 
-export const UserAvatar: React.FC<UserAvatarProps> = ({ user, isAuthenticated, size, onClick, dict }) => {
+export const UserAvatar: React.FC<UserAvatarProps> = ({ user, isAuthenticated, size, onClick }) => {
     const theme = useTheme();
+    const dict = useDictionary().layout.avatar;
 
     const getInitials = (fullName: string | undefined): string => {
         if (!fullName || fullName.trim().length === 0) {

@@ -12,31 +12,29 @@ import 'swiper/css/pagination';
 import {PostCard} from "@/components/blog/PostCard";
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 import {BlogSkeleton} from "@/components/skeletons/BlogSkeleton";
-import {BlogSectionDict} from "@/types/dict";
+import {useDictionary} from "@/providers/DictionaryProvider";
 
 interface Props {
     posts: Post[];
     baseApiUrl: string;
     isLoading: boolean;
-    dict: BlogSectionDict
 }
 
-export const BlogSection: React.FC<Props> = ({posts, baseApiUrl, isLoading, dict}) => {
+export const BlogSection: React.FC<Props> = ({posts, isLoading}) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const router = useNavigatingRouter();
+    const dict = useDictionary();
 
     return (
         <Box>
             <Typography variant="h3" component="h2"
                         sx={{mb: {xs: theme.spacing(1), sm: theme.spacing(2)}, color: 'text.primary'}}>
-                {dict.blogSection.title}
+                {dict.blog.title}
             </Typography>
 
             {isLoading
-                ? <BlogSkeleton
-                    label={dict.blogSection.loadingPosts}
-                />
+                ? <BlogSkeleton />
                 : posts.length > 0 ? (
                     isMobile ? (
                         <Swiper
@@ -57,12 +55,10 @@ export const BlogSection: React.FC<Props> = ({posts, baseApiUrl, isLoading, dict
                                 <SwiperSlide key={post.id}>
                                     <PostCard
                                         post={post}
-                                        baseApiUrl={baseApiUrl}
                                         height={200}
                                         elevation={0}
                                         showDescription={false}
                                         showAdminControls={false}
-                                        dict={dict.dialog}
                                     />
                                 </SwiperSlide>
                             ))}
@@ -86,12 +82,10 @@ export const BlogSection: React.FC<Props> = ({posts, baseApiUrl, isLoading, dict
                                 <Box key={post.id} component="li">
                                     <PostCard
                                         post={post}
-                                        baseApiUrl={baseApiUrl}
                                         height={200}
                                         elevation={0}
                                         showDescription={false}
                                         showAdminControls={false}
-                                        dict={dict.dialog}
                                     />
                                 </Box>
                             ))}
@@ -99,7 +93,7 @@ export const BlogSection: React.FC<Props> = ({posts, baseApiUrl, isLoading, dict
                     )
                 ) : (
                     <Typography variant="h6" color="text.secondary" align="center" role="status" aria-live="polite">
-                        {dict.blogSection.empty}
+                        {dict.blog.empty}
                     </Typography>
                 )}
 
@@ -115,9 +109,9 @@ export const BlogSection: React.FC<Props> = ({posts, baseApiUrl, isLoading, dict
                             fontWeight: 'bold',
                             textTransform: 'none',
                         }}
-                        aria-label={dict.blogSection.viewAll}
+                        aria-label={dict.blog.viewAll}
                     >
-                        {dict.blogSection.viewAll}
+                        {dict.blog.viewAll}
                     </Button>
                 </Box>
             )}

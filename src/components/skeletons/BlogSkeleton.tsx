@@ -1,11 +1,13 @@
 import React from 'react';
 import {Box, Skeleton, useTheme} from '@mui/material';
+import {useDictionary} from "@/providers/DictionaryProvider";
 
-export const BlogSkeleton: React.FC<{ label: string }> = ({ label }) => {
+export const BlogSkeleton = () => {
     const theme = useTheme();
+    const dict = useDictionary();
 
     return (
-        <Box role="status" aria-live="polite" aria-label={label}>
+        <Box role="status" aria-live="polite" aria-label={dict.common.loading}>
             <Skeleton
                 variant="text"
                 width="60%"

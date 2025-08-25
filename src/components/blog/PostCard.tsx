@@ -25,30 +25,28 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import {blogApi} from '@/features/blog/api';
 import {enqueueSnackbar} from "notistack";
 import {revalidateBlogPosts} from "@/actions/actions";
-import {PostCardDict} from "@/types/dict";
+import {useDictionary} from "@/providers/DictionaryProvider";
+import {API_URL} from "@/constants/constants";
 
 interface PostCardProps {
     post: Post;
-    baseApiUrl: string;
     height?: number;
     showAdminControls?: boolean;
     elevation?: number;
     showDescription?: boolean;
-    dict: PostCardDict;
 }
 
 export const PostCard: React.FC<PostCardProps> = ({
     post,
-    baseApiUrl,
     height = 300,
     showAdminControls = false,
     elevation = 4,
     showDescription = true,
-    dict
 }) => {
     const router = useNavigatingRouter();
     const {user} = useAuthStore();
     const theme = useTheme();
+    const dict = useDictionary()
 
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -67,11 +65,11 @@ export const PostCard: React.FC<PostCardProps> = ({
         setIsDeleting(true);
         try {
             await blogApi.deletePost(post.id);
-            enqueueSnackbar(dict.deleteSuccess, {variant: 'success'});
+            enqueueSnackbar(dict.blog.dialog.deleteSuccess, {variant: 'success'});
             await revalidateBlogPosts();
             handleCloseDeleteDialog();
         } catch (error) {
-            enqueueSnackbar(dict.deleteError, {variant: 'error'});
+            enqueueSnackbar(dict.blog.dialog.deleteError, {variant: 'error'});
             console.error('Failed to delete post:', error);
         } finally {
             setIsDeleting(false);
@@ -108,7 +106,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                     zIndex: 0,
                 }}>
                     <Image
-                        src={post.image ? `${baseApiUrl}/${post.image}` : '/placeholder-image.png'}
+                        src={post.image ? `${API_URL}/${post.image}` : '/placeholder-image.png'}
                         alt={post.title}
                         fill
                         style={{objectFit: 'cover'}}
@@ -136,7 +134,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                         gap: theme.spacing(2),
                     }}>
                         <IconButton
-                            aria-label={dict.editPost}
+                            aria-label={dict.common.edit}
                             sx={{
                                 borderRadius: theme.shape.borderRadius,
                                 color: 'white',
@@ -154,7 +152,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                         </IconButton>
 
                         <IconButton
-                            aria-label={dict.deletePost}
+                            aria-label={dict.blog.dialog.delete}
                             sx={{
                                 borderRadius: theme.shape.borderRadius,
                                 color: 'white',
@@ -166,7 +164,7 @@ export const PostCard: React.FC<PostCardProps> = ({
                             onClick={handleDeleteClick}
                             disabled={isDeleting}
                         >
-                            {isDeleting ? <CircularProgress size={24} color="inherit" aria-label={dict.deletingProcessLabel} /> : <DeleteIcon/>}
+                            {isDeleting ? <CircularProgress size={24} color="inherit" aria-label={dict.common.deleting} /> : <DeleteIcon/>}
                         </IconButton>
                     </Box>
                 )}
@@ -212,21 +210,21 @@ export const PostCard: React.FC<PostCardProps> = ({
                 aria-describedby="delete-dialog-description"
             >
                 <DialogTitle id="delete-dialog-title">
-                    {dict.confirm}
+                    {dict.blog.dialog.delete}
                 </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="delete-dialog-description">
-                        {dict.text} "{post.title}"? {dict.irreversible}
+                        {dict.blog.dialog.confirmText} "{post.title}"? {dict.blog.dialog.irreversible}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDeleteDialog} color="primary" disabled={isDeleting}>
-                        {dict.cancel}
+                        {dict.common.cancel}
                     </Button>
                     <Button onClick={handleConfirmDelete} color="error" disabled={isDeleting} autoFocus>
                         {isDeleting
-                            ? <CircularProgress size={theme.typography.fontSize * 1.5} aria-label={dict.deletingProcessLabel} />
-                            : dict.delete}
+                            ? <CircularProgress size={theme.typography.fontSize * 1.5} aria-label={dict.common.deleting} />
+                            : dict.common.delete}
                     </Button>
                 </DialogActions>
             </Dialog>

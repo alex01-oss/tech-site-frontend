@@ -4,9 +4,11 @@ import React from 'react';
 import {darken, Fab, useScrollTrigger, useTheme, Zoom} from '@mui/material';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import {SxProps} from '@mui/system';
+import {useDictionary} from "@/providers/DictionaryProvider";
 
-export const ScrollToTop: React.FC<{ label: string }> = ({label}) => {
+export const ScrollToTop = () => {
     const theme = useTheme();
+    const dict = useDictionary();
 
     const fabStyle: SxProps = {
         position: 'fixed',
@@ -35,7 +37,7 @@ export const ScrollToTop: React.FC<{ label: string }> = ({label}) => {
                 sx={fabStyle}
                 color="inherit"
                 size="medium"
-                aria-label={label}
+                aria-label={dict.catalog.scrollUp}
                 onClick={handleClick}
             >
                 <KeyboardArrowUpIcon/>

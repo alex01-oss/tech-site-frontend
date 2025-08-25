@@ -2,16 +2,13 @@
 
 import React from 'react';
 import {Box, Skeleton, useTheme} from '@mui/material';
+import {useDictionary} from "@/providers/DictionaryProvider";
 
-interface Props {
-    dict: { loadingFilters: string }
-    isMobileDrawer?: boolean;
-}
-
-export const FiltersSkeleton: React.FC<Props> = ({
-    isMobileDrawer = false, dict
+export const FiltersSkeleton: React.FC<{ isMobileDrawer?: boolean; }> = ({
+    isMobileDrawer = false
 }) => {
     const theme = useTheme();
+    const dict = useDictionary();
     const toolbarHeight = theme.mixins.toolbar.minHeight as number;
     const minWidthNumber = parseInt(theme.spacing(7.5).toString());
     const minHeightNumber = parseInt(theme.spacing(2.5).toString());
@@ -20,7 +17,7 @@ export const FiltersSkeleton: React.FC<Props> = ({
         <Box
             role="status"
             aria-live="polite"
-            aria-label={dict.loadingFilters}
+            aria-label={dict.common.loading}
             sx={{
                 width: {xs: '100%', sm: theme.spacing(32)},
                 display: 'flex',

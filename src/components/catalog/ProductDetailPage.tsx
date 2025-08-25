@@ -20,28 +20,27 @@ import {ProductDetailData} from "@/features/catalog/types";
 import {useToggleCart} from "@/hooks/useToggleCart";
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 import Image from "next/image";
-import {ProductDetailDict} from "@/types/dict";
 import Spinner from "@/components/ui/Spinner";
 import {API_URL} from "@/constants/constants";
+import {useDictionary} from "@/providers/DictionaryProvider";
 
 interface Props {
     initialProductData: ProductDetailData | null;
     initialError: string | null;
-    dict: ProductDetailDict
 }
 
-export const ProductDetailPage: React.FC<Props> = ({ initialProductData, initialError, dict }) => {
+export const ProductDetailPage: React.FC<Props> = ({ initialProductData, initialError }) => {
     const [productData] = useState<ProductDetailData | null>(initialProductData);
     const [error] = useState<string | null>(initialError);
-
-    const isLoading = productData === null && error === null;
-
     const theme = useTheme();
     const { handleToggleCart, isInCart } = useToggleCart();
     const router = useNavigatingRouter();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+    const dict = useDictionary()
 
-    if (isLoading) return <Spinner aria-label={dict.loadingProduct} />;
+    const isLoading = productData === null && error === null;
+
+    if (isLoading) return <Spinner aria-label={dict.catalog.loadingProducts} />;
 
     if (error) {
         return (
@@ -54,7 +53,7 @@ export const ProductDetailPage: React.FC<Props> = ({ initialProductData, initial
             >
                 <Typography color="error" variant="h6" role="alert">{error}</Typography>
                 <Button onClick={() => router.back()} sx={{ mt: theme.spacing(2) }}>
-                    {dict.goBack}
+                    {dict.common.back}
                 </Button>
             </Box>
         );
@@ -111,7 +110,7 @@ export const ProductDetailPage: React.FC<Props> = ({ initialProductData, initial
                         >
                             <Image
                                 src={imageUrl}
-                                alt={dict.productImageAltText.replace('{productShape}', item.shape)}
+                                alt={dict.catalog.product.imageAlt.replace('{productShape}', item.shape)}
                                 height={300}
                                 width={300}
                                 style={{
@@ -146,17 +145,17 @@ export const ProductDetailPage: React.FC<Props> = ({ initialProductData, initial
                             }}
                             aria-label={
                                 inCart
-                                    ? dict.remove
+                                    ? dict.common.remove
                                     : item.is_in_cart
-                                        ? dict.inCart
-                                        : dict.add
+                                        ? dict.catalog.product.inCart
+                                        : dict.common.add
                             }
                         >
                             {inCart
-                                ? dict.remove
+                                ? dict.common.remove
                                 : item.is_in_cart
-                                    ? dict.inCart
-                                    : dict.add
+                                    ? dict.catalog.product.inCart
+                                    : dict.common.add
                             }
                         </Button>
                     </Box>
@@ -180,7 +179,7 @@ export const ProductDetailPage: React.FC<Props> = ({ initialProductData, initial
                             {item.shape}
                         </Typography>
                         <Chip
-                            label={`${dict.code} ${item.code}`}
+                            label={`${dict.catalog.product.code} ${item.code}`}
                             size="medium"
                             sx={(theme) => ({
                                 bgcolor: theme.palette.primary.light,
@@ -203,27 +202,27 @@ export const ProductDetailPage: React.FC<Props> = ({ initialProductData, initial
                                 mb: theme.spacing(1),
                                 color: 'text.secondary'
                             }}>
-                                {dict.keySpecs}
+                                {dict.catalog.product.keySpecs}
                             </Typography>
                             <Box sx={{ display: 'flex', flexDirection: 'column', gap: theme.spacing(1) }}>
                                 <Typography variant="body1"
                                             sx={{ fontWeight: theme.typography.fontWeightMedium }}>
-                                    {dict.dimensions} {item.dimensions}
+                                    {dict.catalog.product.dimensions} {item.dimensions}
                                 </Typography>
                                 {bonds && bonds.length > 0 && (
                                     <Typography variant="body1"
                                                 sx={{ fontWeight: theme.typography.fontWeightMedium }}>
-                                        {dict.bond} {bonds.map(bond => bond.name_bond).join(', ')}
+                                        {dict.catalog.product.bond} {bonds.map(bond => bond.name_bond).join(', ')}
                                     </Typography>
                                 )}
                                 <Typography variant="body1"
                                             sx={{ fontWeight: theme.typography.fontWeightMedium }}>
-                                    {dict.gridSize} {item.grid_size}
+                                    {dict.catalog.product.gridSize} {item.grid_size}
                                 </Typography>
                                 {mounting && (
                                     <Typography variant="body1"
                                                 sx={{ fontWeight: theme.typography.fontWeightMedium }}>
-                                        {dict.mounting} {mounting.mm} {dict.mm} / {mounting.inch} {dict.inch}
+                                        {dict.catalog.product.mounting} {mounting.mm} {dict.common.mm} / {mounting.inch} {dict.common.inch}
                                     </Typography>
                                 )}
                             </Box>
@@ -240,7 +239,7 @@ export const ProductDetailPage: React.FC<Props> = ({ initialProductData, initial
                         mb: theme.spacing(2),
                         color: 'text.primary'
                     }}>
-                        {dict.bondDetails}
+                        {dict.catalog.product.bondDetails}
                     </Typography>
                     {bonds.map((bond, index) => (
                         <Box key={index} sx={{
@@ -261,7 +260,7 @@ export const ProductDetailPage: React.FC<Props> = ({ initialProductData, initial
                             <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: theme.spacing(1) }}>
                                 <InfoOutlined color="action" />
                                 <Typography variant="body2" color="text.secondary">
-                                    {dict.cooling} {bond.bond_cooling}
+                                    {dict.catalog.product.cooling} {bond.bond_cooling}
                                 </Typography>
                             </Box>
                         </Box>
@@ -277,7 +276,7 @@ export const ProductDetailPage: React.FC<Props> = ({ initialProductData, initial
                         mb: theme.spacing(2),
                         color: 'text.primary'
                     }}>
-                        {dict.compatibleMachines}
+                        {dict.catalog.product.compatibleMachines}
                     </Typography>
                     <List dense>
                         {machines.map((machine, index) => (

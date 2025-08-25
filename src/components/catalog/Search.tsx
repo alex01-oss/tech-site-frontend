@@ -8,8 +8,8 @@ import {AutocompleteSearchField} from "@/components/catalog/SearchField";
 import {FiltersPanel} from "@/components/catalog/FiltersPanel";
 import {useCatalogStore} from "@/features/catalog/store";
 import {SearchFields} from "@/types/searchFields";
-import {SearchDict} from "@/types/dict";
 import ClearIcon from "@mui/icons-material/Clear";
+import {useDictionary} from "@/providers/DictionaryProvider";
 
 
 interface Props {
@@ -18,7 +18,6 @@ interface Props {
     currentFilters: Record<string, Set<number>>;
     onFilterToggle: (categoryTitle: string, itemValue: number, checked: boolean) => void;
     onClearAllFilters: () => void;
-    dict: SearchDict
 }
 
 export const Search: React.FC<Props> = memo(({
@@ -27,13 +26,14 @@ export const Search: React.FC<Props> = memo(({
     currentFilters,
     onFilterToggle,
     onClearAllFilters,
-    dict
 }) => {
+    const dict = useDictionary();
+
     const FIXED_SEARCH_FIELDS_CONFIG: { type: keyof SearchFields; label: string; minLength: number }[] = [
-        { type: "code", label: dict.search.code, minLength: 1 },
-        { type: "shape", label: dict.search.shape, minLength: 1 },
-        { type: "dimensions", label: dict.search.dimensions, minLength: 1 },
-        { type: "machine", label: dict.search.machine, minLength: 1 },
+        { type: "code", label: dict.catalog.search.code, minLength: 1 },
+        { type: "shape", label: dict.catalog.search.shape, minLength: 1 },
+        { type: "dimensions", label: dict.catalog.search.dimensions, minLength: 1 },
+        { type: "machine", label: dict.catalog.search.machine, minLength: 1 },
     ];
 
     const theme = useTheme();
@@ -105,7 +105,6 @@ export const Search: React.FC<Props> = memo(({
                 onChange={handleChange}
                 onKeyDown={handleKeyDown}
                 isMobile={isMobile}
-                dict={dict.search.field}
             />
             {!isMobile && i < FIXED_SEARCH_FIELDS_CONFIG.length - 1 && (
                 <Divider orientation="vertical" flexItem sx={{ my: theme.spacing(1) }} />
@@ -147,7 +146,7 @@ export const Search: React.FC<Props> = memo(({
                     color: theme.palette.common.white
                 }}
             >
-                {dict.search.search}
+                {dict.common.search}
             </Button>
 
             <Button
@@ -167,14 +166,14 @@ export const Search: React.FC<Props> = memo(({
                     },
                 }}
             >
-                {dict.search.filters}
+                {dict.common.filters}
             </Button>
 
             {mobileDrawer(openSearchDrawer, setOpenSearchDrawer, (
                 <>
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={theme.spacing(1)}>
-                        <Typography variant="h6" component="h2">{dict.search.params}</Typography>
-                        <IconButton onClick={() => setOpenSearchDrawer(false)} aria-label={dict.search.close}>
+                        <Typography variant="h6" component="h2">{dict.catalog.search.params}</Typography>
+                        <IconButton onClick={() => setOpenSearchDrawer(false)} aria-label={dict.common.close}>
                             <CloseIcon />
                         </IconButton>
                     </Box>
@@ -193,7 +192,7 @@ export const Search: React.FC<Props> = memo(({
                         }}
                         startIcon={<SearchIcon />}
                         sx={{ ...buttonStyle, height: theme.spacing(6.25) }}>
-                        {dict.search.apply}
+                        {dict.common.apply}
                     </Button>
                     <Button
                         variant="outlined"
@@ -211,7 +210,7 @@ export const Search: React.FC<Props> = memo(({
                             },
                         }}
                     >
-                        {dict.search.clearAll}
+                        {dict.catalog.search.clearAll}
                     </Button>
                 </>
             ))}
@@ -222,7 +221,6 @@ export const Search: React.FC<Props> = memo(({
                     onFilterToggle={onFilterToggle}
                     onClearAllFilters={onClearAllFilters}
                     isMobileDrawer
-                    dict={dict.filters}
                 />
             ))}
         </Box>
@@ -245,7 +243,7 @@ export const Search: React.FC<Props> = memo(({
                 startIcon={<SearchIcon />}
                 sx={{ ...buttonStyle, boxShadow: 'none', px: theme.spacing(3) }}
             >
-                {dict.search.search}
+                {dict.common.search}
             </Button>
         </Paper>
     );

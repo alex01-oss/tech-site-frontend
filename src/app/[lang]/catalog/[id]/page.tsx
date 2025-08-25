@@ -2,19 +2,16 @@ import React from 'react'
 import {ProductDetailPage} from "@/components/catalog/ProductDetailPage";
 import {catalogApi} from "@/features/catalog/api";
 import {ProductDetailData} from "@/features/catalog/types";
-import {getDictionary} from "@/lib/i18n";
 
 interface Props {
     params: Promise<{
         id: string,
-        lang: string
     }>;
 }
 
 export default async function CatalogItemPage({ params }: Props) {
-    const { id, lang } = await params;
+    const { id } = await params;
     const product_id = parseInt(id, 10);
-    const dict = await getDictionary(lang);
     let productData: ProductDetailData | null = null;
     let error: string | null = null;
 
@@ -31,7 +28,6 @@ export default async function CatalogItemPage({ params }: Props) {
         <ProductDetailPage
             initialProductData={productData}
             initialError={error}
-            dict={dict.catalog.details}
         />
     );
 }

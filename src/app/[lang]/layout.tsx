@@ -1,9 +1,10 @@
 import "../../styles/globals.css";
-import ClientProvider from "@/providers/clientsProvider";
+import ClientProvider from "@/providers/СlientsProvider";
 import React from "react";
 import LayoutContent from "@/components/layout/LayoutContent";
 import {getDictionary} from "@/lib/i18n";
 import {Metadata} from "next";
+import {DictionaryProvider} from "@/providers/DictionaryProvider";
 
 interface Props {
     children: React.ReactNode;
@@ -16,13 +17,13 @@ export async function generateMetadata({params}: Props): Promise<Metadata> {
 
     return {
         title: {
-            default: dict.metadata.siteTitle,
+            default: dict.metadata.title,
             template: "%s | PDT Tools",
         },
         description: dict.metadata.description,
         keywords: dict.metadata.keywords.split(', '),
         openGraph: {
-            title: dict.metadata.siteTitle,
+            title: dict.metadata.title,
             description: dict.metadata.description,
             url: "https://pdt.tools",
             siteName: "PDTools",
@@ -45,14 +46,13 @@ const LanguageLayout = async ({children, params}: Props) => {
 
     return (
         <div lang={lang}>
-            <ClientProvider>
-                <LayoutContent dict={{
-                    layout: dict.layout,
-                    errorBoundary: dict.errorBoundary
-                }}>
-                    {children}
-                </LayoutContent>
-            </ClientProvider>
+            <DictionaryProvider dict={dict}>
+                <ClientProvider>
+                    <LayoutContent>
+                        {children}
+                    </LayoutContent>
+                </ClientProvider>
+            </DictionaryProvider>
         </div>
     );
 };

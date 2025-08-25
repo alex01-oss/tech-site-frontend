@@ -4,22 +4,21 @@ import React, { useState } from 'react';
 import { FormControl, TextField, IconButton, InputAdornment } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { Field, ErrorMessage } from 'formik';
-import {PasswordFieldDict} from "@/types/dict";
+import {useDictionary} from "@/providers/DictionaryProvider";
 
 interface PasswordFieldProps {
     name: string;
     label: string;
     required?: boolean;
-    dict: PasswordFieldDict
 }
 
 export const PasswordField: React.FC<PasswordFieldProps> = ({
     name,
     label,
     required = false,
-    dict
 }) => {
     const [showPassword, setShowPassword] = useState(false);
+    const dict = useDictionary();
     const inputId = `${name}-input`;
 
     const handleTogglePasswordVisibility = () => {
@@ -44,8 +43,8 @@ export const PasswordField: React.FC<PasswordFieldProps> = ({
                                 edge="end"
                                 aria-label={
                                     showPassword
-                                        ? dict.hidePassword
-                                        : dict.showPassword
+                                        ? dict.auth.password.hide
+                                        : dict.auth.password.show
                                 }
                             >
                                 {showPassword ? <VisibilityOff /> : <Visibility />}

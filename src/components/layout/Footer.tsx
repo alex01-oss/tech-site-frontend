@@ -3,9 +3,10 @@
 import React, {useEffect, useState} from "react";
 import {Box, Container, IconButton, Link, Paper, Typography, useTheme} from "@mui/material";
 import {socialLinks} from "@/constants/socialLinks";
-import {FooterDict} from "@/types/dict";
+import {useDictionary} from "@/providers/DictionaryProvider";
 
-export const Footer: React.FC<{ dict: FooterDict }> = ({ dict }) => {
+export const Footer = () => {
+    const dict = useDictionary().layout.footer
     const [year, setYear] = useState(new Date().getFullYear());
     const theme = useTheme();
 
@@ -22,7 +23,7 @@ export const Footer: React.FC<{ dict: FooterDict }> = ({ dict }) => {
                 mt: 'auto',
             }}
         >
-            <Container maxWidth="xl">
+            <Container maxWidth="lg">
                 <Box
                     sx={{
                         display: "flex",
@@ -89,7 +90,7 @@ export const Footer: React.FC<{ dict: FooterDict }> = ({ dict }) => {
                                 underline="none"
                                 sx={{ fontWeight: 500, color: 'inherit' }}
                             >
-                                {dict.companyName}.
+                                {dict.company}.
                             </Link>
                             <br />
                             {dict.copyright} <time dateTime={year.toString()}>{year}</time>.

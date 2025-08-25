@@ -2,17 +2,8 @@ import {blogApi} from '@/features/blog/api';
 import {Post} from '@/features/blog/types';
 import {BlogPage} from "@/components/blog/BlogPage";
 import React from "react";
-import {getDictionary} from "@/lib/i18n";
 
-const BASE_API_URL = process.env.NEXT_PUBLIC_API_URL?.trim() || "http://localhost:8080/api";
-
-interface Props {
-    params: Promise<{ lang: string }>;
-}
-
-export default async function Blog({ params }: Props) {
-    const { lang } = await params;
-    const dict = await getDictionary(lang);
+export default async function Blog() {
     let posts: Post[] = [];
 
     try {
@@ -26,7 +17,5 @@ export default async function Blog({ params }: Props) {
         posts = [];
     }
 
-    return (
-        <BlogPage posts={posts} baseApiUrl={BASE_API_URL} dict={dict.blog.main}/>
-    );
+    return <BlogPage posts={posts} />
 }

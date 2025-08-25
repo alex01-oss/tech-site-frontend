@@ -13,12 +13,7 @@ import 'swiper/css/navigation';
 import {VideoCard} from "@/components/home/VideoCard";
 import {Video} from "@/features/youtube/types";
 import {Box, styled} from "@mui/material";
-import {VideosSectionDict} from "@/types/dict";
-
-interface Props {
-    videos: Video[];
-    dict: VideosSectionDict
-}
+import {useDictionary} from "@/providers/DictionaryProvider";
 
 const StyledSwiper = styled(Swiper)(({theme}) => ({
     '& .swiper-pagination-bullet': {
@@ -29,9 +24,10 @@ const StyledSwiper = styled(Swiper)(({theme}) => ({
     },
 }))
 
-export const VideosSection: React.FC<Props> = ({videos, dict}) => {
+export const VideosSection: React.FC<{ videos: Video[]; }> = ({videos}) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+    const dict = useDictionary();
 
     const handleVideoClick = (videoId: string) => {
         window.open(`https://youtube.com/watch?v=${videoId}`, '_blank');
@@ -39,9 +35,12 @@ export const VideosSection: React.FC<Props> = ({videos, dict}) => {
 
     return (
         <Box>
-            <Typography variant="h3" component="h2"
-                        sx={{mb: {xs: theme.spacing(1), sm: theme.spacing(2)}, color: 'text.primary'}}>
-                {dict.title}
+            <Typography
+                variant="h3"
+                component="h2"
+                sx={{mb: {xs: theme.spacing(1), sm: theme.spacing(2)}, color: 'text.primary'}}
+            >
+                {dict.sections.videos.title}
             </Typography>
 
             {videos.length > 0 ? (
@@ -62,13 +61,13 @@ export const VideosSection: React.FC<Props> = ({videos, dict}) => {
                     >
                         {videos.map((video) => (
                             <SwiperSlide key={video.snippet.resourceId.videoId}>
-                                <VideoCard video={video} onClickAction={handleVideoClick} dict={dict.videoCard} />
+                                <VideoCard video={video} onClickAction={handleVideoClick}/>
                             </SwiperSlide>
                         ))}
                     </StyledSwiper>
                 ) : (
                     <Box
-                        component="ul"
+                        // component="ul"
                         sx={{
                             display: 'grid',
                             gap: theme.spacing(3),
@@ -83,7 +82,7 @@ export const VideosSection: React.FC<Props> = ({videos, dict}) => {
                     >
                         {videos.map((video) => (
                             <Box component="li" key={video.snippet.resourceId.videoId}>
-                                <VideoCard video={video} onClickAction={handleVideoClick} dict={dict.videoCard} />
+                                <VideoCard video={video} onClickAction={handleVideoClick}/>
                             </Box>
                         ))}
                     </Box>
@@ -97,7 +96,7 @@ export const VideosSection: React.FC<Props> = ({videos, dict}) => {
                         role="status"
                         aria-live="polite"
                     >
-                        {dict.empty}
+                        {dict.sections.videos.empty}
                     </Typography>
                 </Box>
             )}

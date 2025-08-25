@@ -6,14 +6,15 @@ import {Box, Typography, useTheme} from '@mui/material';
 import {useDataStore} from "@/features/data/store";
 import {useCatalogStore} from "@/features/catalog/store";
 import {Category} from "@/features/data/types";
-import {CategoriesSectionDict} from "@/types/dict";
 import {API_URL} from "@/constants/constants";
+import {useDictionary} from '@/providers/DictionaryProvider';
 
-export const CategoriesSection: React.FC<{ dict: CategoriesSectionDict }> = ({dict}) => {
+export const CategoriesSection = () => {
     const {categories, categoriesLoading, categoriesError, fetchCategories} = useDataStore();
     const {setCategory} = useCatalogStore();
     const router = useNavigatingRouter();
     const theme = useTheme();
+    const dict = useDictionary();
 
     useEffect(() => {
         void fetchCategories();
@@ -25,7 +26,7 @@ export const CategoriesSection: React.FC<{ dict: CategoriesSectionDict }> = ({di
             <Box>
                 <Typography variant="h3" component="h2"
                             sx={{mb: {xs: theme.spacing(2), sm: theme.spacing(3)}, color: 'text.primary'}}>
-                    {dict.title}
+                    {dict.sections.categories.title}
                 </Typography>
                 <Box
                     sx={{
@@ -35,7 +36,7 @@ export const CategoriesSection: React.FC<{ dict: CategoriesSectionDict }> = ({di
                         gap: { xs: theme.spacing(2), sm: theme.spacing(3) }
                     }}
                     role="status"
-                    aria-label={dict.loadingCategories}
+                    aria-label={dict.common.loading}
                     aria-live="polite"
                 >
                     {placeholders.map((_, i) => (
@@ -58,7 +59,7 @@ export const CategoriesSection: React.FC<{ dict: CategoriesSectionDict }> = ({di
 
     if (categoriesError) {
         return <Typography color="error" align="center" role="alert" aria-live="assertive">
-            {dict.loadError} {categoriesError}
+            {dict.sections.categories.loadError} {categoriesError}
         </Typography>
     }
 
@@ -66,7 +67,7 @@ export const CategoriesSection: React.FC<{ dict: CategoriesSectionDict }> = ({di
         <Box>
             <Typography variant="h3" component="h2"
                         sx={{mb: {xs: theme.spacing(1), sm: theme.spacing(2)}, color: 'text.primary'}}>
-                {dict.title}
+                {dict.sections.categories.title}
             </Typography>
             <Box
                 sx={{
@@ -95,14 +96,12 @@ export const CategoriesSection: React.FC<{ dict: CategoriesSectionDict }> = ({di
                                 transition: 'transform .3s ease-in-out',
                             },
                         }}
-                        component="a"
-                        href={`/catalog?category_id=${category.id}`}
-                        aria-label={`${dict.viewCategory} ${category.name}`}
+                        aria-label={`${dict.sections.categories.view} ${category.name}`}
                     >
                         <Box
                             component="img"
                             src={`${API_URL}/${category.img_url}`}
-                            alt={dict.categoryImageAlt.replace('{categoryName}', category.name)}
+                            alt={dict.sections.categories.imageAlt.replace('{categoryName}', category.name)}
                             sx={{
                                 width: '100%',
                                 objectFit: 'cover',

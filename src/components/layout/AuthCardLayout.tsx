@@ -3,26 +3,31 @@
 import {Box, Card, Stack, Typography, useTheme} from '@mui/material';
 import React from 'react';
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
-import {AuthLayoutDict} from "@/types/dict";
+import {useDictionary} from "@/providers/DictionaryProvider";
 
 interface AuthCardLayoutProps {
     title: string;
     children: React.ReactNode;
     isLogin?: boolean;
-    dict: AuthLayoutDict
 }
 
 export const AuthCardLayout: React.FC<AuthCardLayoutProps> = ({
     title,
     children,
     isLogin = false,
-    dict
 }) => {
     const theme = useTheme();
     const router = useNavigatingRouter();
+    const dict = useDictionary();
 
     return (
-        <Stack height="80vh" p={theme.spacing(2)} justifyContent="center" role="form" aria-label={dict.authFormLabel}>
+        <Stack
+            height="80vh"
+            p={theme.spacing(2)}
+            justifyContent="center"
+            role="form"
+            aria-label={isLogin ? dict.auth.login.title : dict.auth.register.title}
+        >
             <Card
                 variant="outlined"
                 sx={{
@@ -45,7 +50,7 @@ export const AuthCardLayout: React.FC<AuthCardLayoutProps> = ({
                 <Typography textAlign="center">
                     {isLogin ? (
                         <>
-                            {dict.noAccount}{" "}
+                            {dict.auth.login.noAccount}{" "}
                             <Box
                                 component="span"
                                 onClick={() => router.push("/registration")}
@@ -53,12 +58,12 @@ export const AuthCardLayout: React.FC<AuthCardLayoutProps> = ({
                                 tabIndex={0}
                                 sx={{ cursor: 'pointer', color: theme.palette.primary.main }}
                             >
-                                {dict.signUp}
+                                {dict.auth.register.button}
                             </Box>
                         </>
                     ) : (
                         <>
-                            {dict.haveAccount}{" "}
+                            {dict.auth.login.haveAccount}{" "}
                             <Box
                                 component="span"
                                 onClick={() => router.push("/login")}
@@ -66,7 +71,7 @@ export const AuthCardLayout: React.FC<AuthCardLayoutProps> = ({
                                 tabIndex={0}
                                 sx={{ cursor: 'pointer', color: theme.palette.primary.main }}
                             >
-                                {dict.signIn}
+                                {dict.auth.login.button}
                             </Box>
                         </>
                     )}

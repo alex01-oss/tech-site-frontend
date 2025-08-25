@@ -23,11 +23,11 @@ import {
 } from "@mui/material";
 import {getProfileSchema} from "@/utils/validationSchemas";
 import {PasswordField} from "@/components/auth/PasswordField";
-import {EditProfilePageDict} from "@/types/dict";
 import {ProfileFormValues} from "@/types/formValues";
+import {useDictionary} from "@/providers/DictionaryProvider";
 
 
-export const EditProfilePage: React.FC<{ dict: EditProfilePageDict }> = ({ dict }) => {
+export const EditProfilePage = () => {
     const { user, updateUser, deleteUser, logoutAll } = useAuthStore();
     const router = useNavigatingRouter();
     const theme = useTheme();
@@ -35,15 +35,16 @@ export const EditProfilePage: React.FC<{ dict: EditProfilePageDict }> = ({ dict 
     const { startLoading, stopLoading, handleSuccess, handleError } = useFormHandler();
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const dict = useDictionary();
 
     const handleConfirmDelete = async () => {
         setIsDeleting(true);
         try {
             await deleteUser();
-            handleSuccess(dict.accountDeleted);
+            handleSuccess(dict.profile.edit.accountDeleted);
             router.push('/');
         } catch (error) {
-            handleError(dict.deleteAccountFailed, error);
+            handleError(dict.common.error, error);
         } finally {
             setIsDeleting(false);
             setOpenDeleteDialog(false);
@@ -53,9 +54,9 @@ export const EditProfilePage: React.FC<{ dict: EditProfilePageDict }> = ({ dict 
     const handleLogoutAllDevices = async () => {
         try {
             await logoutAll();
-            handleSuccess(dict.logoutAllSuccess);
+            handleSuccess(dict.profile.edit.logoutAllSuccess);
         } catch (error) {
-            handleError(dict.logoutAllFailed, error);
+            handleError(dict.common.error, error);
         }
     };
 
@@ -80,29 +81,27 @@ export const EditProfilePage: React.FC<{ dict: EditProfilePageDict }> = ({ dict 
             }
 
             if (Object.keys(updateData).length === 0) {
-                enqueueSnackbar(dict.noChanges, { variant: 'info' });
+                enqueueSnackbar(dict.profile.edit.noChanges, { variant: 'info' });
                 return;
             }
 
             const success = await updateUser(updateData);
             if (success) {
-                handleSuccess(dict.success);
+                handleSuccess(dict.common.success);
                 resetForm({
                     values: { ...values, currentPassword: '', password: '', confirmPassword: '' }
                 });
                 router.push('/profile');
-            } else {
-                handleError(dict.updateError);
             }
         } catch (error) {
-            handleError(dict.unexpectedError, error);
+            handleError(dict.common.error, error);
         } finally {
             stopLoading();
             setSubmitting(false);
         }
     };
 
-    if (!user) return <Typography variant="h6" align="center">{dict.loginRequired}</Typography>;
+    if (!user) return <Typography variant="h6" align="center">{dict.profile.loginRequired}</Typography>;
 
     const paperSx = {
         p: { xs: theme.spacing(2), sm: theme.spacing(3) },
@@ -112,15 +111,15 @@ export const EditProfilePage: React.FC<{ dict: EditProfilePageDict }> = ({ dict 
     };
 
     const personalFields = [
-        { name: 'full_name', label: dict.fullNameLabel, id: 'full-name-input' },
-        { name: 'email', label: dict.emailLabel, id: 'email-input' },
-        { name: 'phone', label: dict.phoneLabel, id: 'phone-input' }
+        { name: 'full_name', label: dict.auth.register.fullName, id: 'full-name-input' },
+        { name: 'email', label: dict.auth.register.email, id: 'email-input' },
+        { name: 'phone', label: dict.auth.register.phone, id: 'phone-input' }
     ];
 
     const passwordFields = [
-        { name: 'currentPassword', label: dict.currentPasswordLabel },
-        { name: 'password', label: dict.newPasswordLabel },
-        { name: 'confirmPassword', label: dict.confirmNewPasswordLabel }
+        { name: 'currentPassword', label: dict.profile.edit.currentPassword },
+        { name: 'password', label: dict.profile.edit.newPassword },
+        { name: 'confirmPassword', label: dict.profile.edit.confirmPassword }
     ];
 
     return (
@@ -131,7 +130,7 @@ export const EditProfilePage: React.FC<{ dict: EditProfilePageDict }> = ({ dict 
                 fontWeight={theme.typography.fontWeightBold}
                 sx={{ mb: { xs: theme.spacing(2), sm: theme.spacing(3) } }}
             >
-                {dict.title}
+                {dict.profile.edit.title}
             </Typography>
 
             <Formik<ProfileFormValues>
@@ -149,7 +148,7 @@ export const EditProfilePage: React.FC<{ dict: EditProfilePageDict }> = ({ dict 
                 {({ isSubmitting }) => (
                     <Form>
                         <Paper sx={paperSx}>
-                            <Typography variant="h6" component="h2" gutterBottom>{dict.personalInfoTitle}</Typography>
+                            <Typography variant="h6" component="h2" gutterBottom>{dict.profile.edit.personalInfo}</Typography>
                             {personalFields.map(({ name, label, id }) => (
                                 <Field
                                     key={name}
@@ -165,7 +164,7 @@ export const EditProfilePage: React.FC<{ dict: EditProfilePageDict }> = ({ dict 
                         </Paper>
 
                         <Paper sx={paperSx}>
-                            <Typography variant="h6" component="h2" gutterBottom>{dict.changePasswordTitle}</Typography>
+                            <Typography variant="h6" component="h2" gutterBottom>{dict.profile.edit.changePassword}</Typography>
                             {passwordFields.map(({ name, label }) => (
                                 <PasswordField key={name} name={name} label={label} />
                             ))}
@@ -176,13 +175,15 @@ export const EditProfilePage: React.FC<{ dict: EditProfilePageDict }> = ({ dict 
                                 sx={{ mt: theme.spacing(2) }}
                             >
                                 {isSubmitting
-                                    ? <CircularProgress size={24} aria-label={dict.submittingLabel}/>
-                                    : dict.updateProfileButton}
+                                    ? <CircularProgress size={24} aria-label={dict.common.saving}/>
+                                    : dict.profile.edit.updateButton}
                             </Button>
                         </Paper>
 
                         <Paper sx={{ ...paperSx, mb: 0 }}>
-                            <Typography variant="h6" component="h2" gutterBottom>{dict.accountManagementTitle}</Typography>
+                            <Typography variant="h6" component="h2" gutterBottom>
+                                {dict.profile.edit.accountManagement}
+                            </Typography>
                             <Box sx={{
                                 display: 'flex',
                                 flexDirection: { xs: 'column', md: 'row' },
@@ -190,10 +191,10 @@ export const EditProfilePage: React.FC<{ dict: EditProfilePageDict }> = ({ dict 
                                 mt: { xs: theme.spacing(2), sm: theme.spacing(3) }
                             }}>
                                 <Button variant="outlined" color="primary" onClick={handleLogoutAllDevices}>
-                                    {dict.logoutAllDevicesButton}
+                                    {dict.profile.edit.logoutAllDevices}
                                 </Button>
                                 <Button variant="outlined" color="error" onClick={() => setOpenDeleteDialog(true)}>
-                                    {dict.deleteAccountButton}
+                                    {dict.profile.edit.deleteAccount}
                                 </Button>
                             </Box>
                         </Paper>
@@ -205,9 +206,11 @@ export const EditProfilePage: React.FC<{ dict: EditProfilePageDict }> = ({ dict 
                             aria-labelledby="delete-dialog-title"
                             aria-describedby="delete-dialog-description"
                         >
-                            <DialogTitle id="delete-dialog-title">{dict.confirmDeletionTitle}</DialogTitle>
+                            <DialogTitle id="delete-dialog-title">{dict.profile.edit.confirmDeletion}</DialogTitle>
                             <DialogContent>
-                                <DialogContentText id="delete-dialog-description">{dict.confirmDeletionText}</DialogContentText>
+                                <DialogContentText id="delete-dialog-description">
+                                    {dict.profile.edit.confirmDeletion}
+                                </DialogContentText>
                             </DialogContent>
                             <DialogActions>
                                 <Button
@@ -215,7 +218,7 @@ export const EditProfilePage: React.FC<{ dict: EditProfilePageDict }> = ({ dict 
                                     color="primary"
                                     disabled={isDeleting}
                                 >
-                                    {dict.cancelButton}
+                                    {dict.common.cancel}
                                 </Button>
                                 <Button
                                     onClick={handleConfirmDelete}
@@ -224,8 +227,8 @@ export const EditProfilePage: React.FC<{ dict: EditProfilePageDict }> = ({ dict 
                                     disabled={isDeleting}
                                 >
                                     {isDeleting
-                                        ? <CircularProgress size={theme.spacing(3)} aria-label={dict.deletingProcessLabel}/>
-                                        : dict.deleteButton}
+                                        ? <CircularProgress size={theme.spacing(3)} aria-label={dict.common.deleting} />
+                                        : dict.common.delete}
                                 </Button>
                             </DialogActions>
                         </Dialog>

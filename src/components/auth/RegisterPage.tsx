@@ -10,12 +10,13 @@ import {useFormHandler} from "@/hooks/useFormHandler";
 import {FormWrapper} from "@/components/auth/FormWrapper";
 import {getSignUpSchema} from "@/utils/validationSchemas";
 import {PasswordField} from "@/components/auth/PasswordField";
-import {RegisterPageDict} from "@/types/dict";
+import {useDictionary} from "@/providers/DictionaryProvider";
 
-export const SignUp: React.FC<{ dict: RegisterPageDict }> = ({dict}) => {
+export const SignUp = () => {
     const {loading, startLoading, stopLoading, handleSuccess, handleError} = useFormHandler();
     const {register} = useAuthStore();
     const router = useNavigatingRouter();
+    const dict = useDictionary();
     const theme = useTheme();
 
     const handleSubmit = async (values: any) => {
@@ -29,13 +30,11 @@ export const SignUp: React.FC<{ dict: RegisterPageDict }> = ({dict}) => {
         try {
             const success = await register(registerData);
             if (success) {
-                handleSuccess(dict.register.success);
+                handleSuccess(dict.auth.message.success);
                 router.push("/");
-            } else {
-                handleError(dict.register.registrationFailed);
             }
         } catch (error: any) {
-            handleError(dict.register.error, error);
+            handleError(dict.auth.message.error, error);
         } finally {
             stopLoading();
         }
@@ -43,19 +42,18 @@ export const SignUp: React.FC<{ dict: RegisterPageDict }> = ({dict}) => {
 
     return (
         <FormWrapper
-            title={dict.register.title}
+            title={dict.auth.register.title}
             isLogin={false}
             loading={loading}
-            submitText={loading ? dict.register.loading : dict.register.signUpButton}
+            submitText={loading ? dict.common.loading : dict.auth.register.button}
             initialValues={{fullname: "", email: "", phone: "", password: "", agreeToPrivacy: false}}
-            validationSchema={getSignUpSchema(dict.register)}
+            validationSchema={getSignUpSchema(dict)}
             onSubmitAction={handleSubmit}
-            dict={dict.formWrapper}
         >
             <FormControl fullWidth margin="normal">
                 <Field
                     as={TextField}
-                    label={dict.register.fullNameLabel}
+                    label={dict.auth.register.fullName}
                     type="text"
                     name="fullname"
                     id="signup-fullname-input"
@@ -66,7 +64,7 @@ export const SignUp: React.FC<{ dict: RegisterPageDict }> = ({dict}) => {
             <FormControl fullWidth margin="normal">
                 <Field
                     as={TextField}
-                    label={dict.register.emailLabel}
+                    label={dict.auth.register.email}
                     type="email"
                     name="email"
                     id="signup-email-input"
@@ -77,7 +75,7 @@ export const SignUp: React.FC<{ dict: RegisterPageDict }> = ({dict}) => {
             <FormControl fullWidth margin="normal">
                 <Field
                     as={TextField}
-                    label={dict.register.phoneLabel}
+                    label={dict.auth.register.phone}
                     type="tel"
                     name="phone"
                     id="signup-phone-input"
@@ -87,8 +85,7 @@ export const SignUp: React.FC<{ dict: RegisterPageDict }> = ({dict}) => {
             </FormControl>
             <PasswordField
                 name="password"
-                label={dict.register.passwordLabel}
-                dict={dict.passwordField}
+                label={dict.auth.register.password}
                 required
             />
             <FormControl fullWidth margin="normal">
@@ -96,16 +93,16 @@ export const SignUp: React.FC<{ dict: RegisterPageDict }> = ({dict}) => {
                     control={<Field as={Checkbox} name="agreeToPrivacy" id="agreeToPrivacy"/>}
                     label={
                         <Typography variant="body2">
-                            {dict.register.privacyText}
+                            {dict.auth.register.privacyText}
                             <Link href="/privacy-policy" target="_blank" rel="noopener noreferrer"
                                   sx={{ml: theme.spacing(0.5)}}>
-                                {dict.register.privacyPolicy}
+                                {dict.common.privacyPolicy}
                             </Link>
                             {" "}
-                            {dict.register.and}
+                            {dict.common.and}
                             {" "}
                             <Link href="/terms-of-use" target="_blank" rel="noopener noreferrer">
-                                {dict.register.termsOfUse}
+                                {dict.common.termsOfUse}
                             </Link>
                             .
                         </Typography>

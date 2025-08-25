@@ -10,12 +10,13 @@ import {FormWrapper} from "@/components/auth/FormWrapper";
 import {getSignInSchema} from "@/utils/validationSchemas";
 import {useFormHandler} from "@/hooks/useFormHandler";
 import {PasswordField} from "@/components/auth/PasswordField";
-import {LoginPageDict} from "@/types/dict";
+import {useDictionary} from "@/providers/DictionaryProvider";
 
-export const SignIn: React.FC<{dict: LoginPageDict}> = ({dict}) => {
+export const SignIn = () => {
     const {loading, startLoading, stopLoading, handleSuccess, handleError} = useFormHandler();
     const {login} = useAuthStore();
     const router = useNavigatingRouter();
+    const dict = useDictionary();
 
     const handleSubmit = async (values: any) => {
         startLoading();
@@ -26,13 +27,11 @@ export const SignIn: React.FC<{dict: LoginPageDict}> = ({dict}) => {
         try {
             const success = await login(loginData);
             if (success) {
-                handleSuccess(dict.login.success);
+                handleSuccess(dict.auth.message.success);
                 router.push("/");
-            } else {
-                handleError(dict.login.invalidCredentials);
             }
         } catch (error: any) {
-            handleError(dict.login.error, error);
+            handleError(dict.auth.message.error, error);
         } finally {
             stopLoading();
         }
@@ -40,21 +39,20 @@ export const SignIn: React.FC<{dict: LoginPageDict}> = ({dict}) => {
 
     return (
         <FormWrapper
-            title={dict.login.title}
+            title={dict.auth.login.title}
             isLogin={true}
             loading={loading}
-            submitText={loading ? dict.login.loading : dict.login.signInButton}
+            submitText={loading ? dict.common.loading : dict.auth.login.button}
             initialValues={{email: "", password: ""}}
-            validationSchema={getSignInSchema(dict.login)}
+            validationSchema={getSignInSchema(dict)}
             onSubmitAction={handleSubmit}
-            dict={dict.formWrapper}
         >
             <FormControl fullWidth margin="normal">
                 <Field
                     as={TextField}
                     type="email"
                     name="email"
-                    label={dict.login.emailLabel}
+                    label={dict.auth.login.email}
                     id="login-email-input"
                     required
                     helperText={<ErrorMessage name="email"/>}
@@ -62,8 +60,7 @@ export const SignIn: React.FC<{dict: LoginPageDict}> = ({dict}) => {
             </FormControl>
             <PasswordField
                 name="password"
-                label={dict.login.passwordLabel}
-                dict={dict.passwordField}
+                label={dict.auth.login.password}
                 required
             />
         </FormWrapper>

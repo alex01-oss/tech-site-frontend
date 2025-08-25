@@ -7,16 +7,16 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import IconButton from '@mui/material/IconButton';
 import {Video} from "@/features/youtube/types";
 import {alpha, useTheme} from "@mui/material";
-import {VideoCardDict} from "@/types/dict";
+import {useDictionary} from "@/providers/DictionaryProvider";
 
 interface VideoCardProps {
     video: Video,
     onClickAction: (videoId: string) => void;
-    dict: VideoCardDict
 }
 
-export const VideoCard: React.FC<VideoCardProps> = ({ video, onClickAction, dict }) => {
+export const VideoCard: React.FC<VideoCardProps> = ({ video, onClickAction }) => {
     const theme = useTheme();
+    const dict = useDictionary();
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
         if (event.key === 'Enter') {
@@ -30,7 +30,7 @@ export const VideoCard: React.FC<VideoCardProps> = ({ video, onClickAction, dict
             onKeyDown={handleKeyDown}
             role="button"
             tabIndex={0}
-            aria-label={`${dict.playVideo} ${video.snippet.title}`}
+            aria-label={`${dict.sections.videos.play} ${video.snippet.title}`}
             sx={{
                 position: 'relative',
                 height: 200,
@@ -42,7 +42,7 @@ export const VideoCard: React.FC<VideoCardProps> = ({ video, onClickAction, dict
             <Box
                 component="img"
                 src={video.snippet.thumbnails.high.url}
-                alt={`${dict.videoThumbnail} ${video.snippet.title}`}
+                alt={`${dict.sections.videos.thumbnail} ${video.snippet.title}`}
                 sx={{
                     position: 'absolute',
                     top: 0,

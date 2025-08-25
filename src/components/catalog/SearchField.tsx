@@ -6,7 +6,7 @@ import {autoCompleteApi} from "@/features/autocomplete/api";
 import {useCatalogStore} from "@/features/catalog/store";
 import {SearchFields} from "@/types/searchFields";
 import {SxProps} from "@mui/system";
-import {SearchFieldDict} from "@/types/dict";
+import {useDictionary} from "@/providers/DictionaryProvider";
 
 interface Props {
     type: keyof SearchFields;
@@ -16,7 +16,6 @@ interface Props {
     onChange: (type: keyof SearchFields, value: string) => void;
     onKeyDown: (e: React.KeyboardEvent) => void;
     isMobile?: boolean;
-    dict: SearchFieldDict
 }
 
 const apiMap = {
@@ -27,14 +26,15 @@ const apiMap = {
 };
 
 export const AutocompleteSearchField: React.FC<Props> = memo(
-    ({type, label, minLength, value, onChange, onKeyDown, isMobile, dict}) => {
+    ({type, label, minLength, value, onChange, onKeyDown, isMobile}) => {
         const [options, setOptions] = useState<string[]>([]);
         const [loading, setLoading] = useState(false);
         const theme = useTheme();
+        const dict = useDictionary()
 
         const { categoryId, search, filters } = useCatalogStore();
 
-        const getPlaceholderText = (lbl: string): string => `${dict.enter} ${lbl}...`;
+        const getPlaceholderText = (lbl: string): string => `${dict.catalog.search.enter} ${lbl}...`;
 
         const fetchOptionsDebounced = useCallback(
             debounce(async (
@@ -152,7 +152,7 @@ export const AutocompleteSearchField: React.FC<Props> = memo(
                 onChange={handleSelectChange}
                 sx={{flexGrow: 1, minWidth: isMobile ? undefined : 120}}
                 aria-label={getPlaceholderText(label)}
-                loadingText={dict.loading}
+                loadingText={dict.common.loading}
                 renderInput={(params) => (
                     <TextField
                         {...params}
@@ -172,7 +172,7 @@ export const AutocompleteSearchField: React.FC<Props> = memo(
                                 ),
                                 endAdornment: (
                                     <>
-                                        {loading ? <CircularProgress color="inherit" size={20} aria-label={dict.loading}/> : null}
+                                        {loading ? <CircularProgress color="inherit" size={20} aria-label={dict.common.loading}/> : null}
                                         {params.InputProps.endAdornment}
                                     </>
                                 ),

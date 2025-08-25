@@ -8,17 +8,9 @@ import {blogApi} from "@/features/blog/api";
 import {Video} from "@/features/youtube/types";
 import {youtubeApi} from "@/features/youtube/api";
 import React from "react";
-import {getDictionary} from "@/lib/i18n";
 import {API_URL} from "@/constants/constants";
 
-interface Props {
-    params: Promise<{ lang: string }>;
-}
-
-export default async function Page({params}: Props) {
-    const { lang } = await params;
-    const dict = await getDictionary(lang);
-
+export default async function Page() {
     let posts: Post[] = [];
     let youtubeVideos: Video[] = [];
 
@@ -45,18 +37,14 @@ export default async function Page({params}: Props) {
 
     return (
         <Stack spacing={4}>
-            <AboutUsSection dict={dict.aboutUsSection} />
-            <CategoriesSection dict={dict.categoriesSection} />
+            <AboutUsSection />
+            <CategoriesSection />
             <BlogSection
-                dict={{
-                    dialog: dict.blog.main.dialog,
-                    blogSection: dict.blog.blogSection,
-                }}
                 posts={posts}
                 baseApiUrl={API_URL}
                 isLoading={false}
             />
-            <VideosSection dict={dict.videosSection} videos={youtubeVideos} />
+            <VideosSection videos={youtubeVideos} />
         </Stack>
     );
 }

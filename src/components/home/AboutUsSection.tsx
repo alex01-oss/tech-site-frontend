@@ -4,10 +4,11 @@ import React from 'react';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
 import {useTheme} from "@mui/material";
-import {AboutUsDict} from "@/types/dict";
+import { useDictionary } from '@/providers/DictionaryProvider';
 
-export const AboutUsSection: React.FC<{ dict: AboutUsDict }> = ({ dict }) => {
+export const AboutUsSection = () => {
     const theme = useTheme();
+    const dict = useDictionary().sections.aboutUs;
 
     return (
         <Paper sx={{

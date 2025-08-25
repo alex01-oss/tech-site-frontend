@@ -26,11 +26,13 @@ import {useSnackbar} from "notistack";
 import {ProductsTable} from "@/components/catalog/ProductsTable";
 import {useCartStore} from "@/features/cart/store";
 import {useAuthStore} from "@/features/auth/store";
-import {OrderFormSchema, OrderFormValues} from "@/types/order";
-import {CartPageDict} from "@/types/dict";
+import {OrderFormValues} from "@/types/order";
+import {useDictionary} from "@/providers/DictionaryProvider";
+import {getOrderFormSchema} from "@/utils/validationSchemas";
 
-export const OrderForm: React.FC<{ dict: CartPageDict }> = ({dict}) => {
+export const OrderForm = () => {
     const formikRef = useRef<any>(null);
+    const dict = useDictionary();
     const [activeStep, setActiveStep] = useState(0);
     const {cart, fetchCart, error} = useCartStore();
     const {user, initializing} = useAuthStore();
@@ -77,7 +79,7 @@ export const OrderForm: React.FC<{ dict: CartPageDict }> = ({dict}) => {
                 justifyContent: "center",
                 alignItems: "center"
             }}>
-                <Alert severity="error">{dict.cart.loadingError} {error}</Alert>
+                <Alert severity="error">{dict.common.error} {error}</Alert>
             </Box>
         );
     }
@@ -95,10 +97,10 @@ export const OrderForm: React.FC<{ dict: CartPageDict }> = ({dict}) => {
             case 0:
                 return cart.length === 0 ? (
                     <Typography variant="h6" sx={{textAlign: "center", color: "text.secondary"}}>
-                        {dict.cart.emptyMessage}
+                        {dict.cart.empty}
                     </Typography>
                 ) : (
-                    <ProductsTable products={cart.map((item) => item.product)} isCartView dict={dict.productCard}/>
+                    <ProductsTable products={cart.map((item) => item.product)} isCartView />
                 );
             case 1:
                 return (
@@ -108,7 +110,7 @@ export const OrderForm: React.FC<{ dict: CartPageDict }> = ({dict}) => {
                         </Typography>
                         <Formik
                             initialValues={initialFormValues}
-                            validationSchema={OrderFormSchema}
+                            validationSchema={getOrderFormSchema}
                             innerRef={formikRef}
                             onSubmit={(values) => {
                                 console.log(values);
@@ -150,25 +152,27 @@ export const OrderForm: React.FC<{ dict: CartPageDict }> = ({dict}) => {
 
                                         <Box sx={{gridColumn: {xs: 'span 1', sm: 'span 2'}}}>
                                             <FormControl fullWidth required>
-                                                <InputLabel id="delivery-method-label">{dict.cart.deliveryMethod}</InputLabel>
+                                                <InputLabel id="delivery-method-label">
+                                                    {dict.cart.delivery.method}
+                                                </InputLabel>
                                                 <Select
                                                     labelId="delivery-method-label"
                                                     id="delivery-method-select"
-                                                    label={dict.cart.deliveryMethod}
+                                                    label={dict.cart.delivery.method}
                                                     name="deliveryMethod"
                                                     value={values.deliveryMethod}
                                                     onChange={handleChange}
                                                 >
-                                                    <MenuItem value="standard">{dict.cart.standard}</MenuItem>
-                                                    <MenuItem value="express">{dict.cart.express}</MenuItem>
-                                                    <MenuItem value="pickup">{dict.cart.pickup}</MenuItem>
+                                                    <MenuItem value="standard">{dict.cart.delivery.standard}</MenuItem>
+                                                    <MenuItem value="express">{dict.cart.delivery.express}</MenuItem>
+                                                    <MenuItem value="pickup">{dict.cart.delivery.pickup}</MenuItem>
                                                 </Select>
                                             </FormControl>
                                         </Box>
 
                                         <Box sx={{gridColumn: {xs: 'span 1', sm: 'span 2'}}}>
                                             <FormControl fullWidth required>
-                                                <FormLabel id="payment-method-group-label">{dict.cart.payment}</FormLabel>
+                                                <FormLabel id="payment-method-group-label">{dict.cart.payment.title}</FormLabel>
                                                 <RadioGroup
                                                     aria-labelledby="payment-method-group-label"
                                                     name="paymentMethod"
@@ -178,15 +182,15 @@ export const OrderForm: React.FC<{ dict: CartPageDict }> = ({dict}) => {
                                                     <FormControlLabel
                                                         value="cashOnDelivery"
                                                         control={<Radio/>}
-                                                        label={dict.cart.cashOnDelivery}/>
+                                                        label={dict.cart.payment.cash}/>
                                                     <FormControlLabel
                                                         value="payNow"
                                                         control={<Radio/>}
-                                                        label={dict.cart.payNow}/>
+                                                        label={dict.cart.payment.payNow}/>
                                                     <FormControlLabel
                                                         value="installments"
                                                         control={<Radio/>}
-                                                        label={dict.cart.installments}/>
+                                                        label={dict.cart.payment.installments}/>
                                                 </RadioGroup>
                                             </FormControl>
                                         </Box>
@@ -205,18 +209,18 @@ export const OrderForm: React.FC<{ dict: CartPageDict }> = ({dict}) => {
                         }}
                     >
                         <Paper sx={{p: theme.spacing(3), borderRadius: theme.shape.borderRadius * 2}}>
-                            <Typography variant="h6" component="h2">{dict.cart.summary}</Typography>
+                            <Typography variant="h6" component="h2">{dict.cart.summary.title}</Typography>
                             <Divider sx={{my: theme.spacing(2)}}/>
                             <Typography
-                                variant="body1">{dict.cart.total} {cart.length} {cart.length > 1 ? dict.cart.itemsPlural : dict.cart.itemsSingular}</Typography>
+                                variant="body1">{dict.cart.summary.total} {cart.length} {cart.length > 1 ? dict.cart.summary.items : dict.cart.summary.item}</Typography>
                             <Typography variant="body2" sx={{mt: theme.spacing(1), color: "text.secondary"}}>
-                                {dict.cart.deliveryCost}
+                                {dict.cart.delivery.cost}
                             </Typography>
                             <Typography variant="caption" sx={{mt: theme.spacing(2), display: "block"}}>
                                 {dict.cart.agreement}
                             </Typography>
                             <Typography variant="caption" sx={{color: "primary.main", cursor: "pointer"}}>
-                                {dict.cart.privacyPolicy} {dict.cart.and} {dict.cart.termsOfService}
+                                {dict.common.privacyPolicy} {dict.common.and} {dict.common.termsOfUse}
                             </Typography>
                             <Button variant="contained" color="primary" fullWidth sx={{mt: theme.spacing(2)}}
                                     aria-label={dict.cart.cta}>
@@ -248,16 +252,16 @@ export const OrderForm: React.FC<{ dict: CartPageDict }> = ({dict}) => {
                         size="small"
                         onClick={handleNext}
                         disabled={activeStep === 2}
-                        aria-label={dict.cart.next}
+                        aria-label={dict.common.next}
                     >
-                        {dict.cart.next}
+                        {dict.common.next}
                         {theme.direction === "rtl" ? (<KeyboardArrowLeft/>) : (<KeyboardArrowRight/>)}
                     </Button>
                 }
                 backButton={
-                    <Button size="small" onClick={handleBack} disabled={activeStep === 0} aria-label={dict.cart.back}>
+                    <Button size="small" onClick={handleBack} disabled={activeStep === 0} aria-label={dict.common.back}>
                         {theme.direction === "rtl" ? (<KeyboardArrowRight/>) : (<KeyboardArrowLeft/>)}
-                        {dict.cart.back}
+                        {dict.common.back}
                     </Button>
                 }
             />

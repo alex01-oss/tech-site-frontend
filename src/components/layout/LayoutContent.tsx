@@ -6,19 +6,16 @@ import React from "react";
 import ErrorBoundary from "@/components/ui/ErrorBoundary";
 import {Footer} from "@/components/layout/Footer";
 import {Navbar} from "@/components/layout/Navbar";
-import {LayoutDict} from "@/types/dict";
+import {useDictionary} from "@/providers/DictionaryProvider";
 
-interface LayoutContentProps {
-    children: React.ReactNode;
-    dict: LayoutDict
-}
 
-export default function LayoutContent({ children, dict }: LayoutContentProps) {
+export default function LayoutContent({ children }: {children: React.ReactNode}) {
     const { hasTopMargin } = useLayout();
     const theme = useTheme();
+    const dict = useDictionary()
 
     return (
-        <ErrorBoundary dict={dict.errorBoundary}>
+        <ErrorBoundary>
             <Container
                 sx={{
                     maxWidth: 'lg',
@@ -51,7 +48,7 @@ export default function LayoutContent({ children, dict }: LayoutContentProps) {
                         },
                     }}
                 >
-                    {dict.layout.skipToMainContent}
+                    {dict.layout.skipToMain}
                 </Box>
 
                 <Box
@@ -62,10 +59,7 @@ export default function LayoutContent({ children, dict }: LayoutContentProps) {
                             : 0,
                     }}
                 >
-                    <Navbar dict={{
-                        navbar: dict.layout.navbar,
-                        avatar: dict.layout.avatar
-                    }} />
+                    <Navbar />
                 </Box>
 
                 <Box
@@ -86,7 +80,7 @@ export default function LayoutContent({ children, dict }: LayoutContentProps) {
                     mt: { xs: theme.spacing(2), sm: theme.spacing(3) },
                 }}
             >
-                <Footer dict={dict.layout.footer} />
+                <Footer />
             </Box>
         </ErrorBoundary>
     );

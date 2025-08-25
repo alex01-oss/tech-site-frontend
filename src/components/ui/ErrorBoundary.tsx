@@ -1,74 +1,77 @@
 "use client";
 
 import {Box, Button, Typography, useTheme} from "@mui/material";
-import React from "react";
-import {ErrorBoundaryDict} from "@/types/dict";
+import React, {useEffect, useState} from "react";
+import {useDictionary} from "@/providers/DictionaryProvider";
 
 interface Props {
     children: React.ReactNode;
-    dict: ErrorBoundaryDict
 }
 
-interface State {
-    hasError: boolean;
-}
+const ErrorBoundary = ({ children }: Props) => {
+    const [hasError, setHasError] = useState(false);
+    const theme = useTheme();
+    const dict = useDictionary();
 
-class ErrorBoundary extends React.Component<Props, State> {
-    constructor(props: Props) {
-        super(props);
-        this.state = {hasError: false};
-    }
+    useEffect(() => {
+        const handleError = (error: ErrorEvent) => {
+            console.error('Error:', error.error);
+            setHasError(true);
+        };
 
-    static getDerivedStateFromError(_: Error) {
-        return {hasError: true};
-    }
+        const handleRejection = (event: PromiseRejectionEvent) => {
+            console.error('Unhandled Promise Rejection:', event.reason);
+            setHasError(true);
+        };
 
-    componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-        console.error("Error:", error);
-        console.error("Error Info:", errorInfo);
-    }
+        window.addEventListener('error', handleError);
+        window.addEventListener('unhandledrejection', handleRejection);
 
-    render() {
-        if (this.state.hasError) {
-            const theme = useTheme();
+        return () => {
+            window.removeEventListener('error', handleError);
+            window.removeEventListener('unhandledrejection', handleRejection);
+        };
+    }, []);
 
-            return (
-                <Box
-                    role="alert"
-                    aria-live="assertive"
+    if (hasError) {
+        return (
+            <Box
+                role="alert"
+                aria-live="assertive"
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    height: '100vh',
+                    textAlign: 'center',
+                    padding: { xs: 2, md: 4 },
+                    bgcolor: 'background.default',
+                }}
+            >
+                <Typography
+                    variant="h4"
+                    component="h1"
                     sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        height: "100vh",
-                        textAlign: "center",
-                        padding: { xs: 2, md: 4 },
-                        bgcolor: "background.default",
+                        mb: theme.spacing(2),
+                        color: 'primary.main',
                     }}
                 >
-                    <Typography
-                        variant="h4"
-                        component="h1"
-                        sx={{
-                            mb: theme.spacing(2),
-                            color: "primary.main"
-                        }}
-                    >
-                        {this.props.dict.errorTitle}
-                    </Typography>
-                    <Button
-                        variant="contained"
-                        onClick={() => window.location.reload()}
-                        color="primary"
-                        aria-label={"Reload the page"}
-                    >
-                        {this.props.dict.reloadButton}
-                    </Button>
-                </Box>
-            );
-        }
-        return this.props.children;
+                    {dict.errorBoundary.title}
+                </Typography>
+                <Button
+                    variant="contained"
+                    onClick={() => window.location.reload()}
+                    color="primary"
+                    aria-label={dict.errorBoundary.reload}
+                >
+                    {dict.errorBoundary.reload}
+                </Button>
+            </Box>
+        );
     }
-}
+
+    return children;
+};
+
 export default ErrorBoundary;

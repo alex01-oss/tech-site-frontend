@@ -7,12 +7,13 @@ import {useCartStore} from "@/features/cart/store";
 import {enqueueSnackbar} from "notistack";
 import EditIcon from "@mui/icons-material/Edit";
 import React from "react";
-import {ProfilePageDict} from "@/types/dict";
 import {UserAvatar} from "@/components/ui/UserAvatar";
+import {useDictionary} from "@/providers/DictionaryProvider";
 
-export const ProfilePage: React.FC<{ dict: ProfilePageDict }> = ({dict}) => {
+export const ProfilePage = () => {
     const router = useNavigatingRouter();
     const {user, logout, isAuthenticated} = useAuthStore();
+    const dict = useDictionary();
     const {cartCount} = useCartStore();
     const theme = useTheme();
 
@@ -41,7 +42,6 @@ export const ProfilePage: React.FC<{ dict: ProfilePageDict }> = ({dict}) => {
                     user={user}
                     isAuthenticated={isAuthenticated}
                     size="large"
-                    dict={dict.avatar}
                 />
                 <Box sx={{
                     ml: {xs: 0, md: theme.spacing(4)},
@@ -58,7 +58,7 @@ export const ProfilePage: React.FC<{ dict: ProfilePageDict }> = ({dict}) => {
                         onClick={() => router.push("/profile/edit")}
                         startIcon={<EditIcon/>}
                     >
-                        {dict.profile.edit}
+                        {dict.profile.edit.title}
                     </Button>
                 </Box>
             </Box>

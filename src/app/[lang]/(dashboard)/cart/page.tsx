@@ -1,21 +1,5 @@
-import {getDictionary} from '@/lib/i18n';
 import {OrderForm} from "@/components/cart/CartPage";
 
-
-interface Props {
-    params: Promise<{ lang: string }>;
-}
-
-export default async function Page({ params }: Props) {
-    const { lang } = await params;
-    const dict = await getDictionary(lang);
-
-    return (
-        <OrderForm
-            dict={{
-                cart: dict.cart,
-                productCard: dict.productCard
-            }}
-        />
-    );
+export default async function Page() {
+    return <OrderForm />
 }

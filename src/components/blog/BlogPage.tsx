@@ -9,17 +9,12 @@ import {PostCard} from "@/components/blog/PostCard";
 import AddIcon from '@mui/icons-material/Add';
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 import {useAuthStore} from "@/features/auth/store";
-import {BlogPageDict} from "@/types/dict";
+import {useDictionary} from "@/providers/DictionaryProvider";
 
-interface BlogGridProps {
-    posts: Post[];
-    baseApiUrl: string;
-    dict: BlogPageDict
-}
-
-export const BlogPage: React.FC<BlogGridProps> = ({posts, baseApiUrl, dict}) => {
+export const BlogPage: React.FC<{ posts: Post[]; }> = ({posts}) => {
     const [searchTerm, setSearchTerm] = React.useState('');
     const router = useNavigatingRouter();
+    const dict = useDictionary();
     const theme = useTheme();
     const {user} = useAuthStore();
 
@@ -42,14 +37,13 @@ export const BlogPage: React.FC<BlogGridProps> = ({posts, baseApiUrl, dict}) => 
         <Box>
             <Typography variant="h2" component="h1" align="center"
                         sx={{color: 'text.primary', fontWeight: theme.typography.fontWeightBold}}>
-                {dict.title}
+                {dict.blog.title}
             </Typography>
 
             <Box sx={{display: 'flex', justifyContent: 'center', my: {xs: theme.spacing(2), sm: theme.spacing(3)}}}>
                 <TextField
                     variant="outlined"
-                    label={dict.searchLabel}
-                    placeholder={dict.placeholder}
+                    placeholder={dict.blog.placeholder}
                     value={searchTerm}
                     onChange={handleSearchChange}
                     sx={{width: '100%'}}
@@ -63,7 +57,7 @@ export const BlogPage: React.FC<BlogGridProps> = ({posts, baseApiUrl, dict}) => 
                             searchTerm ? (
                                 <InputAdornment position="end">
                                     <IconButton onClick={handleSearchClear} edge="end" size="small"
-                                                aria-label={dict.clearSearchLabel}>
+                                                aria-label={dict.common.clear}>
                                         <ClearIcon/>
                                     </IconButton>
                                 </InputAdornment>
@@ -89,12 +83,10 @@ export const BlogPage: React.FC<BlogGridProps> = ({posts, baseApiUrl, dict}) => 
                         <Box key={post.id}>
                             <PostCard
                                 post={post}
-                                baseApiUrl={baseApiUrl}
                                 height={300}
                                 showAdminControls={true}
                                 elevation={4}
                                 showDescription={true}
-                                dict={dict.dialog}
                             />
                         </Box>
                     ))
@@ -107,7 +99,7 @@ export const BlogPage: React.FC<BlogGridProps> = ({posts, baseApiUrl, dict}) => 
                             sx={{mt: theme.spacing(4)}}
                             role="status"
                         >
-                            {searchTerm ? `${dict.notFound} "${searchTerm}".` : dict.empty}
+                            {searchTerm ? `${dict.blog.notFound} "${searchTerm}".` : dict.blog.empty}
                         </Typography>
                     </Box>
                 )}
@@ -116,7 +108,7 @@ export const BlogPage: React.FC<BlogGridProps> = ({posts, baseApiUrl, dict}) => 
             {user && user.role === 'admin' && (
                 <Fab
                     color="secondary"
-                    aria-label={dict.add}
+                    aria-label={dict.common.add}
                     sx={{
                         position: 'fixed',
                         borderRadius: theme.shape.borderRadius,

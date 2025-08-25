@@ -19,7 +19,7 @@ import {FilterItem} from "@/features/data/types";
 import DoneIcon from '@mui/icons-material/Done';
 import {useCatalogStore} from "@/features/catalog/store";
 import {FiltersSkeleton} from "@/components/skeletons/FiltersSkeleton";
-import {FiltersPanelDict} from "@/types/dict";
+import {useDictionary} from "@/providers/DictionaryProvider";
 
 interface FiltersPanelProps {
     filters: Record<string, Set<number>>;
@@ -27,7 +27,6 @@ interface FiltersPanelProps {
     onClearAllFilters: () => void;
     onClose?: () => void;
     isMobileDrawer?: boolean;
-    dict: FiltersPanelDict
 }
 
 export const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
@@ -35,10 +34,10 @@ export const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
     onFilterToggle,
     onClose,
     isMobileDrawer = false,
-    dict
 }) => {
     const {filters: filterData, filtersLoading, filtersError, fetchFilters} = useDataStore();
     const {categoryId} = useCatalogStore();
+    const dict = useDictionary();
     const theme = useTheme();
 
     useEffect(() => {
@@ -80,11 +79,11 @@ export const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
                 >
                     {isMobileDrawer && (
                         <Typography variant="h6" component="h2">
-                            {dict.filters}
+                            {dict.common.filters}
                         </Typography>
                     )}
                     {onClose && (
-                        <IconButton onClick={onClose} aria-label={dict.closeFilters}>
+                        <IconButton onClick={onClose} aria-label={dict.common.close}>
                             <CloseIcon/>
                         </IconButton>
                     )}
@@ -92,12 +91,12 @@ export const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
 
                 {filtersLoading && (
                     <Typography sx={{my: theme.spacing(2), textAlign: 'center'}}>
-                        <CircularProgress aria-label={dict.loadingFilters}/>
+                        <CircularProgress aria-label={dict.common.loading}/>
                     </Typography>
                 )}
                 {filtersError && (
                     <Typography color="error" sx={{my: theme.spacing(2), textAlign: 'center'}} role="alert">
-                        {dict.error} {filtersError}
+                        {dict.common.error} {filtersError}
                     </Typography>
                 )}
 
@@ -105,8 +104,8 @@ export const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
                     const categoryItems = filterData[categoryTitle];
 
                     let translatedTitle = categoryTitle
-                    if (categoryTitle in dict.titles) {
-                        translatedTitle = dict.titles[categoryTitle]
+                    if (Object.keys(dict.catalog.filters).includes(categoryTitle)) {
+                        translatedTitle = dict.catalog.filters[categoryTitle as keyof typeof dict.catalog.filters];
                     }
 
                     return (
@@ -144,7 +143,7 @@ export const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
                                         let labelText = nameKey ? item[nameKey] : '';
 
                                         if (categoryTitle.toLowerCase() === 'mountings' && item.mm && item.inch) {
-                                            labelText = `${item.mm} ${dict.mm} / ${item.inch} ″`;
+                                            labelText = `${item.mm} ${dict.common.mm} / ${item.inch} ″`;
                                         }
 
                                         const isChecked = filters[categoryTitle]?.has(item.id) || false;
@@ -183,7 +182,7 @@ export const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
                             onClick={onClose}
                             startIcon={<DoneIcon/>}
                         >
-                            {dict.apply}
+                            {dict.common.apply}
                         </Button>
                     </Box>
                 )}

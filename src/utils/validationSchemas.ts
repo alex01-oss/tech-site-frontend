@@ -48,3 +48,22 @@ export const getProfileSchema = (dict: any) => Yup.object().shape({
         otherwise: (schema) => schema.notRequired(),
     }),
 });
+
+export const getOrderFormSchema = (dict: any) => Yup.object().shape({
+    name: Yup.string()
+        .required(dict.validation.nameRequired),
+    surname: Yup.string()
+        .required(dict.validation.surnameRequired),
+    phoneNumber: Yup.string()
+        .matches(/^[+]?[0-9]{10,15}$/, dict.validation.phoneInvalid)
+        .required(dict.validation.phoneRequired),
+    email: Yup.string()
+        .email(dict.validation.emailInvalid)
+        .required(dict.validation.emailRequired),
+    address: Yup.string()
+        .required(dict.validation.addressRequired),
+    paymentMethod: Yup.string()
+        .required(dict.validation.paymentMethodRequired),
+    deliveryMethod: Yup.string()
+        .required(dict.validation.deliveryMethodRequired),
+});

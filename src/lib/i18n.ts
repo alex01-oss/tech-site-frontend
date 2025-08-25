@@ -12,3 +12,5 @@ export const getDictionary = async (locale: string) => {
     const validLocale = locale in dictionaries ? locale as keyof typeof dictionaries : 'uk';
     return dictionaries[validLocale]();
 }
+
+export type Dict = Awaited<ReturnType<typeof getDictionary>>;

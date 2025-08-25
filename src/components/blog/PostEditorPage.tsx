@@ -24,24 +24,24 @@ import {revalidateBlogPosts} from "@/actions/actions";
 import {Editor as TinyMCEEditor} from "tinymce";
 import {Editor} from "@tinymce/tinymce-react";
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
-import {PostEditorDict} from "@/types/dict";
 import {EditorFormState} from "@/types/editorFormState";
 import Spinner from "@/components/ui/Spinner";
 import {API_URL, TINYMCE_API_KEY} from '@/constants/constants';
+import {useDictionary} from "@/providers/DictionaryProvider";
 
 type PostEditorMode = 'create' | 'edit';
 
 interface PostEditorProps {
     mode: PostEditorMode;
     postId?: number;
-    dict: PostEditorDict;
 }
 
-export const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) => {
+export const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId}) => {
     const router = useNavigatingRouter();
     const {enqueueSnackbar} = useSnackbar();
     const theme = useTheme();
     const isDarkMode = theme.palette.mode === 'dark';
+    const dict = useDictionary();
 
     const [formState, setFormState] = useState<EditorFormState>({
         title: '',
@@ -82,8 +82,8 @@ export const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) 
                 })
                 .catch(err => {
                     console.error('Failed to fetch post for editing:', err);
-                    setError(err.message || dict.loadError);
-                    enqueueSnackbar(dict.loadError, {variant: 'error'});
+                    setError(err.message || dict.blog.post.failedToLoad);
+                    enqueueSnackbar(dict.blog.post.failedToLoad, {variant: 'error'});
                 })
                 .finally(() => {
                     setIsLoading(false);
@@ -116,14 +116,14 @@ export const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) 
         setError(null);
 
         if (!formState.title.trim()) {
-            enqueueSnackbar(dict.titleRequired, {variant: 'error'});
+            enqueueSnackbar(dict.blog.editor.titleRequired, {variant: 'error'});
             return;
         }
 
         const htmlContent = editorRef.current ? editorRef.current.getContent() : '';
 
         if (!htmlContent.trim()) {
-            enqueueSnackbar(dict.contentRequired, {variant: 'error'});
+            enqueueSnackbar(dict.blog.editor.contentRequired, {variant: 'error'});
             return;
         }
 
@@ -146,30 +146,30 @@ export const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) 
 
             if (isNewPost) {
                 await blogApi.createPost(postData);
-                enqueueSnackbar(dict.create, {variant: 'success'});
+                enqueueSnackbar(dict.blog.editor.create, {variant: 'success'});
             } else if (postId) {
                 await blogApi.editPost(postId, postData);
-                enqueueSnackbar(dict.update, {variant: 'success'});
+                enqueueSnackbar(dict.blog.editor.update, {variant: 'success'});
             }
 
             await revalidateBlogPosts();
             router.push('/blog');
         } catch (err: any) {
             console.error('Failed to save post:', err);
-            setError(err.message || dict.error);
-            enqueueSnackbar(`${dict.error}: ${err.message || dict.unknownError}`, {variant: 'error'});
+            setError(err.message || dict.common.error);
+            enqueueSnackbar(`${dict.common.error}: ${err.message || dict.common.error}`, {variant: 'error'});
         } finally {
             setIsSaving(false);
         }
     }, [formState, isNewPost, postId, router, enqueueSnackbar, hasImage]);
 
-    if (isLoading) return <Spinner aria-label={dict.loading} />;
+    if (isLoading) return <Spinner aria-label={dict.common.loading} />;
 
     if (error && mode === 'edit') {
         return (
             <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" height="100vh" role="alert">
                 <Typography color="error" variant="h6">{error}</Typography>
-                <Button onClick={() => router.back()} sx={{mt: theme.spacing(2)}}>{dict.goBack}</Button>
+                <Button onClick={() => router.back()} sx={{mt: theme.spacing(2)}}>{dict.common.back}</Button>
             </Box>
         );
     }
@@ -177,7 +177,7 @@ export const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) 
     return (
         <Box sx={{display: 'flex', flexDirection: 'column', gap: {xs: theme.spacing(2), sm: theme.spacing(3)}}}>
             <TextField
-                label={dict.title}
+                label={dict.blog.editor.title}
                 variant="outlined"
                 fullWidth
                 value={formState.title}
@@ -188,7 +188,7 @@ export const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) 
 
             <Card variant="outlined" sx={{borderRadius: theme.shape.borderRadius}}>
                 <CardContent>
-                    <Typography variant="h6" component="h2" gutterBottom>{dict.image}</Typography>
+                    <Typography variant="h6" component="h2" gutterBottom>{dict.blog.editor.image}</Typography>
                     <input
                         accept="image/*"
                         style={{display: 'none'}}
@@ -204,18 +204,18 @@ export const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) 
                             startIcon={<AddPhotoAlternateIcon/>}
                             aria-describedby="upload-image-button-description"
                         >
-                            {hasImage ? dict.changeImage : dict.pickImage}
+                            {hasImage ? dict.blog.editor.changeImage : dict.blog.editor.pickImage}
                         </Button>
                     </label>
                     <Typography id="upload-image-button-description" sx={{display: 'none'}}>
-                        {dict.uploadImageDescription}
+                        {dict.blog.editor.uploadDescription}
                     </Typography>
 
                     {hasImage && previewImage && (
                         <Box sx={{mt: theme.spacing(2), position: 'relative', width: '100%', height: 200}}>
                             <Image
                                 src={previewImage}
-                                alt={dict.previewTitle}
+                                alt={dict.blog.editor.preview}
                                 fill
                                 style={{
                                     objectFit: 'cover',
@@ -234,7 +234,7 @@ export const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) 
                                         backgroundColor: theme.palette.mode === 'dark' ? 'rgba(0,0,0,0.9)' : 'rgba(255,255,255,0.9)'
                                     }
                                 }}
-                                aria-label={dict.clearImage}
+                                aria-label={dict.blog.editor.clearImage}
                             >
                                 <DeleteIcon color="error"/>
                             </IconButton>
@@ -245,7 +245,7 @@ export const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) 
 
             <Card variant="outlined" sx={{borderRadius: theme.shape.borderRadius}}>
                 <CardContent>
-                    <Typography variant="h6" component="h2" gutterBottom>{dict.contentEditorTitle}</Typography>
+                    <Typography variant="h6" component="h2" gutterBottom>{dict.blog.editor.contentEditor}</Typography>
                     <Editor
                         key={editorKey}
                         onInit={(_, editor) => editorRef.current = editor}
@@ -272,7 +272,7 @@ export const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) 
                                 body { font-family: ${theme.typography.fontFamily}; font-size: 14px; background-color: ${theme.palette.background.default}; color: ${theme.palette.text.primary}; }
                                 h1, h2, h3, h4, h5, h6, p, a { color: ${theme.palette.text.primary}; }
                             `,
-                            title: dict.contentEditorTitle
+                            title: dict.blog.editor.contentEditor
                         }}
                     />
                 </CardContent>
@@ -286,7 +286,9 @@ export const PostEditorPage: React.FC<PostEditorProps> = ({mode, postId, dict}) 
                 fullWidth
                 startIcon={<SaveIcon/>}
             >
-                {isSaving ? <CircularProgress size={24} aria-label={dict.saving} /> : (isNewPost ? dict.createPost : dict.updatePost)}
+                {isSaving
+                    ? <CircularProgress size={24} aria-label={dict.common.saving} />
+                    : (isNewPost ? dict.blog.editor.create : dict.blog.editor.update)}
             </Button>
         </Box>
     );

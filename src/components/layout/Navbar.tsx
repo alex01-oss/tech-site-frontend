@@ -29,8 +29,8 @@ import {useAuthStore} from "@/features/auth/store";
 import {useCartStore} from "@/features/cart/store";
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 import {LANGS} from "@/lib/i18n";
-import {NavbarDict, ToolbarDict} from "@/types/dict";
 import {UserAvatar} from "@/components/ui/UserAvatar";
+import {useDictionary} from "@/providers/DictionaryProvider";
 
 
 const useMenu = () => {
@@ -66,7 +66,7 @@ const LangMenuItem = ({lang, onClick, isSelected}: { lang: keyof typeof LANGS, o
     </MenuItem>
 );
 
-export const Navbar: React.FC<{ dict: ToolbarDict }> = ({dict}) => {
+export const Navbar = () => {
     const theme = useTheme();
     const {enqueueSnackbar} = useSnackbar();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -75,6 +75,7 @@ export const Navbar: React.FC<{ dict: ToolbarDict }> = ({dict}) => {
     const {push, replaceLanguage, back, currentLang, pathname} = useNavigatingRouter();
     const {isAuthenticated, user} = useAuthStore();
     const {cartCount, fetchCartCount, countLoading} = useCartStore();
+    const dict = useDictionary()
 
     const settingsMenu = useMenu();
     const langMenu = useMenu();
@@ -92,11 +93,11 @@ export const Navbar: React.FC<{ dict: ToolbarDict }> = ({dict}) => {
     const handleCartClick = () => {
         if (isAuthenticated) push("/cart");
         else {
-            enqueueSnackbar(dict.navbar.authRequired, {
+            enqueueSnackbar(dict.layout.navbar.authRequired, {
                 variant: "error",
                 action: (
                     <Button color="inherit" size="small" onClick={() => push("/login")}>
-                        {dict.navbar.login}
+                        {dict.layout.navbar.login}
                     </Button>
                 ),
             });
@@ -121,7 +122,7 @@ export const Navbar: React.FC<{ dict: ToolbarDict }> = ({dict}) => {
                             <Box
                                 component="a"
                                 href="/"
-                                aria-label={dict.navbar.logo}
+                                aria-label={dict.layout.navbar.logo}
                                 onClick={() => replaceLanguage(currentLang)}
                                 sx={{
                                     display: "flex",
@@ -133,13 +134,13 @@ export const Navbar: React.FC<{ dict: ToolbarDict }> = ({dict}) => {
                             >
                                 <Image
                                     src={isDark ? "/logo_white.svg" : "/logo_gray.svg"}
-                                    alt={dict.navbar.logo}
+                                    alt={dict.layout.navbar.logo}
                                     width={125}
                                     height={50}
                                 />
                             </Box>
                         ) : (
-                            <IconButton color="inherit" onClick={() => back()} aria-label={dict.navbar.goBack}>
+                            <IconButton color="inherit" onClick={() => back()} aria-label={dict.common.back}>
                                 <ArrowBackIcon/>
                             </IconButton>
                         )}
@@ -148,11 +149,11 @@ export const Navbar: React.FC<{ dict: ToolbarDict }> = ({dict}) => {
                     <Box sx={{display: "flex", alignItems: "center"}}>
                         {isMobile ? (
                             <>
-                                <Tooltip title={dict.navbar.settings}>
+                                <Tooltip title={dict.layout.navbar.settings}>
                                     <IconButton
                                         onClick={settingsMenu.open}
                                         color="inherit"
-                                        aria-label={dict.navbar.settings}
+                                        aria-label={dict.layout.navbar.settings}
                                         aria-haspopup="menu"
                                         aria-controls="settings-menu"
                                         aria-expanded={settingsMenu.isOpen}
@@ -180,18 +181,18 @@ export const Navbar: React.FC<{ dict: ToolbarDict }> = ({dict}) => {
                                             {isDark ? <Brightness7/> : <Brightness4/>}
                                         </ListItemIcon>
                                         <ListItemText>
-                                            {isDark ? dict.navbar.lightMode : dict.navbar.darkMode}
+                                            {isDark ? dict.layout.navbar.lightMode : dict.layout.navbar.darkMode}
                                         </ListItemText>
                                     </MenuItem>
                                 </MenuWithItems>
                             </>
                         ) : (
                             <>
-                                <Tooltip title={dict.navbar.language}>
+                                <Tooltip title={dict.layout.navbar.language}>
                                     <IconButton
                                         onClick={langMenu.open}
                                         color="inherit"
-                                        aria-label={dict.navbar.language}
+                                        aria-label={dict.layout.navbar.language}
                                         aria-haspopup="menu"
                                         aria-controls="lang-menu"
                                         aria-expanded={langMenu.isOpen}
@@ -214,11 +215,11 @@ export const Navbar: React.FC<{ dict: ToolbarDict }> = ({dict}) => {
                                         />
                                     ))}
                                 </MenuWithItems>
-                                <Tooltip title={isDark ? dict.navbar.lightMode : dict.navbar.darkMode}>
+                                <Tooltip title={isDark ? dict.layout.navbar.lightMode : dict.layout.navbar.darkMode}>
                                     <IconButton
                                         onClick={toggleColorMode}
                                         color="inherit"
-                                        aria-label={isDark ? dict.navbar.lightMode : dict.navbar.darkMode}
+                                        aria-label={isDark ? dict.layout.navbar.lightMode : dict.layout.navbar.darkMode}
                                     >
                                         {isDark ? <Brightness7/> : <Brightness4/>}
                                     </IconButton>
@@ -226,10 +227,10 @@ export const Navbar: React.FC<{ dict: ToolbarDict }> = ({dict}) => {
                             </>
                         )}
 
-                        <Tooltip title={dict.navbar.cart}>
-                            <IconButton onClick={handleCartClick} color="inherit" aria-label={`${dict.navbar.cart}. ${dict.navbar.cartCount} ${cartCount}`}>
+                        <Tooltip title={dict.layout.navbar.cart}>
+                            <IconButton onClick={handleCartClick} color="inherit" aria-label={`${dict.layout.navbar.cart}. ${dict.layout.navbar.cartCount} ${cartCount}`}>
                                 {countLoading ? (
-                                    <CircularProgress size={24} color="inherit" aria-label={dict.navbar.loading} />
+                                    <CircularProgress size={24} color="inherit" aria-label={dict.common.loading} />
                                 ) : (
                                     <Badge badgeContent={cartCount} color="primary">
                                         <ShoppingCartIcon/>
@@ -238,13 +239,12 @@ export const Navbar: React.FC<{ dict: ToolbarDict }> = ({dict}) => {
                             </IconButton>
                         </Tooltip>
 
-                        <Tooltip title={dict.navbar.profile}>
+                        <Tooltip title={dict.layout.navbar.profile}>
                             <UserAvatar
                                 user={user}
                                 isAuthenticated={isAuthenticated}
                                 size="small"
                                 onClick={() => push(isAuthenticated ? `/profile` : `/login`)}
-                                dict={dict.avatar}
                             />
                         </Tooltip>
                     </Box>

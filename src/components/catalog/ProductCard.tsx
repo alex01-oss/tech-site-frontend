@@ -6,23 +6,22 @@ import React, {memo} from "react";
 import {CatalogItem} from "@/features/catalog/types";
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 import Image from "next/image";
-import {ProductCardDict} from "@/types/dict";
 import {API_URL} from "@/constants/constants";
+import {useDictionary} from "@/providers/DictionaryProvider";
 
 interface Props {
     product: CatalogItem;
     isCartView?: boolean;
     onToggleCart: (id: number) => void;
-    dict: ProductCardDict
 }
 
 export const ProductCard: React.FC<Props> = memo(({
     product,
     isCartView = false,
     onToggleCart,
-    dict
 }) => {
     const router = useNavigatingRouter();
+    const dict = useDictionary();
     const theme = useTheme();
 
     return (
@@ -53,7 +52,7 @@ export const ProductCard: React.FC<Props> = memo(({
             }}
             role="link"
             tabIndex={0}
-            aria-label={`${dict.viewProduct} ${product.shape}`}
+            aria-label={`${dict.catalog.product.viewProduct} ${product.shape}`}
         >
             <Box
                 sx={{
@@ -89,7 +88,7 @@ export const ProductCard: React.FC<Props> = memo(({
             >
                 <Image
                     src={`${API_URL}/${product.images}`}
-                    alt={dict.imageAlt.replace('{productName}', product.shape)}
+                    alt={dict.catalog.product.imageAlt.replace('{productName}', product.shape)}
                     height={300}
                     width={300}
                     style={{
@@ -133,7 +132,7 @@ export const ProductCard: React.FC<Props> = memo(({
                                 letterSpacing: 0.5,
                             }}
                         >
-                            {dict.size}
+                            {dict.catalog.card.size}
                         </Typography>
                         <Tooltip
                             title={product.dimensions}
@@ -166,7 +165,7 @@ export const ProductCard: React.FC<Props> = memo(({
                                     letterSpacing: 0.5,
                                 }}
                             >
-                                {dict.bond}
+                                {dict.catalog.card.bond}
                             </Typography>
                             <Typography
                                 variant="caption"
@@ -192,7 +191,7 @@ export const ProductCard: React.FC<Props> = memo(({
                                     letterSpacing: 0.5,
                                 }}
                             >
-                                {dict.grid}
+                                {dict.catalog.card.grid}
                             </Typography>
                             <Typography
                                 variant="caption"
@@ -217,7 +216,7 @@ export const ProductCard: React.FC<Props> = memo(({
                                     letterSpacing: 0.5,
                                 }}
                             >
-                                {dict.fit}
+                                {dict.catalog.card.fit}
                             </Typography>
                             <Typography
                                 variant="caption"
@@ -226,7 +225,7 @@ export const ProductCard: React.FC<Props> = memo(({
                                     fontWeight: theme.typography.fontWeightMedium,
                                 }}
                             >
-                                {`${product.mounting.mm} ${dict.mm} / ${product.mounting.inch}″`}
+                                {`${product.mounting.mm} ${dict.common.mm} / ${product.mounting.inch}″`}
                             </Typography>
                         </Box>
                     )}
@@ -264,17 +263,17 @@ export const ProductCard: React.FC<Props> = memo(({
                         }}
                         aria-label={
                             isCartView
-                                ? dict.remove
+                                ? dict.common.remove
                                 : product.is_in_cart
-                                    ? dict.inCart
-                                    : dict.add
+                                    ? dict.catalog.product.inCart
+                                    : dict.common.add
                         }
                     >
                         {isCartView
-                            ? dict.remove
+                            ? dict.common.remove
                             : product.is_in_cart
-                                ? dict.inCart
-                                : dict.add
+                                ? dict.catalog.product.inCart
+                                : dict.common.add
                         }
                     </Button>
                 </Box>
