@@ -8,9 +8,9 @@ import {SearchFields} from "@/types/searchFields";
 import {FiltersPanel} from "@/components/catalog/FiltersPanel";
 import {Search} from "@/components/catalog/Search";
 import {ProductSkeleton} from "@/components/skeletons/TableSkeleton";
-import {ProductsTable} from "@/components/catalog/ProductsTable";
 import {ScrollToTop} from "@/components/ui/ScrollToTop";
 import {useDictionary} from "@/providers/DictionaryProvider";
+import {ProductsGrid} from "@/components/catalog/ProductsGrid";
 
 
 export const CatalogPage = () => {
@@ -37,13 +37,13 @@ export const CatalogPage = () => {
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
-                const { isLoading, currentPage, totalPages, setPage } = useCatalogStore.getState();
+                const {isLoading, currentPage, totalPages, setPage} = useCatalogStore.getState();
 
                 if (entries[0].isIntersecting && !isLoading && currentPage < totalPages) {
                     setPage(currentPage + 1);
                 }
             },
-            { threshold: 0.1 }
+            {threshold: 0.1}
         );
 
         const element = ref.current;
@@ -142,16 +142,7 @@ export const CatalogPage = () => {
                 />
             }
 
-            <Box
-                component="main"
-                sx={{
-                    flex: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    overflowX: 'hidden',
-                    minWidth: 0,
-                }}
-            >
+            <Box component="main" sx={{width: '100%'}}>
                 <Box sx={{pb: theme.spacing(2), mt: theme.spacing(4)}}>
                     <Search
                         onSearch={handleCombinedSearchSubmit}
@@ -162,56 +153,50 @@ export const CatalogPage = () => {
                     />
                 </Box>
 
-                <Box sx={{
-                    position: "relative",
-                    flexGrow: 1,
-                    maxWidth: '100%',
-                }}>
-                    {categoryName && (
-                        <Typography
-                            variant="h3"
-                            component="h1"
-                            sx={{
-                                mb: {xs: theme.spacing(2), sm: theme.spacing(3)},
-                                fontSize: {xs: theme.typography.h4.fontSize, sm: theme.typography.h3.fontSize},
-                            }}
-                        >
-                            {translatedCategoryName}
-                        </Typography>
-                    )}
+                {categoryName && (
+                    <Typography
+                        variant="h3"
+                        component="h1"
+                        sx={{
+                            mb: {xs: theme.spacing(2), sm: theme.spacing(3)},
+                            fontSize: {xs: theme.typography.h4.fontSize, sm: theme.typography.h3.fontSize},
+                        }}
+                    >
+                        {translatedCategoryName}
+                    </Typography>
+                )}
 
-                    {isLoading && products.length === 0
-                        ? <ProductSkeleton/>
-                        : <ProductsTable products={products}/>
-                    }
-                    {isLoading && products.length > 0 && (
-                        <Box sx={{textAlign: "center", my: {xs: theme.spacing(2), md: theme.spacing(3)}}}>
-                            <CircularProgress aria-label={dict.catalog.loadingProducts}/>
-                        </Box>
-                    )}
-                    {!isLoading && products.length === 0 && (isSearchActive || areFiltersActive) && (
-                        <Box sx={{
-                            textAlign: "center",
-                            my: {xs: theme.spacing(2), md: theme.spacing(3)},
-                            color: 'text.secondary'
-                        }} role="status" aria-live="polite">
-                            {dict.catalog.noItems}
-                        </Box>
-                    )}
-                    {!isLoading && products.length === 0 && !isSearchActive && !areFiltersActive && (
-                        <Box sx={{
-                            textAlign: "center",
-                            my: {xs: theme.spacing(2), md: theme.spacing(3)},
-                            color: 'text.secondary'
-                        }} role="status" aria-live="polite">
-                            {dict.catalog.startTyping}
-                        </Box>
-                    )}
-                    <Box ref={ref} sx={{
-                        visibility: isLoading && products.length > 0 ? 'hidden' : 'visible'
-                    }}/>
-                    <ScrollToTop />
-                </Box>
+                {isLoading && products.length === 0
+                    ? <ProductSkeleton/>
+                    : <ProductsGrid products={products}/>
+                }
+                {isLoading && products.length > 0 && (
+                    <Box sx={{textAlign: "center", my: {xs: theme.spacing(2), md: theme.spacing(3)}}}>
+                        <CircularProgress aria-label={dict.catalog.loadingProducts}/>
+                    </Box>
+                )}
+                {!isLoading && products.length === 0 && (isSearchActive || areFiltersActive) && (
+                    <Box sx={{
+                        textAlign: "center",
+                        my: {xs: theme.spacing(2), md: theme.spacing(3)},
+                        color: 'text.secondary'
+                    }} role="status" aria-live="polite">
+                        {dict.catalog.noItems}
+                    </Box>
+                )}
+                {!isLoading && products.length === 0 && !isSearchActive && !areFiltersActive && (
+                    <Box sx={{
+                        textAlign: "center",
+                        my: {xs: theme.spacing(2), md: theme.spacing(3)},
+                        color: 'text.secondary'
+                    }} role="status" aria-live="polite">
+                        {dict.catalog.startTyping}
+                    </Box>
+                )}
+                <Box ref={ref} sx={{
+                    visibility: isLoading && products.length > 0 ? 'hidden' : 'visible'
+                }}/>
+                <ScrollToTop/>
             </Box>
         </Box>
     );

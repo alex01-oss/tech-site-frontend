@@ -23,7 +23,7 @@ import {
 } from "@mui/material";
 import {KeyboardArrowLeft, KeyboardArrowRight} from "@mui/icons-material";
 import {useSnackbar} from "notistack";
-import {ProductsTable} from "@/components/catalog/ProductsTable";
+import {ProductsGrid} from "@/components/catalog/ProductsGrid";
 import {useCartStore} from "@/features/cart/store";
 import {useAuthStore} from "@/features/auth/store";
 import {OrderFormValues} from "@/types/order";
@@ -100,7 +100,7 @@ export const OrderForm = () => {
                         {dict.cart.empty}
                     </Typography>
                 ) : (
-                    <ProductsTable products={cart.map((item) => item.product)} isCartView />
+                    <ProductsGrid products={cart.map((item) => item.product)} isCartView />
                 );
             case 1:
                 return (

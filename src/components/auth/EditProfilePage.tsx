@@ -25,6 +25,7 @@ import {getProfileSchema} from "@/utils/validationSchemas";
 import {PasswordField} from "@/components/auth/PasswordField";
 import {ProfileFormValues} from "@/types/formValues";
 import {useDictionary} from "@/providers/DictionaryProvider";
+import ConfirmDeleteDialog from "@/components/ui/ConfirmDialog";
 
 
 export const EditProfilePage = () => {
@@ -199,39 +200,14 @@ export const EditProfilePage = () => {
                             </Box>
                         </Paper>
 
-                        <Dialog
+                        <ConfirmDeleteDialog
                             open={openDeleteDialog}
                             onClose={() => setOpenDeleteDialog(false)}
-                            sx={{ '& .MuiDialog-paper': { borderRadius: theme.shape.borderRadius } }}
-                            aria-labelledby="delete-dialog-title"
-                            aria-describedby="delete-dialog-description"
-                        >
-                            <DialogTitle id="delete-dialog-title">{dict.profile.edit.confirmDeletion}</DialogTitle>
-                            <DialogContent>
-                                <DialogContentText id="delete-dialog-description">
-                                    {dict.profile.edit.confirmDeletion}
-                                </DialogContentText>
-                            </DialogContent>
-                            <DialogActions>
-                                <Button
-                                    onClick={() => setOpenDeleteDialog(false)}
-                                    color="primary"
-                                    disabled={isDeleting}
-                                >
-                                    {dict.common.cancel}
-                                </Button>
-                                <Button
-                                    onClick={handleConfirmDelete}
-                                    color="error"
-                                    variant="contained"
-                                    disabled={isDeleting}
-                                >
-                                    {isDeleting
-                                        ? <CircularProgress size={theme.spacing(3)} aria-label={dict.common.deleting} />
-                                        : dict.common.delete}
-                                </Button>
-                            </DialogActions>
-                        </Dialog>
+                            onConfirm={handleConfirmDelete}
+                            title={dict.profile.edit.confirmDeletion}
+                            content={dict.profile.edit.confirmDeletion}
+                            isDeleting={isDeleting}
+                        />
                     </Form>
                 )}
             </Formik>

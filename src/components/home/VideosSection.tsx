@@ -67,7 +67,6 @@ export const VideosSection: React.FC<{ videos: Video[]; }> = ({videos}) => {
                     </StyledSwiper>
                 ) : (
                     <Box
-                        // component="ul"
                         sx={{
                             display: 'grid',
                             gap: theme.spacing(3),

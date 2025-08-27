@@ -16,14 +16,7 @@ export default function LayoutContent({ children }: {children: React.ReactNode})
 
     return (
         <ErrorBoundary>
-            <Container
-                sx={{
-                    maxWidth: 'lg',
-                    minHeight: '100vh',
-                    display: 'flex',
-                    flexDirection: 'column',
-                }}
-            >
+            <Container sx={{maxWidth: 'lg', minHeight: '100vh'}}>
                 <Box
                     component="a"
                     href="#main-content"
@@ -62,24 +55,12 @@ export default function LayoutContent({ children }: {children: React.ReactNode})
                     <Navbar />
                 </Box>
 
-                <Box
-                    component="main"
-                    id="main-content"
-                    sx={{
-                        flex: 1,
-                        display: 'flex',
-                        flexDirection: 'column',
-                    }}
-                >
+                <Box component="main" id="main-content">
                     {children}
                 </Box>
             </Container>
 
-            <Box
-                sx={{
-                    mt: { xs: theme.spacing(2), sm: theme.spacing(3) },
-                }}
-            >
+            <Box sx={{mt: { xs: theme.spacing(2), sm: theme.spacing(3) }}}>
                 <Footer />
             </Box>
         </ErrorBoundary>

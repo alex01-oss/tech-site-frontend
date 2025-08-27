@@ -27,6 +27,7 @@ import {enqueueSnackbar} from "notistack";
 import {revalidateBlogPosts} from "@/actions/actions";
 import {useDictionary} from "@/providers/DictionaryProvider";
 import {API_URL} from "@/constants/constants";
+import ConfirmDeleteDialog from "@/components/ui/ConfirmDialog";
 
 interface PostCardProps {
     post: Post;
@@ -203,31 +204,14 @@ export const PostCard: React.FC<PostCardProps> = ({
                 </Box>
             </Paper>
 
-            <Dialog
+            <ConfirmDeleteDialog
                 open={openDeleteDialog}
                 onClose={handleCloseDeleteDialog}
-                aria-labelledby="delete-dialog-title"
-                aria-describedby="delete-dialog-description"
-            >
-                <DialogTitle id="delete-dialog-title">
-                    {dict.blog.dialog.delete}
-                </DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="delete-dialog-description">
-                        {dict.blog.dialog.confirmText} "{post.title}"? {dict.blog.dialog.irreversible}
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={handleCloseDeleteDialog} color="primary" disabled={isDeleting}>
-                        {dict.common.cancel}
-                    </Button>
-                    <Button onClick={handleConfirmDelete} color="error" disabled={isDeleting} autoFocus>
-                        {isDeleting
-                            ? <CircularProgress size={theme.typography.fontSize * 1.5} aria-label={dict.common.deleting} />
-                            : dict.common.delete}
-                    </Button>
-                </DialogActions>
-            </Dialog>
+                onConfirm={handleConfirmDelete}
+                title={dict.blog.dialog.delete}
+                content={`${dict.blog.dialog.confirmText} "${post.title}"? ${dict.blog.dialog.irreversible}`}
+                isDeleting={isDeleting}
+            />
         </Box>
     );
 };

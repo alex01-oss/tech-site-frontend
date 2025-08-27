@@ -1,16 +1,17 @@
 "use client"
 
-import {Box, Button, Chip, Tooltip, Typography, useTheme} from "@mui/material";
+import {Box, Button, Chip, Stack, Typography, useTheme} from "@mui/material";
 import {AddShoppingCart, Delete, ShoppingCart} from "@mui/icons-material";
 import React, {memo} from "react";
-import {CatalogItem} from "@/features/catalog/types";
+import {Product} from "@/features/catalog/types";
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
 import Image from "next/image";
 import {API_URL} from "@/constants/constants";
 import {useDictionary} from "@/providers/DictionaryProvider";
+import {ProductDetailRow} from "@/components/catalog/DetailRow";
 
 interface Props {
-    product: CatalogItem;
+    product: Product;
     isCartView?: boolean;
     onToggleCart: (id: number) => void;
 }
@@ -28,6 +29,7 @@ export const ProductCard: React.FC<Props> = memo(({
         <Box
             onClick={() => router.push(`/catalog/${product.id}`)}
             sx={{
+                height: '380px',
                 display: "flex",
                 flexDirection: "column",
                 borderRadius: theme.shape.borderRadius,
@@ -38,7 +40,6 @@ export const ProductCard: React.FC<Props> = memo(({
                     {duration: theme.transitions.duration.short}
                 ),
                 overflow: "hidden",
-                height: "100%",
                 position: "relative",
                 cursor: "pointer",
                 "&:hover": {
@@ -81,7 +82,8 @@ export const ProductCard: React.FC<Props> = memo(({
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
-                    height: theme.spacing(17.5),
+                    minHeight: theme.spacing(17.5),
+                    maxHeight: theme.spacing(25),
                     padding: theme.spacing(2),
                     bgcolor: theme.palette.background.paper,
                 }}
@@ -91,6 +93,7 @@ export const ProductCard: React.FC<Props> = memo(({
                     alt={dict.catalog.product.imageAlt.replace('{productName}', product.shape)}
                     height={300}
                     width={300}
+                    loading="lazy"
                     style={{
                         maxWidth: "100%",
                         maxHeight: "100%",
@@ -99,11 +102,10 @@ export const ProductCard: React.FC<Props> = memo(({
                 />
             </Box>
 
-            <Box
+            <Stack
+                spacing={1.5}
                 sx={{
                     padding: theme.spacing(2),
-                    display: "flex",
-                    flexDirection: "column",
                     flexGrow: 1,
                 }}
             >
@@ -115,168 +117,87 @@ export const ProductCard: React.FC<Props> = memo(({
                         color: "text.primary",
                         fontSize: "0.95rem",
                         lineHeight: 1.3,
-                        mb: theme.spacing(1.5),
                     }}
                 >
                     {product.shape}
                 </Typography>
 
-                <Box sx={{mb: theme.spacing(2)}}>
-                    <Box sx={{display: "flex", mb: theme.spacing(1)}}>
-                        <Typography
-                            variant="caption"
-                            sx={{
-                                minWidth: {xs: 65, sm: 75},
-                                color: "text.secondary",
-                                textTransform: "uppercase",
-                                letterSpacing: 0.5,
-                            }}
-                        >
-                            {dict.catalog.card.size}
-                        </Typography>
-                        <Tooltip
-                            title={product.dimensions}
-                            placement="top"
-                        >
-                            <Typography
-                                variant="caption"
-                                sx={{
-                                    color: "text.primary",
-                                    fontWeight: theme.typography.fontWeightMedium,
-                                    whiteSpace: "nowrap",
-                                    overflow: "hidden",
-                                    textOverflow: "ellipsis",
-                                    flexGrow: 1,
-                                }}
-                            >
-                                {product.dimensions}
-                            </Typography>
-                        </Tooltip>
-                    </Box>
-
+                <Stack spacing={1}>
+                    <ProductDetailRow
+                        label={dict.catalog.card.size}
+                        value={product.dimensions}
+                        tooltip={product.dimensions}
+                    />
                     {product.name_bonds && product.name_bonds.length > 0 && (
-                        <Box sx={{display: "flex", mb: theme.spacing(1)}}>
-                            <Typography
-                                variant="caption"
-                                sx={{
-                                    minWidth: {xs: 65, sm: 75},
-                                    color: "text.secondary",
-                                    textTransform: "uppercase",
-                                    letterSpacing: 0.5,
-                                }}
-                            >
-                                {dict.catalog.card.bond}
-                            </Typography>
-                            <Typography
-                                variant="caption"
-                                sx={{
-                                    color: "text.primary",
-                                    fontWeight: theme.typography.fontWeightMedium,
-                                }}
-                            >
-                                {product.name_bonds.join(', ')}
-                            </Typography>
-                        </Box>
+                        <ProductDetailRow
+                            label={dict.catalog.card.bond}
+                            value={product.name_bonds.join(', ')}
+                        />
                     )}
-
-
                     {product.grid_size && (
-                        <Box sx={{display: "flex", mb: theme.spacing(1)}}>
-                            <Typography
-                                variant="caption"
-                                sx={{
-                                    minWidth: {xs: 65, sm: 75},
-                                    color: "text.secondary",
-                                    textTransform: "uppercase",
-                                    letterSpacing: 0.5,
-                                }}
-                            >
-                                {dict.catalog.card.grid}
-                            </Typography>
-                            <Typography
-                                variant="caption"
-                                sx={{
-                                    color: "text.primary",
-                                    fontWeight: theme.typography.fontWeightMedium,
-                                }}
-                            >
-                                {product.grid_size}
-                            </Typography>
-                        </Box>
+                        <ProductDetailRow
+                            label={dict.catalog.card.grid}
+                            value={product.grid_size}
+                        />
                     )}
-
                     {product.mounting && (
-                        <Box sx={{display: "flex"}}>
-                            <Typography
-                                variant="caption"
-                                sx={{
-                                    minWidth: {xs: 65, sm: 75},
-                                    color: "text.secondary",
-                                    textTransform: "uppercase",
-                                    letterSpacing: 0.5,
-                                }}
-                            >
-                                {dict.catalog.card.fit}
-                            </Typography>
-                            <Typography
-                                variant="caption"
-                                sx={{
-                                    color: "text.primary",
-                                    fontWeight: theme.typography.fontWeightMedium,
-                                }}
-                            >
-                                {`${product.mounting.mm} ${dict.common.mm} / ${product.mounting.inch}″`}
-                            </Typography>
-                        </Box>
+                        <ProductDetailRow
+                            label={dict.catalog.card.fit}
+                            value={`${product.mounting.mm} ${dict.common.mm} / ${product.mounting.inch}″`}
+                        />
                     )}
-                </Box>
+                </Stack>
+            </Stack>
 
-                <Box sx={{mt: 'auto'}}>
-                    <Button
-                        fullWidth
-                        variant="contained"
-                        color={isCartView ? "error" : product.is_in_cart ? "success" : "primary"}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onToggleCart(product.id);
-                        }}
-                        startIcon={
-                            isCartView ? (
-                                <Delete sx={{fontSize: 20}}/>
-                            ) : product.is_in_cart ? (
-                                <ShoppingCart sx={{fontSize: 20}}/>
-                            ) : (
-                                <AddShoppingCart sx={{fontSize: 20}}/>
-                            )
-                        }
-                        sx={{
-                            borderRadius: theme.shape.borderRadius,
-                            textTransform: "none",
-                            fontWeight: theme.typography.fontWeightMedium,
-                            px: theme.spacing(1),
-                            py: theme.spacing(0.5),
-                            minHeight: 'auto',
-                            alignSelf: 'flex-start',
-                            "&:hover": {
-                                bgcolor: theme.palette.primary.dark,
-                            },
-                        }}
-                        aria-label={
-                            isCartView
-                                ? dict.common.remove
-                                : product.is_in_cart
-                                    ? dict.catalog.product.inCart
-                                    : dict.common.add
-                        }
-                    >
-                        {isCartView
+            <Box sx={{
+                mt: 'auto',
+                padding: theme.spacing(2),
+                paddingTop: 0,
+            }}>
+                <Button
+                    fullWidth
+                    variant="contained"
+                    color={isCartView ? "error" : product.is_in_cart ? "success" : "primary"}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleCart(product.id);
+                    }}
+                    startIcon={
+                        isCartView ? (
+                            <Delete sx={{fontSize: 20}}/>
+                        ) : product.is_in_cart ? (
+                            <ShoppingCart sx={{fontSize: 20}}/>
+                        ) : (
+                            <AddShoppingCart sx={{fontSize: 20}}/>
+                        )
+                    }
+                    sx={{
+                        borderRadius: theme.shape.borderRadius,
+                        textTransform: "none",
+                        fontWeight: theme.typography.fontWeightMedium,
+                        px: theme.spacing(1),
+                        py: theme.spacing(0.5),
+                        minHeight: 'auto',
+                        alignSelf: 'flex-start',
+                        "&:hover": {
+                            bgcolor: theme.palette.primary.dark,
+                        },
+                    }}
+                    aria-label={
+                        isCartView
                             ? dict.common.remove
                             : product.is_in_cart
                                 ? dict.catalog.product.inCart
                                 : dict.common.add
-                        }
-                    </Button>
-                </Box>
+                    }
+                >
+                    {isCartView
+                        ? dict.common.remove
+                        : product.is_in_cart
+                            ? dict.catalog.product.inCart
+                            : dict.common.add
+                    }
+                </Button>
             </Box>
         </Box>
     )

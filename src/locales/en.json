@@ -108,6 +108,7 @@
   },
   "catalog": {
     "scrollUp": "Scroll back to top",
+    "showMore": "Scroll down to load more...",
     "loadingProducts": "Loading products...",
     "noItems": "No items found for the current filters.",
     "startTyping": "Start typing or select a filter to find items.",

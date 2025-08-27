@@ -2,16 +2,16 @@
 
 import {Box, useTheme} from "@mui/material";
 import React, {memo} from "react";
-import {CatalogItem} from "@/features/catalog/types";
+import {Product} from "@/features/catalog/types";
 import {ProductCard} from "@/components/catalog/ProductCard";
 import {useToggleCart} from "@/hooks/useToggleCart";
 
 interface ProductTableProps {
-    products: CatalogItem[];
+    products: Product[];
     isCartView?: boolean;
 }
 
-export const ProductsTable: React.FC<ProductTableProps> = memo(({products, isCartView = false}) => {
+export const ProductsGrid: React.FC<ProductTableProps> = memo(({products, isCartView = false}) => {
     const {handleToggleCart, isInCart} = useToggleCart();
     const theme = useTheme();
 
@@ -30,14 +30,10 @@ export const ProductsTable: React.FC<ProductTableProps> = memo(({products, isCar
                 listStyle: 'none',
                 padding: 0,
                 margin: 0,
-                '& > *': {
-                    minWidth: 0,
-                    maxWidth: '100%',
-                }
             }}
         >
             {products.map((product) => (
-                <Box key={`product-${product.id}`} component="li">
+                <Box key={`product-${product.id}`} component="li" sx={{minWidth: 0, maxWidth: '100%'}}>
                     <ProductCard
                         product={{...product, is_in_cart: isInCart(product.id)}}
                         isCartView={isCartView}

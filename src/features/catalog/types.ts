@@ -1,4 +1,4 @@
-export interface CatalogItem {
+export interface Product {
     id: number;
     code: string;
     shape: string;
@@ -11,7 +11,7 @@ export interface CatalogItem {
 }
 
 export interface CatalogResponse {
-    items: CatalogItem[];
+    items: Product[];
     total_items: number;
     total_pages: number;
     current_page: number;

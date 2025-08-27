@@ -1,4 +1,4 @@
-import {CatalogItem} from "@/features/catalog/types";
+import {Product} from "@/features/catalog/types";
 
 export interface CartListResponse {
     cart: CartItem[];
@@ -9,6 +9,6 @@ export interface CartResponse {
 }
 
 export interface CartItem {
-    product: CatalogItem;
+    product: Product;
     quantity: number;
 }

@@ -1,12 +1,12 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { shallow } from "zustand/shallow";
-import { CatalogItem, CatalogResponse } from "@/features/catalog/types";
+import { Product, CatalogResponse } from "@/features/catalog/types";
 import { catalogApi } from "@/features/catalog/api";
 import {FilterFields, SearchFields} from "@/types/searchFields";
 
 interface CatalogState {
-    items: CatalogItem[];
+    items: Product[];
     totalItems: number;
     totalPages: number;
     currentPage: number;
