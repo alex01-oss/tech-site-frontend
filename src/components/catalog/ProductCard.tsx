@@ -29,7 +29,6 @@ export const ProductCard: React.FC<Props> = memo(({
         <Box
             onClick={() => router.push(`/catalog/${product.id}`)}
             sx={{
-                height: '380px',
                 display: "flex",
                 flexDirection: "column",
                 borderRadius: theme.shape.borderRadius,
@@ -91,8 +90,8 @@ export const ProductCard: React.FC<Props> = memo(({
                 <Image
                     src={`${API_URL}/${product.images}`}
                     alt={dict.catalog.product.imageAlt.replace('{productName}', product.shape)}
-                    height={300}
-                    width={300}
+                    height={150}
+                    width={150}
                     loading="lazy"
                     style={{
                         maxWidth: "100%",
