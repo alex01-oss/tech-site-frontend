@@ -28,6 +28,7 @@ export const CatalogPage = () => {
         currentPage,
         categoryName,
         fetchCatalog,
+        categoryId,
         itemsPerPage: storeItemsPerPage,
         setItemsPerPage: setStoreItemsPerPage,
         setSearch,
@@ -47,14 +48,10 @@ export const CatalogPage = () => {
         );
 
         const element = ref.current;
-        if (element) {
-            observer.observe(element);
-        }
+        if (element) observer.observe(element)
 
         return () => {
-            if (element) {
-                observer.unobserve(element);
-            }
+            if (element) observer.unobserve(element);
         };
     }, []);
 
@@ -66,7 +63,7 @@ export const CatalogPage = () => {
 
     useEffect(() => {
         void fetchCatalog()
-    }, [currentPage, storeItemsPerPage, search, filters]);
+    }, [currentPage, storeItemsPerPage, categoryId, search, filters]);
 
     const handleCombinedSearchSubmit = useCallback((
         searchFields: Partial<SearchFields>,
@@ -142,8 +139,8 @@ export const CatalogPage = () => {
                 />
             }
 
-            <Box component="main" sx={{width: '100%'}}>
-                <Box sx={{pb: theme.spacing(2), mt: theme.spacing(4)}}>
+            <Box component="main" sx={{ width: "100%" }}>
+                <Box sx={{ pb: theme.spacing(2), mt: theme.spacing(4) }}>
                     <Search
                         onSearch={handleCombinedSearchSubmit}
                         currentSearchFields={currentSearchFieldsForSearchComponent}
@@ -158,45 +155,51 @@ export const CatalogPage = () => {
                         variant="h3"
                         component="h1"
                         sx={{
-                            mb: {xs: theme.spacing(2), sm: theme.spacing(3)},
-                            fontSize: {xs: theme.typography.h4.fontSize, sm: theme.typography.h3.fontSize},
+                            mb: { xs: theme.spacing(2), sm: theme.spacing(3) },
+                            fontSize: { xs: theme.typography.h4.fontSize, sm: theme.typography.h3.fontSize },
                         }}
                     >
                         {translatedCategoryName}
                     </Typography>
                 )}
 
-                {isLoading && products.length === 0
-                    ? <ProductSkeleton/>
-                    : <ProductsGrid products={products}/>
-                }
-                {isLoading && products.length > 0 && (
-                    <Box sx={{textAlign: "center", my: {xs: theme.spacing(2), md: theme.spacing(3)}}}>
-                        <CircularProgress aria-label={dict.catalog.loadingProducts}/>
-                    </Box>
-                )}
-                {!isLoading && products.length === 0 && (isSearchActive || areFiltersActive) && (
-                    <Box sx={{
-                        textAlign: "center",
-                        my: {xs: theme.spacing(2), md: theme.spacing(3)},
-                        color: 'text.secondary'
-                    }} role="status" aria-live="polite">
-                        {dict.catalog.noItems}
-                    </Box>
-                )}
-                {!isLoading && products.length === 0 && !isSearchActive && !areFiltersActive && (
-                    <Box sx={{
-                        textAlign: "center",
-                        my: {xs: theme.spacing(2), md: theme.spacing(3)},
-                        color: 'text.secondary'
-                    }} role="status" aria-live="polite">
-                        {dict.catalog.startTyping}
-                    </Box>
-                )}
-                <Box ref={ref} sx={{
-                    visibility: isLoading && products.length > 0 ? 'hidden' : 'visible'
-                }}/>
-                <ScrollToTop/>
+                {(() => {
+                    if (isLoading && products.length === 0) return <ProductSkeleton />;
+                    if (products.length > 0) return <ProductsGrid products={products} />;
+
+                    if (isLoading && products.length > 0) {
+                        return (
+                            <Box sx={{ textAlign: "center", my: { xs: theme.spacing(2), md: theme.spacing(3) } }}>
+                                <CircularProgress aria-label={dict.catalog.loadingProducts} />
+                            </Box>
+                        );
+                    }
+
+                    return (
+                        <Box
+                            sx={{
+                                textAlign: "center",
+                                my: { xs: theme.spacing(2), md: theme.spacing(3) },
+                                color: "text.secondary",
+                            }}
+                            role="status"
+                            aria-live="polite"
+                        >
+                            {isSearchActive || areFiltersActive
+                                ? dict.catalog.noItems
+                                : categoryId
+                                    ? dict.catalog.noItems
+                                    : dict.catalog.startTyping}
+                        </Box>
+                    );
+                })()}
+
+                <Box
+                    ref={ref}
+                    sx={{visibility: isLoading && products.length > 0 ? "hidden" : "visible",}}
+                />
+
+                <ScrollToTop />
             </Box>
         </Box>
     );

@@ -12,7 +12,7 @@ interface UserAvatarProps {
 
 export const UserAvatar: React.FC<UserAvatarProps> = ({ user, isAuthenticated, size, onClick }) => {
     const theme = useTheme();
-    const dict = useDictionary().layout.avatar;
+    const dict = useDictionary()
 
     const getInitials = (fullName: string | undefined): string => {
         if (!fullName || fullName.trim().length === 0) {
@@ -37,7 +37,9 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({ user, isAuthenticated, s
         }),
     };
 
-    const label = isAuthenticated && user?.full_name ? dict.userAvatar.replace('{userName}', user.full_name) : dict.logIn;
+    const label = isAuthenticated && user?.full_name
+     ? dict.layout.avatar.userAvatar.replace('{userName}', user.full_name) 
+     : dict.auth.login.button;
 
     return (
         <Avatar

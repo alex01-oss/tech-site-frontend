@@ -1,14 +1,14 @@
 "use client";
 
 import {usePathname, useRouter as useNextRouter} from 'next/navigation';
-import { useEffect, useCallback } from 'react';
-import { useTransition } from 'react';
+import {useEffect, useCallback} from 'react';
+import {useTransition} from 'react';
 import {useNavigationStore} from "@/store/navigationStore";
 
 export function useNavigatingRouter() {
     const router = useNextRouter();
     const pathname = usePathname();
-    const { setIsNavigating } = useNavigationStore();
+    const {setIsNavigating} = useNavigationStore();
     const [isPending, startTransition] = useTransition();
 
     const currentLang = pathname.split("/")[1] || "en";
@@ -24,11 +24,9 @@ export function useNavigatingRouter() {
 
     const handleNavigate = useCallback((href: string, method: 'push' | 'replace') => {
         setIsNavigating(true);
-        startTransition(() => {
-            const finalHref = href.startsWith(`/${currentLang}/`) ? href : `/${currentLang}${href}`;
-            router[method](finalHref);
-        });
-    }, [router, setIsNavigating, startTransition, currentLang]);
+        const finalHref = href.startsWith(`/${currentLang}/`) ? href : `/${currentLang}${href}`;
+        router[method](finalHref);
+    }, [router, setIsNavigating, currentLang]);
 
     const push = useCallback((href: string) => {
         handleNavigate(href, 'push');
