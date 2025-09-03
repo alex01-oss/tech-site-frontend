@@ -110,7 +110,7 @@ export const OrderForm = () => {
                         </Typography>
                         <Formik
                             initialValues={initialFormValues}
-                            validationSchema={getOrderFormSchema}
+                            validationSchema={getOrderFormSchema(dict)}
                             innerRef={formikRef}
                             onSubmit={(values) => {
                                 console.log(values);
@@ -202,12 +202,7 @@ export const OrderForm = () => {
                 );
             case 2:
                 return (
-                    <Box
-                        sx={{
-                            flexGrow: 1,
-                            flexShrink: 0,
-                        }}
-                    >
+                    <Box sx={{flexGrow: 1, flexShrink: 0, maxwidth: 'xs'}}>
                         <Paper sx={{p: theme.spacing(3), borderRadius: theme.shape.borderRadius * 2}}>
                             <Typography variant="h6" component="h2">{dict.cart.summary.title}</Typography>
                             <Divider sx={{my: theme.spacing(2)}}/>

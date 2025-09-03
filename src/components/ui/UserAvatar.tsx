@@ -37,9 +37,9 @@ export const UserAvatar: React.FC<UserAvatarProps> = ({ user, isAuthenticated, s
         }),
     };
 
-    const label = isAuthenticated && user?.full_name
-     ? dict.layout.avatar.userAvatar.replace('{userName}', user.full_name) 
-     : dict.auth.login.button;
+    const label = isAuthenticated && user?.full_name 
+        ? dict.layout.avatar.userAvatar.replace('{userName}', user.full_name) 
+        : dict.auth.login.button;
 
     return (
         <Avatar

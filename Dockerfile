@@ -18,6 +18,9 @@ RUN npm run build
 FROM base AS production
 ENV NODE_ENV=production
 
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 RUN npm ci
 
 RUN addgroup -g 1001 -S nodejs
