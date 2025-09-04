@@ -11,32 +11,62 @@ import 'swiper/css';
 import 'swiper/css/pagination';
 import {PostCard} from "@/components/blog/PostCard";
 import {useNavigatingRouter} from "@/hooks/useNavigatingRouter";
-import {BlogSkeleton} from "@/components/skeletons/BlogSkeleton";
 import {useDictionary} from "@/providers/DictionaryProvider";
+import { useAuthStore } from '@/features/auth/store';
 
 interface Props {
     posts: Post[];
-    baseApiUrl: string;
-    isLoading: boolean;
+    error: string | null;
 }
 
-export const BlogSection: React.FC<Props> = ({posts, isLoading}) => {
+export const BlogSection: React.FC<Props> = ({posts, error}) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const router = useNavigatingRouter();
     const dict = useDictionary();
+    const {user} = useAuthStore()
 
+    if (error) {
+        return (
+            <Typography color="error" align="center" role="alert" aria-live="assertive">
+                {dict.blog.loadError} {error}
+            </Typography>
+        );
+    }
+    
     return (
         <Box>
             <Typography variant="h3" component="h2"
                         sx={{mb: {xs: theme.spacing(1), sm: theme.spacing(2)}, color: 'text.primary'}}>
                 {dict.blog.title}
             </Typography>
-
-            {isLoading
-                ? <BlogSkeleton />
-                : posts.length > 0 ? (
-                    isMobile ? (
+            
+            {!posts || posts.length === 0 ? (
+                <Box sx={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
+                    <Typography variant="h6" color="text.secondary" align="center" role="status" aria-live="polite">
+                        {dict.blog.empty}
+                    </Typography>
+                    {user && user.role === 'admin' && (
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            size="large"
+                            onClick={() => router.push("/blog/create")}
+                            sx={{
+                                px: theme.spacing(4),
+                                fontWeight: 'bold',
+                                textTransform: 'none',
+                                mt: theme.spacing(2),
+                            }}
+                            aria-label={dict.blog.editor.create}
+                        >
+                            {dict.blog.editor.create}
+                        </Button>
+                    )}
+                </Box>
+            ) : (
+                <>
+                    {isMobile ? (
                         <Swiper
                             modules={[Pagination]}
                             spaceBetween={theme.spacing(2)}
@@ -90,30 +120,25 @@ export const BlogSection: React.FC<Props> = ({posts, isLoading}) => {
                                 </Box>
                             ))}
                         </Box>
-                    )
-                ) : (
-                    <Typography variant="h6" color="text.secondary" align="center" role="status" aria-live="polite">
-                        {dict.blog.empty}
-                    </Typography>
-                )}
-
-            {posts.length > 0 && (
-                <Box sx={{display: 'flex', justifyContent: 'center', mt: {xs: theme.spacing(2), sm: theme.spacing(3)}}}>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        size="large"
-                        onClick={() => router.push("/blog")}
-                        sx={{
-                            px: theme.spacing(4),
-                            fontWeight: 'bold',
-                            textTransform: 'none',
-                        }}
-                        aria-label={dict.blog.viewAll}
-                    >
-                        {dict.blog.viewAll}
-                    </Button>
-                </Box>
+                    )}
+                    
+                    <Box sx={{display: 'flex', justifyContent: 'center', mt: {xs: theme.spacing(2), sm: theme.spacing(3)}}}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            size="large"
+                            onClick={() => router.push("/blog")}
+                            sx={{
+                                px: theme.spacing(4),
+                                fontWeight: 'bold',
+                                textTransform: 'none',
+                            }}
+                            aria-label={dict.blog.viewAll}
+                        >
+                            {dict.blog.viewAll}
+                        </Button>
+                    </Box>
+                </>
             )}
         </Box>
     );

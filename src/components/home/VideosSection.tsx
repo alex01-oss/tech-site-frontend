@@ -24,7 +24,12 @@ const StyledSwiper = styled(Swiper)(({theme}) => ({
     },
 }))
 
-export const VideosSection: React.FC<{ videos: Video[]; }> = ({videos}) => {
+interface Props {
+    videos: Video[];
+    error: string | null
+}
+
+export const VideosSection: React.FC<Props> = ({videos, error}) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const dict = useDictionary();
@@ -32,6 +37,14 @@ export const VideosSection: React.FC<{ videos: Video[]; }> = ({videos}) => {
     const handleVideoClick = (videoId: string) => {
         window.open(`https://youtube.com/watch?v=${videoId}`, '_blank');
     };
+
+    if (error) {
+        return (
+            <Typography color="error" align="center" role="alert" aria-live="assertive">
+                {dict.blog.loadError} {error}
+            </Typography>
+        );
+    }
 
     return (
         <Box>

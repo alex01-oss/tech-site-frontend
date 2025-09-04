@@ -185,6 +185,7 @@
     "title": "Our Blog",
     "placeholder": "Search posts...",
     "notFound": "Nothing found for ",
+    "loadError": "Failed to load posts: ",
     "empty": "There are no blog posts yet.",
     "published": "Published: ",
     "viewAll": "View All Posts",
@@ -222,6 +223,7 @@
     "categories": {
       "title": "Categories",
       "loadError": "Failed to load categories: ",
+      "empty": "There are no categories yet.",
       "imageAlt": "Category image for {categoryName}",
       "view": "View category",
       "titles": {

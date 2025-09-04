@@ -1,66 +1,36 @@
 "use client"
 
-import React, {useEffect} from 'react';
+import React from 'react';
 import {useNavigatingRouter} from '@/hooks/useNavigatingRouter';
 import {Box, Typography, useTheme} from '@mui/material';
-import {useDataStore} from "@/features/data/store";
 import {useCatalogStore} from "@/features/catalog/store";
 import {Category} from "@/features/data/types";
 import {API_URL} from "@/constants/constants";
 import {useDictionary} from '@/providers/DictionaryProvider';
 
-export const CategoriesSection = () => {
-    const {categories, categoriesLoading, categoriesError, fetchCategories} = useDataStore();
+interface Props {
+    categories: Category[]
+    error: string | null
+}
+
+export const CategoriesSection: React.FC<Props> = ({categories, error}) => {
     const {setCategory} = useCatalogStore();
     const router = useNavigatingRouter();
     const theme = useTheme();
     const dict = useDictionary();
 
-    useEffect(() => {
-        void fetchCategories();
-    }, []);
-
-    if (categoriesLoading) {
-        const placeholders = Array.from({length: 2});
-        return (
-            <Box>
-                <Typography variant="h3" component="h2"
-                            sx={{mb: {xs: theme.spacing(2), sm: theme.spacing(3)}, color: 'text.primary'}}>
-                    {dict.sections.categories.title}
-                </Typography>
-                <Box
-                    sx={{
-                        display: 'flex',
-                        flexDirection: { xs: 'column', md: 'row' },
-                        justifyContent: 'center',
-                        gap: { xs: theme.spacing(2), sm: theme.spacing(3) }
-                    }}
-                    role="status"
-                    aria-label={dict.common.loading}
-                    aria-live="polite"
-                >
-                    {placeholders.map((_, i) => (
-                        <Box
-                            key={i}
-                            sx={{
-                                width: { xs: '100%', md: '50%' },
-                                maxWidth: 600,
-                                height: 220,
-                                borderRadius: theme.shape.borderRadius,
-                                backgroundColor: theme.palette.action.hover,
-                                overflow: 'hidden',
-                            }}
-                        />
-                    ))}
-                </Box>
-            </Box>
-        );
+    if (error) {
+        return <Typography color="error" align="center" role="alert" aria-live="assertive">
+            {dict.sections.categories.loadError} {error}
+        </Typography>
     }
 
-    if (categoriesError) {
-        return <Typography color="error" align="center" role="alert" aria-live="assertive">
-            {dict.sections.categories.loadError} {categoriesError}
-        </Typography>
+    if (!categories || categories.length === 0) {
+        return (
+            <Typography variant="h6" color="text.secondary" align="center" role="status" aria-live="polite">
+                {dict.sections.categories.empty}
+            </Typography>
+        );
     }
 
     return (
