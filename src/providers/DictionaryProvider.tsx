@@ -3,7 +3,7 @@
 import React, {createContext, useContext} from "react";
 import {Dict} from "@/lib/i18n";
 
-const DictionaryContext = createContext<Dict | null>(null);
+export const DictionaryContext = createContext<Dict | null>(null);
 
 export function useDictionary() {
     const dict = useContext(DictionaryContext);

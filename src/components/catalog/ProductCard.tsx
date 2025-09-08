@@ -31,6 +31,7 @@ export const ProductCard: React.FC<Props> = memo(({
             sx={{
                 display: "flex",
                 flexDirection: "column",
+                flex: 1,
                 borderRadius: theme.shape.borderRadius,
                 bgcolor: theme.palette.background.paper,
                 border: `1px solid ${theme.palette.divider}`,

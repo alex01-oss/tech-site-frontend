@@ -4,13 +4,14 @@ import {Box, CircularProgress, Typography, useMediaQuery, useTheme} from "@mui/m
 import {useGridItemsPerPage} from "@/hooks/useGridItemsPerPage";
 import React, {useCallback, useEffect, useMemo, useRef} from "react";
 import {useCatalogStore} from "@/features/catalog/store";
-import {SearchFields} from "@/types/searchFields";
+import {FilterFields, SearchFields} from "@/types/searchFields";
 import {FiltersPanel} from "@/components/catalog/FiltersPanel";
 import {Search} from "@/components/catalog/Search";
 import {ProductSkeleton} from "@/components/skeletons/TableSkeleton";
 import {ScrollToTop} from "@/components/ui/ScrollToTop";
 import {useDictionary} from "@/providers/DictionaryProvider";
 import {ProductsGrid} from "@/components/catalog/ProductsGrid";
+import { createEmptyFilters, hasActiveFilters } from "@/utils/search";
 
 
 export const CatalogPage = () => {
@@ -49,10 +50,7 @@ export const CatalogPage = () => {
 
         const element = ref.current;
         if (element) observer.observe(element)
-
-        return () => {
-            if (element) observer.unobserve(element);
-        };
+        return () => {element && observer.unobserve(element)};
     }, []);
 
     useEffect(() => {
@@ -63,65 +61,30 @@ export const CatalogPage = () => {
 
     useEffect(() => {
         void fetchCatalog()
-    }, [currentPage, storeItemsPerPage, categoryId, search, filters]);
+    }, [currentPage, fetchCatalog]);
 
-    const handleCombinedSearchSubmit = useCallback((
-        searchFields: Partial<SearchFields>,
+    const handleFilterToggle = (
+        categoryTitle: keyof FilterFields,
+        itemValue: number,
+        checked: boolean
     ) => {
-        setSearch(searchFields);
-    }, [setSearch]);
+        const currentIds = filters[categoryTitle] ?? [];
+        const updatedIds = checked 
+            ? [...currentIds, itemValue] 
+            : currentIds.filter(id => id !== itemValue);
+        
+        setFilters({
+            [categoryTitle]: updatedIds.length > 0 ? updatedIds : null 
+        });
+    };
 
-    const handleFilterToggle = useCallback(
-        (categoryTitle: string, itemValue: number, checked: boolean) => {
-            const getUpdatedIds = (currentIds: number[] | null | undefined, isTarget: boolean) => {
-                if (!isTarget) return currentIds;
+    const clearAllFilters = () => { setFilters(createEmptyFilters()) }
+    const searchSubmit = (searchFields: Partial<SearchFields>) => { setSearch(searchFields) }
 
-                const current = currentIds || [];
-                const updated = checked
-                    ? [...current, itemValue]
-                    : current.filter((id: number) => id !== itemValue);
+    const isSearchActive = useMemo(() => hasActiveFilters(search), [search]);
+    const areFiltersActive = useMemo(() => hasActiveFilters(filters), [filters]);
 
-                return updated.length > 0 ? updated : null;
-            };
-
-            setFilters({
-                bondIds: getUpdatedIds(filters.bondIds, categoryTitle === "bonds"),
-                gridIds: getUpdatedIds(filters.gridIds, categoryTitle === "grids"),
-                mountingIds: getUpdatedIds(filters.mountingIds, categoryTitle === "mountings"),
-            });
-        }, [filters, setFilters]
-    );
-
-
-    const handleClearAllFilters = useCallback(() => {
-        setFilters({bondIds: null, gridIds: null, mountingIds: null});
-    }, [setFilters]);
-
-    const currentSearchFieldsForSearchComponent = useMemo(() => search, [search]);
-
-    const currentFiltersState = useMemo(() => {
-        const currentFilters: Record<string, Set<number>> = {};
-        if (filters.bondIds && filters.bondIds.length > 0) currentFilters["bonds"] = new Set(filters.bondIds);
-        if (filters.gridIds && filters.gridIds.length > 0) currentFilters["grids"] = new Set(filters.gridIds);
-        if (filters.mountingIds && filters.mountingIds.length > 0) currentFilters["mountings"] = new Set(filters.mountingIds);
-        return currentFilters;
-    }, [filters]);
-
-    const isSearchActive = useMemo(() => {
-        return !!search.code || !!search.shape || !!search.dimensions || !!search.machine;
-    }, [search]);
-
-    const areFiltersActive = useMemo(() => {
-        return (filters.bondIds && filters.bondIds.length > 0) ||
-            (filters.gridIds && filters.gridIds.length > 0) ||
-            (filters.mountingIds && filters.mountingIds.length > 0);
-    }, [filters]);
-
-    let translatedCategoryName = categoryName;
-
-    if (categoryName && dict.sections.categories.titles && categoryName in dict.sections.categories.titles) {
-        translatedCategoryName = dict.sections.categories.titles[categoryName as keyof typeof dict.sections.categories.titles];
-    }
+    const translatedCategoryName = categoryName && dict.sections.categories.titles?.[categoryName as keyof typeof dict.sections.categories.titles] || categoryName;
 
     return (
         <Box sx={{
@@ -132,9 +95,9 @@ export const CatalogPage = () => {
         }}>
             {!isMobile &&
                 <FiltersPanel
-                    filters={currentFiltersState}
+                    filters={filters}
                     onFilterToggle={handleFilterToggle}
-                    onClearAllFilters={handleClearAllFilters}
+                    onClearAllFilters={clearAllFilters}
                     isMobileDrawer={false}
                 />
             }
@@ -142,11 +105,11 @@ export const CatalogPage = () => {
             <Box component="main" sx={{ width: "100%" }}>
                 <Box sx={{ pb: theme.spacing(2), mt: theme.spacing(4) }}>
                     <Search
-                        onSearch={handleCombinedSearchSubmit}
-                        currentSearchFields={currentSearchFieldsForSearchComponent}
-                        currentFilters={currentFiltersState}
+                        onSearch={searchSubmit}
+                        currentSearch={search}
+                        currentFilters={filters}
                         onFilterToggle={handleFilterToggle}
-                        onClearAllFilters={handleClearAllFilters}
+                        onClearAllFilters={clearAllFilters}
                     />
                 </Box>
 

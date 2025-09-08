@@ -122,9 +122,9 @@
       "clearAll": "Clear All Fields"
     },
     "filters": {
-      "grids": "Grid",
+      "grids": "Grit size",
       "bonds": "Bond",
-      "mountings": "Mounting"
+      "mountings": "Bore size"
     },
     "product": {
       "notFound": "Product not found.",

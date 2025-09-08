@@ -27,13 +27,23 @@ export const ProductsGrid: React.FC<ProductTableProps> = memo(({products, isCart
                     lg: 'repeat(4, 1fr)',
                     xl: 'repeat(4, 1fr)',
                 },
+                alignItems: 'stretch',
                 listStyle: 'none',
                 padding: 0,
                 margin: 0,
             }}
         >
             {products.map((product) => (
-                <Box key={`product-${product.id}`} component="li" sx={{minWidth: 0, maxWidth: '100%'}}>
+                <Box 
+                    key={`product-${product.id}`} 
+                    component="li" 
+                    sx={{
+                        minWidth: 0,
+                        maxWidth: '100%',
+                        display: 'flex',
+                        height: '100%',
+                    }}
+                 >
                     <ProductCard
                         product={{...product, is_in_cart: isInCart(product.id)}}
                         isCartView={isCartView}

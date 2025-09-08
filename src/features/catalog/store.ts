@@ -4,6 +4,7 @@ import { shallow } from "zustand/shallow";
 import { Product, CatalogResponse } from "@/features/catalog/types";
 import { catalogApi } from "@/features/catalog/api";
 import {FilterFields, SearchFields} from "@/types/searchFields";
+import { createEmptyFilters, createEmptySearch } from "@/utils/search";
 
 interface CatalogState {
     items: Product[];
@@ -34,6 +35,29 @@ const resetPagination = (): Pick<CatalogState, 'currentPage' | 'loadedPages' | '
     error: null,
 });
 
+const resetSearchAndFilters = (): Pick<CatalogState, 'search' | 'filters'> => ({
+    search: createEmptySearch(),
+    filters: createEmptyFilters()
+});
+
+const buildApiParams = (state: Pick<CatalogState, 'search' | 'filters' | 'categoryId' | 'currentPage' | 'itemsPerPage'>) => {
+    const params: any = {
+        category_id: state.categoryId,
+        page: state.currentPage,
+        items_per_page: state.itemsPerPage,
+    }
+
+    Object.entries(state.search).forEach(([key, value]) => {
+        if (value) params[`search_${key}`] = value
+    })
+
+    Object.entries(state.filters).forEach(([key, value]) => {
+        if (value?.length) params[key] = value
+    })
+
+    return params
+};
+
 export const useCatalogStore = create<CatalogState>()(
     persist(
         (set, get) => ({
@@ -44,69 +68,39 @@ export const useCatalogStore = create<CatalogState>()(
             itemsPerPage: 12,
             categoryName: null,
             categoryId: null,
-            search: {
-                code: null,
-                shape: null,
-                dimensions: null,
-                machine: null,
-            },
-            filters: {
-                bondIds: null,
-                gridIds: null,
-                mountingIds: null,
-            },
+            search: createEmptySearch(),
+            filters: createEmptyFilters(),
             isLoading: false,
             error: null,
             loadedPages: new Set(),
 
             fetchCatalog: async () => {
-                const {
-                    categoryId,
-                    search,
-                    filters,
-                    currentPage,
-                    itemsPerPage,
-                    loadedPages,
-                    isLoading,
-                } = get();
+                const state = get()
+                const {currentPage, loadedPages, isLoading} = state;
 
                 if (isLoading || loadedPages.has(currentPage)) return;
 
                 set({ isLoading: true, error: null });
 
                 try {
-                    const res: CatalogResponse = await catalogApi.fetchCatalog({
-                        search_code: search.code || undefined,
-                        search_shape: search.shape || undefined,
-                        search_dimensions: search.dimensions || undefined,
-                        search_machine: search.machine || undefined,
-                        category_id: categoryId,
-                        page: currentPage,
-                        items_per_page: itemsPerPage,
-                        bond_ids: filters.bondIds && filters.bondIds.length > 0 ? filters.bondIds : undefined,
-                        grid_size_ids: filters.gridIds && filters.gridIds.length > 0 ? filters.gridIds : undefined,
-                        mounting_ids: filters.mountingIds && filters.mountingIds.length > 0 ? filters.mountingIds : undefined
-                    });
+                    const params = buildApiParams(state)
+                    const res: CatalogResponse = await catalogApi.fetchCatalog(params);
 
-                    set((state) => ({
+                    set((prevState) => ({
                         items: currentPage === 1
                             ? res.items
-                            : [...state.items, ...res.items],
+                            : [...prevState.items, ...res.items],
                         totalItems: res.total_items,
                         totalPages: res.total_pages,
                         currentPage: res.current_page,
                         itemsPerPage: res.items_per_page,
-                        loadedPages: new Set(state.loadedPages).add(currentPage),
+                        loadedPages: new Set(prevState.loadedPages).add(currentPage),
                     }));
                 } catch (e) {
                     console.error("Fetch catalog failed", e);
                     set({
+                        ...resetPagination(),
                         error: e instanceof Error ? e.message : "Failed to fetch catalog",
-                        items: [],
-                        totalItems: 0,
-                        totalPages: 0,
-                        currentPage: 1,
-                        loadedPages: new Set()
                     });
                 } finally {
                     set({ isLoading: false });
@@ -114,7 +108,13 @@ export const useCatalogStore = create<CatalogState>()(
             },
 
             setCategory: (categoryId, categoryName) => {
-                set({ categoryId, categoryName, currentPage: 1, items: [] });
+                set({ 
+                    categoryId,
+                    categoryName,
+                    ...resetPagination(),
+                    ...resetSearchAndFilters()
+                });
+                get().fetchCatalog()
             },
 
             setPage: (page: number) => {
@@ -123,62 +123,34 @@ export const useCatalogStore = create<CatalogState>()(
 
             setSearch: (newSearchFields: Partial<SearchFields>) => {
                 set(state => {
-                    const updatedSearch = {
-                        ...state.search,
-                        ...newSearchFields
-                    };
-
-                    const hasChanged = !shallow(state.search, updatedSearch);
-
-                    if (!hasChanged) return state
+                    const updatedSearch = {...state.search, ...newSearchFields};
                     if (shallow(state.search, updatedSearch)) return state
-
-                    return {
-                        ...state,
-                        search: updatedSearch,
-                        ...resetPagination(),
-                    };
+                    return {...state, search: updatedSearch, ...resetPagination()};
                 });
+                get().fetchCatalog()
             },
 
             setFilters: (newFilterFields: Partial<FilterFields>) => {
                 set(state => {
-                    const updatedFilters = {
-                        ...state.filters,
-                        ...newFilterFields
-                    };
+                    const updatedFilters = {...state.filters, ...newFilterFields};
+                    if (shallow(state.filters, updatedFilters)) return state
+                    return {...state, filters: updatedFilters, ...resetPagination()};
+                });
+                get().fetchCatalog()
+            },
 
-                    const hasChanged = !shallow(state.filters, updatedFilters);
-
-                    if (!hasChanged) {
-                        return state;
-                    }
+            setItemsPerPage: (count: number, resetData: boolean = true) => {
+                set((state) => {
+                    if (state.itemsPerPage === count) return state;
 
                     return {
                         ...state,
-                        filters: updatedFilters,
-                        ...resetPagination(),
-                    };
-                });
-            },
-
-            setItemsPerPage: (count: number, resetPaginationAndCache: boolean = true) => {
-                set((state) => {
-                    if (state.itemsPerPage === count) {
-                        return state;
-                    }
-
-                    const newState: Partial<CatalogState> = {
                         itemsPerPage: count,
-                        error: null
+                        error: null,
+                        ...(resetData && resetPagination())
                     };
-                    if (resetPaginationAndCache) {
-                        newState.currentPage = 1;
-                        newState.loadedPages = new Set();
-                        newState.items = [];
-                    }
-                    return { ...state, ...newState } as CatalogState;
                 });
+                get().fetchCatalog()
             }
         }),
         {

@@ -20,10 +20,12 @@ import DoneIcon from '@mui/icons-material/Done';
 import {useCatalogStore} from "@/features/catalog/store";
 import {FiltersSkeleton} from "@/components/skeletons/FiltersSkeleton";
 import {useDictionary} from "@/providers/DictionaryProvider";
+import { FilterFields } from "@/types/searchFields";
+import { getApiFieldName } from "@/utils/search";
 
 interface FiltersPanelProps {
-    filters: Record<string, Set<number>>;
-    onFilterToggle: (categoryTitle: string, itemValue: number, checked: boolean) => void;
+    filters: FilterFields;
+    onFilterToggle: (categoryTitle: keyof FilterFields, itemValue: number, checked: boolean) => void;
     onClearAllFilters: () => void;
     onClose?: () => void;
     isMobileDrawer?: boolean;
@@ -146,7 +148,7 @@ export const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
                                             labelText = `${item.mm} ${dict.common.mm} / ${item.inch} ″`;
                                         }
 
-                                        const isChecked = filters[categoryTitle]?.has(item.id) || false;
+                                        const isChecked = filters[getApiFieldName(categoryTitle)]?.includes(item.id) || false;
 
                                         return (
                                             <FormControlLabel
@@ -155,7 +157,7 @@ export const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
                                                     <Checkbox
                                                         checked={isChecked}
                                                         onChange={(e) =>
-                                                            onFilterToggle(categoryTitle, item.id, e.target.checked)
+                                                            onFilterToggle(getApiFieldName(categoryTitle), item.id, e.target.checked)
                                                         }
                                                         size="small"
                                                         sx={isMobileDrawer ? {p: theme.spacing(0.5)} : {}}

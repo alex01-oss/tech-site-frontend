@@ -11,6 +11,7 @@ import {FormWrapper} from "@/components/auth/FormWrapper";
 import {getSignUpSchema} from "@/utils/validationSchemas";
 import {PasswordField} from "@/components/auth/PasswordField";
 import {useDictionary} from "@/providers/DictionaryProvider";
+import { FormikCheckboxFieldProps, FormikFieldProps } from '@/types/formik';
 
 export const SignUp = () => {
     const {loading, startLoading, stopLoading, handleSuccess, handleError} = useFormHandler();
@@ -50,73 +51,106 @@ export const SignUp = () => {
             validationSchema={getSignUpSchema(dict)}
             onSubmitAction={handleSubmit}
         >
-            <FormControl fullWidth margin="normal">
-                <Field
-                    as={TextField}
-                    label={dict.auth.register.fullName}
-                    type="text"
-                    name="fullname"
-                    id="signup-fullname-input"
-                    required
-                    helperText={<ErrorMessage name="fullname"/>}
-                />
-            </FormControl>
-            <FormControl fullWidth margin="normal">
-                <Field
-                    as={TextField}
-                    label={dict.auth.register.email}
-                    type="email"
-                    name="email"
-                    id="signup-email-input"
-                    required
-                    helperText={<ErrorMessage name="email"/>}
-                />
-            </FormControl>
-            <FormControl fullWidth margin="normal">
-                <Field
-                    as={TextField}
-                    label={dict.auth.register.phone}
-                    type="tel"
-                    name="phone"
-                    id="signup-phone-input"
-                    required
-                    helperText={<ErrorMessage name="phone"/>}
-                />
-            </FormControl>
+            <Field name="fullname">
+                {({ field, meta }: FormikFieldProps) => (
+                    <FormControl fullWidth margin="normal">
+                        <TextField
+                            {...field}
+                            label={dict.auth.register.fullName}
+                            type="text"
+                            id="signup-fullname-input"
+                            required
+                            error={meta.touched && !!meta.error}
+                            helperText={meta.touched && meta.error}
+                        />
+                    </FormControl>
+                )}
+            </Field>
+
+            <Field name="email">
+                {({ field, meta }: FormikFieldProps) => (
+                    <FormControl fullWidth margin="normal">
+                        <TextField
+                            {...field}
+                            label={dict.auth.register.email}
+                            type="email"
+                            id="signup-email-input"
+                            required
+                            error={meta.touched && !!meta.error}
+                            helperText={meta.touched && meta.error}
+                        />
+                    </FormControl>
+                )}
+            </Field>
+
+            <Field name="phone">
+                {({ field, meta }: FormikFieldProps) => (
+                    <FormControl fullWidth margin="normal">
+                        <TextField
+                            {...field}
+                            label={dict.auth.register.phone}
+                            type="tel"
+                            id="signup-phone-input"
+                            required
+                            error={meta.touched && !!meta.error}
+                            helperText={meta.touched && meta.error}
+                        />
+                    </FormControl>
+                )}
+            </Field>
+
             <PasswordField
                 name="password"
                 label={dict.auth.register.password}
                 required
             />
+
             <FormControl fullWidth margin="normal">
-                <FormControlLabel
-                    control={<Field as={Checkbox} name="agreeToPrivacy" id="agreeToPrivacy"/>}
-                    label={
-                        <Typography variant="body2">
-                            {dict.auth.register.privacyText}
-                            <Link href="/privacy-policy" target="_blank" rel="noopener noreferrer"
-                                  sx={{ml: theme.spacing(0.5)}}>
-                                {dict.common.privacyPolicy}
-                            </Link>
-                            {" "}
-                            {dict.common.and}
-                            {" "}
-                            <Link href="/terms-of-use" target="_blank" rel="noopener noreferrer">
-                                {dict.common.termsOfUse}
-                            </Link>
-                            .
-                        </Typography>
-                    }
-                />
-                <ErrorMessage name="agreeToPrivacy">
-                    {(msg) => (
-                        <Typography variant="caption" color="error"
-                                    sx={{mt: theme.spacing(0.5), ml: theme.spacing(4)}}>
-                            {msg}
-                        </Typography>
+                <Field name="agreeToPrivacy">
+                    {({ field, meta }: FormikCheckboxFieldProps) => (
+                        <>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        {...field}
+                                        checked={field.value}
+                                        id="agreeToPrivacy"
+                                    />
+                                }
+                                label={
+                                    <Typography variant="body2">
+                                        {dict.auth.register.privacyText}
+                                        <Link 
+                                            href="/privacy-policy" 
+                                            target="_blank" 
+                                            rel="noopener noreferrer"
+                                            sx={{ml: theme.spacing(0.5)}}
+                                        >
+                                            {dict.common.privacyPolicy}
+                                        </Link>
+                                        {" "}
+                                        {dict.common.and}
+                                        {" "}
+                                        <Link href="/terms-of-use" target="_blank" rel="noopener noreferrer">
+                                            {dict.common.termsOfUse}
+                                        </Link>
+                                        .
+                                    </Typography>
+                                }
+                            />
+                            {meta.touched && meta.error && (
+                                <Typography 
+                                    variant="caption" 
+                                    color="error"
+                                    sx={{mt: theme.spacing(0.5), ml: theme.spacing(4)}}
+                                >
+                                    {meta.error}
+                                </Typography>
+                            )}
+                        </>
                     )}
-                </ErrorMessage>
+                </Field>
             </FormControl>
         </FormWrapper>
     );
-}
+};

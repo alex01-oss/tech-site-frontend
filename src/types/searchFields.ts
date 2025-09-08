@@ -6,7 +6,7 @@ export interface SearchFields {
 }
 
 export interface FilterFields {
-    bondIds?: number[] | null;
-    gridIds?: number[] | null;
-    mountingIds?: number[] | null;
+    bond_ids?: number[] | null;
+    grid_size_ids?: number[] | null;
+    mounting_ids?: number[] | null;
 }

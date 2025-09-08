@@ -124,7 +124,7 @@
     "filters": {
       "grids": "Зернистість",
       "bonds": "Зв'язка",
-      "mountings": "Кріплення"
+      "mountings": "Посадковий отвір"
     },
     "product": {
       "notFound": "Товар не знайдено.",

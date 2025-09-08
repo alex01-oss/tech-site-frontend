@@ -11,6 +11,7 @@ import {getSignInSchema} from "@/utils/validationSchemas";
 import {useFormHandler} from "@/hooks/useFormHandler";
 import {PasswordField} from "@/components/auth/PasswordField";
 import {useDictionary} from "@/providers/DictionaryProvider";
+import { FormikFieldProps } from "@/types/formik";
 
 export const SignIn = () => {
     const {loading, startLoading, stopLoading, handleSuccess, handleError} = useFormHandler();
@@ -48,15 +49,21 @@ export const SignIn = () => {
             onSubmitAction={handleSubmit}
         >
             <FormControl fullWidth margin="normal">
-                <Field
-                    as={TextField}
-                    type="email"
-                    name="email"
-                    label={dict.auth.login.email}
-                    id="login-email-input"
-                    required
-                    helperText={<ErrorMessage name="email"/>}
-                />
+                <Field name="email">
+                    {({ field, meta }: FormikFieldProps) => (
+                        <TextField
+                        {...field}
+                        type="email"
+                        label={dict.auth.login.email}
+                        id="login-email-input"
+                        required
+                        error={meta.touched && !!meta.error}
+                        helperText={meta.touched && meta.error ? meta.error : ''}
+                        fullWidth
+                        margin="normal"
+                        />
+                    )}
+                    </Field>
             </FormControl>
             <PasswordField
                 name="password"

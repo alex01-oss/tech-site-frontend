@@ -7,59 +7,46 @@ import {useDataStore} from "@/features/data/store";
 import {AutocompleteSearchField} from "@/components/catalog/SearchField";
 import {FiltersPanel} from "@/components/catalog/FiltersPanel";
 import {useCatalogStore} from "@/features/catalog/store";
-import {SearchFields} from "@/types/searchFields";
+import {FilterFields, SearchFields} from "@/types/searchFields";
 import ClearIcon from "@mui/icons-material/Clear";
 import {useDictionary} from "@/providers/DictionaryProvider";
 
 
 interface Props {
     onSearch: (searchFields: Partial<SearchFields>) => void;
-    currentSearchFields: SearchFields;
-    currentFilters: Record<string, Set<number>>;
-    onFilterToggle: (categoryTitle: string, itemValue: number, checked: boolean) => void;
+    currentSearch: SearchFields;
+    currentFilters: FilterFields;
+    onFilterToggle: (categoryTitle: keyof FilterFields, itemValue: number, checked: boolean) => void;
     onClearAllFilters: () => void;
 }
 
 export const Search: React.FC<Props> = memo(({
     onSearch,
-    currentSearchFields,
+    currentSearch,
     currentFilters,
     onFilterToggle,
     onClearAllFilters,
 }) => {
-    const dict = useDictionary();
-
-    const FIXED_SEARCH_FIELDS_CONFIG: { type: keyof SearchFields; label: string; minLength: number }[] = [
-        { type: "code", label: dict.catalog.search.code, minLength: 1 },
-        { type: "shape", label: dict.catalog.search.shape, minLength: 1 },
-        { type: "dimensions", label: dict.catalog.search.dimensions, minLength: 1 },
-        { type: "machine", label: dict.catalog.search.machine, minLength: 1 },
-    ];
-
     const theme = useTheme();
+    const dict = useDictionary();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-
     const { fetchFilters } = useDataStore();
     const { categoryId } = useCatalogStore();
 
     const [openSearchDrawer, setOpenSearchDrawer] = useState(false);
     const [openFiltersDrawer, setOpenFiltersDrawer] = useState(false);
-
-    const [fields, setFields] = useState<SearchFields>({
-        code: currentSearchFields.code || null,
-        shape: currentSearchFields.shape || null,
-        dimensions: currentSearchFields.dimensions || null,
-        machine: currentSearchFields.machine || null,
-    });
+    const [fields, setFields] = useState<SearchFields>(currentSearch);
+    
+    const SEARCH_FIELDS: { type: keyof SearchFields; label: string; minLength: number }[] = [
+        { type: "code", label: dict.catalog.search.code, minLength: 1 },
+        { type: "shape", label: dict.catalog.search.shape, minLength: 0 },
+        { type: "dimensions", label: dict.catalog.search.dimensions, minLength: 1 },
+        { type: "machine", label: dict.catalog.search.machine, minLength: 1 },
+    ];
 
     useEffect(() => {
-        setFields({
-            code: currentSearchFields.code || null,
-            shape: currentSearchFields.shape || null,
-            dimensions: currentSearchFields.dimensions || null,
-            machine: currentSearchFields.machine || null,
-        });
-    }, [currentSearchFields]);
+        setFields(currentSearch);
+    }, [currentSearch]);
 
     useEffect(() => {
         fetchFilters(categoryId).catch(console.error);
@@ -97,7 +84,7 @@ export const Search: React.FC<Props> = memo(({
         fontWeight: 'bold',
     };
 
-    const renderSearchFields = () => FIXED_SEARCH_FIELDS_CONFIG.map((f, i) => (
+    const renderSearchFields = () => SEARCH_FIELDS.map((f, i) => (
         <React.Fragment key={f.type}>
             <AutocompleteSearchField
                 {...f}
@@ -106,7 +93,7 @@ export const Search: React.FC<Props> = memo(({
                 onKeyDown={handleKeyDown}
                 isMobile={isMobile}
             />
-            {!isMobile && i < FIXED_SEARCH_FIELDS_CONFIG.length - 1 && (
+            {!isMobile && i < SEARCH_FIELDS.length - 1 && (
                 <Divider orientation="vertical" flexItem sx={{ my: theme.spacing(1) }} />
             )}
         </React.Fragment>
@@ -197,7 +184,7 @@ export const Search: React.FC<Props> = memo(({
                     <Button
                         variant="outlined"
                         fullWidth
-                        onClick={() => FIXED_SEARCH_FIELDS_CONFIG.forEach(f => handleChange(f.type, ''))}
+                        onClick={() => SEARCH_FIELDS.forEach(f => handleChange(f.type, ''))}
                         startIcon={<ClearIcon />}
                         sx={{
                             ...buttonStyle,

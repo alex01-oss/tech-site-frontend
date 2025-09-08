@@ -1,20 +1,28 @@
 import axios from "axios";
 import {useAuthStore} from "@/features/auth/store";
 
-const createApiClient = () => {
-    const isServer = typeof window === 'undefined';
-    const baseURL = isServer 
-        ? process.env.SERVER_API_URL 
-        : process.env.NEXT_PUBLIC_API_URL;
+// docker
+// const createApiClient = () => {
+//     const isServer = typeof window === 'undefined';
+//     const baseURL = isServer 
+//         ? process.env.SERVER_API_URL 
+//         : process.env.NEXT_PUBLIC_API_URL;
     
-    return axios.create({
-        baseURL: baseURL,
-        withCredentials: !isServer,
-        timeout: 10000,
-    });
-};
+//     return axios.create({
+//         baseURL: baseURL,
+//         withCredentials: !isServer,
+//         timeout: 10000,
+//     });
+// };
 
-export const api = createApiClient();
+// export const api = createApiClient();
+
+// localhost
+const api = axios.create({
+    baseURL: process.env.NEXT_PUBLIC_API_URL,
+    withCredentials: true,
+    timeout: 10000,
+});
 
 let isRefreshing = false;
 let failedQueue: Array<{

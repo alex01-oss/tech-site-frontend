@@ -2,11 +2,11 @@ import React, {memo, useCallback, useEffect, useState} from 'react';
 import {Autocomplete, CircularProgress, InputAdornment, TextField, useTheme,} from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import debounce from 'lodash.debounce';
-import {autoCompleteApi} from "@/features/autocomplete/api";
 import {useCatalogStore} from "@/features/catalog/store";
 import {SearchFields} from "@/types/searchFields";
 import {SxProps} from "@mui/system";
 import {useDictionary} from "@/providers/DictionaryProvider";
+import { API_MAP } from '@/utils/search';
 
 interface Props {
     type: keyof SearchFields;
@@ -18,13 +18,6 @@ interface Props {
     isMobile?: boolean;
 }
 
-const apiMap = {
-    code: autoCompleteApi.autocompleteCode,
-    shape: autoCompleteApi.autocompleteShape,
-    dimensions: autoCompleteApi.autocompleteDimensions,
-    machine: autoCompleteApi.autocompleteMachine,
-};
-
 export const AutocompleteSearchField: React.FC<Props> = memo(
     ({type, label, minLength, value, onChange, onKeyDown, isMobile}) => {
         const [options, setOptions] = useState<string[]>([]);
@@ -34,14 +27,8 @@ export const AutocompleteSearchField: React.FC<Props> = memo(
 
         const { categoryId, search, filters } = useCatalogStore();
 
-        const getPlaceholderText = (lbl: string): string => `${dict.catalog.search.enter} ${lbl}...`;
-
-        const fetchOptionsDebounced = useCallback(
-            debounce(async (
-                query: string,
-                currentSearch: typeof search,
-                currentFilters: typeof filters
-            ) => {
+        const fetchOptions = useCallback(
+            debounce(async (query: string) => {
                 if (query.length === 0 || query.length < minLength || !categoryId) {
                     setOptions([]);
                     return;
@@ -49,18 +36,22 @@ export const AutocompleteSearchField: React.FC<Props> = memo(
 
                 setLoading(true);
                 try {
-                    const apiCall = apiMap[type];
+                    const apiCall = API_MAP[type];
 
                     const params = {
                         q: query,
                         category_id: categoryId,
-                        ...(currentSearch.code && { search_code: currentSearch.code }),
-                        ...(currentSearch.shape && { search_shape: currentSearch.shape }),
-                        ...(currentSearch.dimensions && { search_dimensions: currentSearch.dimensions }),
-                        ...(currentSearch.machine && { search_machine: currentSearch.machine }),
-                        ...(currentFilters.bondIds && { bond_ids: currentFilters.bondIds }),
-                        ...(currentFilters.gridIds && { grid_size_ids: currentFilters.gridIds }),
-                        ...(currentFilters.mountingIds && { mounting_ids: currentFilters.mountingIds }),
+                        ...Object.fromEntries(
+                            Object.entries({
+                                search_code: search.code,
+                                search_shape: search.shape,
+                                search_dimensions: search.dimensions,
+                                search_machine: search.machine,
+                                bond_ids: filters.bond_ids,
+                                grid_size_ids: filters.grid_size_ids,
+                                mounting_ids: filters.mounting_ids,
+                            }).filter(([_, v]) => v && (Array.isArray(v) ? v.length : true))
+                        )
                     }
 
                     const res = await apiCall(params);
@@ -76,44 +67,36 @@ export const AutocompleteSearchField: React.FC<Props> = memo(
         );
 
         useEffect(() => {
-            return () => fetchOptionsDebounced.cancel();
-        }, [fetchOptionsDebounced]);
+            return () => fetchOptions.cancel();
+        }, [fetchOptions]);
 
         const handleInputChange = useCallback(
-            (_: React.SyntheticEvent, newInputValue: string, reason: string) => {
-                onChange(type, newInputValue);
+            (_: React.SyntheticEvent, newValue: string, reason: string) => {
+                onChange(type, newValue);
 
-                if (reason === 'input') void fetchOptionsDebounced(newInputValue, search, filters);
+                if (reason === 'input') void fetchOptions(newValue);
                 else if (reason === 'clear') {
                     setOptions([]);
-                    fetchOptionsDebounced.cancel();
+                    fetchOptions.cancel();
                 }
-            },
-            [onChange, type, fetchOptionsDebounced, search, filters]
+            }, [onChange, type, fetchOptions]
         );
 
         const handleSelectChange = useCallback(
             (_: React.SyntheticEvent, newValue: string | null) => {
                 onChange(type, newValue || '');
                 setOptions([]);
-                fetchOptionsDebounced.cancel();
-            },
-            [onChange, type, fetchOptionsDebounced]
+                fetchOptions.cancel();
+            }, [onChange, type, fetchOptions]
         );
 
         const inputPropsSx: SxProps = isMobile ? {
             borderRadius: theme.shape.borderRadius,
             height: theme.spacing(6.25),
             backgroundColor: theme.palette.background.paper,
-            '& fieldset': {
-                borderColor: theme.palette.grey[300],
-            },
-            '&:hover fieldset': {
-                borderColor: theme.palette.grey[400],
-            },
-            '&.Mui-focused fieldset': {
-                borderColor: theme.palette.primary.main,
-            },
+            '& fieldset': { borderColor: theme.palette.grey[300] },
+            '&:hover fieldset': { borderColor: theme.palette.grey[400] },
+            '&.Mui-focused fieldset': { borderColor: theme.palette.primary.main },
         } : {
             height: '100%',
             borderRadius: 0,
@@ -141,6 +124,8 @@ export const AutocompleteSearchField: React.FC<Props> = memo(
                 px: theme.spacing(1.5),
             },
         };
+
+        const getPlaceholderText = (lbl: string): string => `${dict.catalog.search.enter} ${lbl}...`;
 
         return (
             <Autocomplete

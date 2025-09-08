@@ -80,8 +80,18 @@ export const useAuthStore = create<AuthState>()(
         login: async (data: LoginRequest) => {
             try {
                 set({loading: true, error: null});
-                await authApi.login(data);
-                await get().initialize();
+
+                const res = await authApi.login(data);
+
+                set({
+                    user: res.user,
+                    isAuthenticated: true,
+                    loading: false,
+                    error: null,
+                });
+
+                await useCartStore.getState().fetchCartCount();
+
                 return true;
             } catch (error: any) {
                 console.error("Login failed:", error);
@@ -97,8 +107,18 @@ export const useAuthStore = create<AuthState>()(
         register: async (data: RegisterRequest) => {
             try {
                 set({loading: true, error: null});
-                await authApi.register(data);
-                await get().initialize();
+
+                const res = await authApi.register(data);
+
+                set({
+                    user: res.user,
+                    isAuthenticated: true,
+                    loading: false,
+                    error: null,
+                });
+
+                await useCartStore.getState().fetchCartCount();
+                
                 return true;
             } catch (error: any) {
                 console.error("Registration failed:", error);

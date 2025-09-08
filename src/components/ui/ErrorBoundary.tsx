@@ -21,6 +21,7 @@ const ErrorBoundary = ({ children }: Props) => {
 
         const handleRejection = (event: PromiseRejectionEvent) => {
             console.error('Unhandled Promise Rejection:', event.reason);
+            if (event.reason?.response?.status === 401) return;
             setHasError(true);
         };
 
