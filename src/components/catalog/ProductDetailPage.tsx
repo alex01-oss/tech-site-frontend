@@ -222,7 +222,7 @@ export const ProductDetailPage: React.FC<Props> = ({ initialProductData, initial
                                 {mounting && (
                                     <Typography variant="body1"
                                                 sx={{ fontWeight: theme.typography.fontWeightMedium }}>
-                                        {dict.catalog.product.mounting} {mounting.mm} {dict.common.mm} / {mounting.inch} {dict.common.inch}
+                                        {dict.catalog.product.mounting} {mounting.mm} {dict.common.mm}
                                     </Typography>
                                 )}
                             </Box>

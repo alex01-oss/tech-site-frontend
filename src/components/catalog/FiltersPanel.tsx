@@ -10,6 +10,8 @@ import {
     IconButton,
     List,
     ListItem,
+    ToggleButton,
+    ToggleButtonGroup,
     Typography,
     useTheme,
 } from "@mui/material";
@@ -47,6 +49,12 @@ export const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
     }, [fetchFilters, categoryId]);
 
     const toolbarHeight = theme.mixins.toolbar.minHeight as number;
+
+    const [alignment, setAlignment] = React.useState<'mm' | 'inch'>('mm');
+
+    const handleChange = (_: React.MouseEvent<HTMLElement>, newAlignment: 'mm' | 'inch') => {
+        if (newAlignment) setAlignment(newAlignment);
+    };
 
     return filtersLoading
         ? <FiltersSkeleton isMobileDrawer={isMobileDrawer}/>
@@ -136,6 +144,23 @@ export const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
                                             >
                                                 {translatedTitle}
                                             </Typography>
+
+                                            {/* {categoryTitle.toLowerCase() === 'mountings' && (
+                                                <ToggleButtonGroup
+                                                    size="small"
+                                                    color="primary"
+                                                    value={alignment}
+                                                    exclusive
+                                                    onChange={handleChange}
+                                                    aria-label="Units"
+                                                    sx={{ 
+                                                        mx: theme.spacing(1), 
+                                                    }}
+                                                >
+                                                    <ToggleButton value="mm">mm</ToggleButton>
+                                                    <ToggleButton value="inch">inch</ToggleButton>
+                                                </ToggleButtonGroup>
+                                            )} */}
                                         </ListItem>
                                     </List>
                                 )}
@@ -144,11 +169,25 @@ export const FiltersPanel: React.FC<FiltersPanelProps> = memo(({
                                         const nameKey = Object.keys(item).find(key => key !== 'id');
                                         let labelText = nameKey ? item[nameKey] : '';
 
-                                        if (categoryTitle.toLowerCase() === 'mountings' && item.mm && item.inch) {
-                                            labelText = `${item.mm} ${dict.common.mm} / ${item.inch} ″`;
-                                        }
-
                                         const isChecked = filters[getApiFieldName(categoryTitle)]?.includes(item.id) || false;
+
+                                        // let displayLabel = labelText;
+                                        // if (categoryTitle.toLowerCase() === 'mountings') {
+                                        //     const valueNum = parseFloat(labelText);
+                                        //     if (alignment === 'inch') {
+                                        //         displayLabel = (valueNum / 25.4).toFixed(2);
+                                        //     }
+                                        // }
+
+                                        // if (categoryTitle.toLowerCase() === 'mountings') {
+                                        //     alignment === 'mm'
+                                        //         ? labelText = `${item.mm} ${dict.common.mm}`
+                                        //         : labelText = `${item.inch} ″`; 
+                                        // }
+
+                                        if (categoryTitle.toLowerCase() === 'mountings' && item.mm) {
+                                            labelText = `${item.mm} ${dict.common.mm}`
+                                        }
 
                                         return (
                                             <FormControlLabel

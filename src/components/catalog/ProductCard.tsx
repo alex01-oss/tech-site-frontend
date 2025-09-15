@@ -143,7 +143,7 @@ export const ProductCard: React.FC<Props> = memo(({
                     {product.mounting && (
                         <ProductDetailRow
                             label={dict.catalog.card.fit}
-                            value={`${product.mounting.mm} ${dict.common.mm} / ${product.mounting.inch}″`}
+                            value={`${product.mounting.mm} ${dict.common.mm}`}
                         />
                     )}
                 </Stack>

@@ -32,7 +32,6 @@ export interface MachineDetail {
 
 export interface MountingDetail {
     mm: string;
-    inch: string;
 }
 
 export interface ProductDetailData {

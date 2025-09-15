@@ -2,7 +2,7 @@
 
 import {Box, CircularProgress, Typography, useMediaQuery, useTheme} from "@mui/material";
 import {useGridItemsPerPage} from "@/hooks/useGridItemsPerPage";
-import React, {useCallback, useEffect, useMemo, useRef} from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import {useCatalogStore} from "@/features/catalog/store";
 import {FilterFields, SearchFields} from "@/types/searchFields";
 import {FiltersPanel} from "@/components/catalog/FiltersPanel";

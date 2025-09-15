@@ -145,7 +145,7 @@
     "card": {
       "size": "SIZE",
       "bond": "BOND",
-      "grid": "GRID",
+      "grid": "GRIT",
       "fit": "FIT",
       "imageAlt": "Image of product {productName}"
     }
@@ -228,7 +228,7 @@
       "view": "View category",
       "titles": {
         "Grinding Wheels": "Grinding Wheels",
-        "Hybrid bounded wheels": "Hybrid bounded wheels"
+        "Hybrid bonded wheels": "Hybrid bonded wheels"
       }
     },
     "videos": {
